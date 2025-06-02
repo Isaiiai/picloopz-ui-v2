@@ -1,0 +1,88 @@
+import { Link } from 'react-router-dom';
+import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { useFavorites } from '../contexts/FavoritesContext';
+
+const FavoritesPage = () => {
+  const { favorites, removeFromFavorites, clearFavorites } = useFavorites();
+  
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 font-playfair">My Favorites</h1>
+      
+      {favorites.length > 0 ? (
+        <>
+          <div className="flex justify-between items-center mb-6">
+            <p className="text-gray-600">{favorites.length} {favorites.length === 1 ? 'item' : 'items'}</p>
+            <button 
+              onClick={clearFavorites}
+              className="text-red-500 flex items-center hover:text-red-700 transition-colors"
+            >
+              <Trash2 size={16} className="mr-1" />
+              Clear All
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {favorites.map(product => (
+              <div key={product.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                <div className="flex h-40 md:h-56">
+                  <div className="w-1/3 bg-gray-100">
+                    <Link to={`/product/${product.id}`}>
+                      <img 
+                        src={product.variants[0].imageUrl} 
+                        alt={product.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </Link>
+                  </div>
+                  
+                  <div className="w-2/3 p-4 flex flex-col">
+                    <Link to={`/product/${product.id}`} className="hover:text-purple-600 transition-colors">
+                      <h3 className="font-medium mb-1">{product.name}</h3>
+                    </Link>
+                    <p className="text-purple-600 font-medium">${product.variants[0].price.toFixed(2)}</p>
+                    <p className="text-gray-500 text-sm mb-3">Category: {product.category}</p>
+                    
+                    <div className="mt-auto flex flex-wrap gap-2">
+                      <Link 
+                        to={`/product/${product.id}`}
+                        className="flex-1 px-3 py-2 bg-purple-600 text-white text-sm rounded flex items-center justify-center hover:bg-purple-700 transition-colors"
+                      >
+                        <ShoppingCart size={16} className="mr-1" />
+                        View Details
+                      </Link>
+                      
+                      <button 
+                        onClick={() => removeFromFavorites(product.id)}
+                        className="px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded flex items-center justify-center hover:bg-gray-100 transition-colors"
+                        aria-label="Remove from favorites"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Heart size={32} className="text-gray-400" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Your favorites list is empty</h3>
+          <p className="text-gray-600 mb-6">Save items you love to your favorites list</p>
+          <Link 
+            to="/category/all" 
+            className="inline-block px-6 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
+          >
+            Start Shopping
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default FavoritesPage;

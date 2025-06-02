@@ -1,0 +1,435 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+1. Project Overview
+Picloopz aims to provide a specialized e-commerce experience for ordering personalized gift items. The platform will feature a dynamic landing page, advanced product navigation, image upload capabilities for customization, favorites and cart management, streamlined order processing, and administrative controls for content management.
+2. Main Screens and Flow
+2.1. Home Page (Landing Page)
+The homepage is designed to be visually engaging, emphasizing strong branding and a clear value proposition: transforming personal photos into customized digital artwork and gifts.
+Sections (in sequential flow):
+Category Section: A horizontal scrollable section displaying various categories like a, b, c, etc., allowing users to browse all available categories.
+Navigation Menu: Includes links to Home, How It Works, Gallery, Pricing, Contact, Latest Trends, and Favorites.
+Search Product: A search feature is available.
+Advertisement Slides: These appear after the category section and automatically skip one by one, showcasing the latest trending products. Each slide has a clickable skip button that links to the relevant product or category. Admins can add, update, or remove these advertisements. Clear call-to-action (CTA) buttons like "Get Started," "Order Now," or "See Samples" are included.
+Top Selling Items: This section highlights popular products. Clicking on a product redirects the user to its category page, where the clicked product is highlighted or displayed first. The category page also features a relevant advertisement or image at the top, followed by all products under that category.
+Trending Section: Displays currently popular items with a "View All" option.
+Client Images & Reviews: Showcases images from satisfied customers and short testimonials to build credibility.
+View Gallery: Redirects to a dedicated gallery page that showcases product samples, customer uploads, and design inspirations.
+Footer Section: Contains links to About, Policies, Contact Information, Social Links, and other navigation links.
+2.2. Product Category Page
+This page displays the clicked product at the top.Includes:
+A top banner (image or advertisement).
+A list or grid of all products within the selected category.
+Clicking on any product redirects to its Product Detail Page.
+2.3. Product Detail Page
+Sections include:
+Product Name.
+Variants: Displays different variants with corresponding images for each.
+Prices: Prices dynamically update based on the selected options.
+Upload Image: This is a mandatory step before proceeding to the cart or purchase. It allows users to preview the product with their uploaded image.
+Large Image View: Provides an enlarged view of the product.
+Product Description: A full description of the product.
+Customer Reviews Section: Users can upload images within their reviews (similar to Flipkart), and a "Read All Reviews" button is available.
+Related Products Section: Displays suggestions for similar products.
+Recently Viewed Products Section: Shows items the user has recently explored.
+Reel Showcase Part: If the admin has added reel links, they are displayed next to the product information with hyperlinks and CTAs.
+Product Engagement Section: Displays the number of users who have liked and ordered the product.
+Add to Cart/Buy Now Button: This button is disabled if the image upload is not completed.
+2.4. Favorites Page
+Accessible from the top bar.Features:
+Displays all favorite products.
+Each item shows its product image, subtotal (e.g., Rs. 2,045.00), and a quantity adjuster.
+Option to add to cart.
+Share options: Copy link and Share.
+"Buy it now" button. Checkout is prevented if image upload is not completed before clicking "Buy it now" or "Add to Cart".
+2.5. Cart Page
+Accessible only after image upload.Features:
+Shows a preview of the uploaded image.
+An itemized list with product name, quantity, and subtotal.
+Users must provide their address and contact details.
+Users can proceed to order only after all required fields and image upload are completed.
+2.6. Order Page (Checkout Flow)
+After clicking "Order":
+Redirects to the Payment Gateway (Razorpay only).
+Upon successful payment, redirects to the Order Confirmation Page.
+User Journey:
+Proceeds to checkout.
+Fills in shipping details (name, address, contact info).
+Selects delivery method (digital download, physical print, or both).
+Chooses payment option (Razorpay only).
+Reviews order summary and confirms payment.
+2.7. Order Tracking Page
+Requires user login. Users receive a confirmation message and/or email with order details and delivery estimate, along with a tracking link.
+Features:
+Displays the current status of orders: Pending, Confirmed, Ready, Out for Delivery.
+User options: Raise a query about a product, Request a call, Contact support via chat.
+Chat System: Always visible on screen for real-time messaging.
+Delivery:
+Upon completion, the final artwork is delivered.
+Digital: A download link is sent via email or available in the user account.
+Physical: Shipped to the provided address with tracking.
+Users receive notifications of dispatch/delivery.
+2.8. Order Confirmation Page
+Displays a confirmation message, order ID, and a summary of the order.
+2.9. Pre-Delivery Confirmation Screen
+Purpose: To ensure the client approves the final design (e.g., framed image, digital artwork preview) before it is sent for physical printing or delivery.
+Components:
+Displays the prepared product preview.
+Order ID and other relevant order details.
+Call-to-action buttons: "Approve for Printing" or "Request Change" (with optional notes).
+Flow Description:
+Step
+User/Admin Action
+System Response / Outcome
+1
+User uploads the image and completes the payment
+Redirected to the Order Status Page
+2
+Status Page shows Current Order Details (Status: Pending / In Process)
+Displays: Product Name, Uploaded Image, Order ID, Payment Info, Current Status
+3
+Admin prepares the product preview (e.g., final framed version or digital render)
+Admin uploads the preview image or PDF to the order's backend entry
+4
+System sends a confirmation message to the client (via email or in-whatsapp notification)
+Message includes: Preview Image, Order ID, and CTA to approve or request changes
+5
+Client reviews the design and selects either: - “Approve for Printing” - “Request Change” (with optional notes)
+
+
+6
+Once the client clicks “Approve for Printing”, the order status updates to Confirmed
+Admin is notified; product moves to production/dispatch stage
+7
+If the client requests a change, admin receives the feedback and revises the preview accordingly
+New version is uploaded; the process loops until final approval is received
+
+2.10. Post-Delivery Experience
+Users are invited to leave a review.
+Option to share artwork on social media (with watermark).
+Customer support is available.
+2.11. User Account Dashboard
+Order History.
+Download Center (for digital products).
+Loyalty or referral program information.
+Live chat support.
+FAQ and Help Center.
+2.12. Gallery Page
+Showcases product samples, customer uploads, and design inspirations.
+3. Core Functional Rules
+Image Upload Requirement: Users must upload an image before adding to cart or buying now. The system should restrict checkout if image upload is not completed.
+Login Requirement: Required to view order status, request calls or queries, and access chat.
+Favorites Functionality: Users can mark items as favorites, accessible through a dedicated "Favorites" section.
+4. Admin Panel (Summary for Future Reference)
+The admin panel provides comprehensive control over the platform.
+Advertisement Management: Add, update, or delete advertisement slides, assign target links to products or categories.
+Category Management: Create, edit, and delete categories, including names, images, and display order.
+Product Management: Add new products, define attributes (e.g., Faces, Sizes, Product Types), upload images, set prices for variations, and control product visibility.
+Image & Banner Upload: Upload high-resolution images for products, homepage banners, category page banners, and advertisements.
+Reels & Promotional Videos: Upload and schedule promotional reels for the homepage or product pages.
+Order Management: View all orders, track by status (Pending, Confirmed, Ready, Out for Delivery, Delivered), update statuses, view uploaded customer images, and generate reports.
+User Review Moderation: View, approve, remove, and feature customer reviews, including moderation of uploaded images.
+Gallery & Client Image Management: Upload and manage real customer images with testimonials in the “Clients Images & Reviews” section, tagging by product or occasion.
+Favorites Monitoring: Track favorite product data for promotional targeting or recommendations.
+Customer Support / Query Tracking: View and assign user queries, manage real-time chat features, and review call requests.
+Checkout Control: Enforce rules like mandatory image upload before purchase and configure alerts for incomplete orders.
+Inventory & Availability Control: Mark products as out-of-stock or limited availability and update stock based on sales.
+System Visibility Control: Turn on/off sections such as “Trending Now,” “Recently Viewed,” “Top Selling,” and “Gallery”.
+Footer & Static Content: Edit About Us, Policies, FAQs, Contact Details, and manage social links.
+
+Technical Documentation: Picloopz E-commerce Platform
+1. API Endpoints
+This section outlines the RESTful API endpoints for the Picloopz platform. All APIs should use JSON for request and response bodies and appropriate HTTP status codes.
+1.1. Authentication & User Management
+POST /api/auth/register
+Description: User registration.
+Request Body: { "email": "user@example.com", "password": "secure_password", "name": "John Doe", "phone": "+919876543210" }
+Response: { "message": "User registered successfully", "userId": "uuid" }
+POST /api/auth/login
+Description: User login.
+Request Body: { "email": "user@example.com", "password": "secure_password" }
+Response: { "message": "Login successful", "token": "jwt_token", "userId": "uuid" }
+GET /api/user/profile
+Description: Get logged-in user's profile. (Requires Authentication Header)
+Response: { "userId": "uuid", "name": "John Doe", "email": "user@example.com", "phone": "+919876543210", ... }
+PUT /api/user/profile
+Description: Update logged-in user's profile. (Requires Authentication Header)
+Request Body: { "name": "Jane Doe", "phone": "+919988776655" }
+Response: { "message": "Profile updated successfully" }
+1.2. Product & Category Management
+GET /api/categories
+Description: Get all product categories.
+Response: [ { "id": "uuid", "name": "Category A", "imageUrl": "url_to_image" }, ... ]
+GET /api/products/trending
+Description: Get trending products.
+Response: [ { "id": "uuid", "name": "Product X", "price": 1000, "imageUrl": "url" }, ... ]
+GET /api/products/top-selling
+Description: Get top-selling products.
+Response: [ { "id": "uuid", "name": "Product Y", "price": 1500, "imageUrl": "url" }, ... ]
+GET /api/products/category/{categoryId}
+Description: Get products by category.
+Response: [ { "id": "uuid", "name": "Product Z", "price": 2000, "imageUrl": "url" }, ... ]
+GET /api/products/{productId}
+Description: Get product details by ID.
+Response: { "id": "uuid", "name": "Product Name", "description": "Full description", "variants": [ { "id": "uuid", "name": "Size A", "price": 1000, "imageUrl": "url" }, ... ], "similarProducts": [...], "recentlyViewed": [...] }
+POST /api/products/{productId}/view
+Description: Track product views for "Recently Viewed Products". (No request body needed)
+Response: { "message": "Product view tracked" }
+1.3. Image Upload & Customization
+POST /api/upload/image
+Description: Upload image for product customization. (Before adding to cart/purchase)
+Request Body: Multipart Form Data (file upload)
+Response: { "imageUrl": "url_of_uploaded_image" }
+1.4. Favorites Management
+GET /api/favorites
+Description: Get user's favorite products. (Requires Authentication Header)
+Response: [ { "productId": "uuid", "productName": "Product A", "imageUrl": "url", "subtotal": 2045.00, "quantity": 1 }, ... ]
+POST /api/favorites/{productId}
+Description: Add a product to favorites. (Requires Authentication Header)
+Response: { "message": "Product added to favorites" }
+DELETE /api/favorites/{productId}
+Description: Remove a product from favorites. (Requires Authentication Header)
+Response: { "message": "Product removed from favorites" }
+1.5. Cart Management
+GET /api/cart
+Description: Get user's cart contents. (Requires Authentication Header)
+Response: { "items": [ { "productId": "uuid", "productName": "Product A", "quantity": 1, "subtotal": 1000, "uploadedImageUrl": "url" }, ... ], "total": 2500 }
+POST /api/cart/add
+Description: Add an item to the cart. (Requires Authentication Header)
+Request Body: { "productId": "uuid", "variantId": "uuid", "quantity": 1, "uploadedImageUrl": "url_of_customized_image" }
+Response: { "message": "Item added to cart" }
+PUT /api/cart/update
+Description: Update item quantity in cart. (Requires Authentication Header)
+Request Body: { "productId": "uuid", "quantity": 2 }
+Response: { "message": "Cart updated" }
+DELETE /api/cart/remove/{productId}
+Description: Remove an item from cart. (Requires Authentication Header)
+Response: { "message": "Item removed from cart" }
+1.6. Order Processing
+POST /api/orders
+Description: Place a new order. (Requires Authentication Header)
+Request Body: { "shippingAddress": { "name": "John Doe", "addressLine1": "123 Main St", "city": "City", "state": "State", "zipCode": "12345", "phone": "+919876543210" }, "deliveryMethod": "physical", // "digital", "both"
+ "paymentMethod": "razorpay" }
+Response: { "message": "Order initiated", "orderId": "uuid", "razorpayPaymentUrl": "url_to_payment_gateway" }
+POST /api/orders/{orderId}/payment/callback
+Description: Callback endpoint from Razorpay after payment. (Razorpay will send data here)
+Response: { "message": "Payment successful", "orderId": "uuid" }
+GET /api/orders
+Description: Get user's order history. (Requires Authentication Header)
+Response: [ { "orderId": "uuid", "status": "Pending", "orderDate": "YYYY-MM-DD", "totalAmount": 2500, "items": [...] }, ... ]
+GET /api/orders/{orderId}
+Description: Get details of a specific order. (Requires Authentication Header)
+Response: { "orderId": "uuid", "status": "Pending", "productName": "Product A", "uploadedImage": "url", "orderDate": "YYYY-MM-DD", "paymentInfo": {...}, "currentStatus": "Pending", "trackingLink": "url" }
+1.7. Order Pre-Delivery Confirmation
+POST /api/orders/{orderId}/approve-design
+Description: User approves the final design preview. (Requires Authentication Header)
+Request Body: { "approved": true }
+Response: { "message": "Design approved for printing" }
+POST /api/orders/{orderId}/request-change
+Description: User requests changes to the final design preview. (Requires Authentication Header)
+Request Body: { "notes": "Please make the photo brighter." }
+Response: { "message": "Change request submitted" }
+1.8. Reviews & Feedback
+POST /api/products/{productId}/reviews
+Description: Submit a product review. (Requires Authentication Header)
+Request Body: { "rating": 5, "comment": "Great product!", "imageUrl": "url_of_review_image" }
+Response: { "message": "Review submitted successfully" }
+GET /api/products/{productId}/reviews
+Description: Get reviews for a specific product.
+Response: [ { "reviewId": "uuid", "userName": "User A", "rating": 5, "comment": "Amazing!", "imageUrl": "url", "date": "YYYY-MM-DD" }, ... ]
+1.9. Customer Support
+POST /api/support/query
+Description: Raise a query about a product/order. (Requires Authentication Header)
+Request Body: { "orderId": "uuid", "subject": "Issue with delivery", "message": "My order has not arrived yet." }
+Response: { "message": "Query submitted", "queryId": "uuid" }
+POST /api/support/request-call
+Description: Request a call from support. (Requires Authentication Header)
+Request Body: { "orderId": "uuid", "preferredTime": "HH:MM", "topic": "Delivery Update" }
+Response: { "message": "Call request submitted" }
+GET /api/chat/messages/{orderId}
+Description: Get chat history for a specific order. (Requires Authentication Header)
+Response: [ { "sender": "user/admin", "message": "Hello", "timestamp": "ISO_DATE_TIME" }, ... ]
+POST /api/chat/messages/{orderId}
+Description: Send a chat message for an order. (Requires Authentication Header)
+Request Body: { "message": "Hi, checking status." }
+Response: { "message": "Message sent" }
+1.10. Admin APIs (Summary for Future Reference)
+POST /api/admin/advertisements
+Description: Add/Update advertisements.
+PUT /api/admin/advertisements/{adId}
+Description: Edit advertisement.
+DELETE /api/admin/advertisements/{adId}
+Description: Delete advertisement.
+POST /api/admin/categories
+Description: Create categories.
+PUT /api/admin/categories/{categoryId}
+Description: Edit category details.
+DELETE /api/admin/categories/{categoryId}
+Description: Delete categories.
+POST /api/admin/products
+Description: Add new products with variants.
+PUT /api/admin/products/{productId}
+Description: Update product details.
+DELETE /api/admin/products/{productId}
+Description: Delete products.
+PUT /api/admin/orders/{orderId}/status
+Description: Update order status (Pending, Confirmed, Ready, Out for Delivery, Delivered).
+GET /api/admin/orders
+Description: View all orders.
+GET /api/admin/products/{productId}/engagement
+Description: View product engagement metrics (likes, orders).
+POST /api/admin/reviews/{reviewId}/moderate
+Description: Approve or remove user reviews.
+PUT /api/admin/settings/visibility
+Description: Control visibility of sections like "Trending Now", "Recently Viewed", etc.
+
+2. Database Schema (Conceptual)
+This section provides a conceptual overview of the database tables and their relationships.
+2.1. Users Table
+user_id (Primary Key, UUID)
+email (Unique, String)
+password_hash (String)
+name (String)
+phone_number (String)
+created_at (Timestamp)
+updated_at (Timestamp)
+2.2. Categories Table
+category_id (Primary Key, UUID)
+name (String)
+image_url (String)
+display_order (Integer)
+2.3. Products Table
+product_id (Primary Key, UUID)
+category_id (Foreign Key to Categories.category_id)
+name (String)
+description (Text)
+base_price (Decimal)
+is_active (Boolean)
+created_at (Timestamp)
+updated_at (Timestamp)
+2.4. ProductVariants Table
+variant_id (Primary Key, UUID)
+product_id (Foreign Key to Products.product_id)
+name (String, e.g., "Size A", "Frame Color Black")
+additional_price (Decimal, added to base_price)
+image_url (String, image for this variant)
+attribute_type (String, e.g., "Size", "Frame Color")
+2.5. Advertisements Table
+ad_id (Primary Key, UUID)
+title (String)
+image_url (String)
+target_link (String)
+start_date (Timestamp)
+end_date (Timestamp)
+is_active (Boolean)
+2.6. UserFavorites Table
+favorite_id (Primary Key, UUID)
+user_id (Foreign Key to Users.user_id)
+product_id (Foreign Key to Products.product_id)
+added_at (Timestamp)
+2.7. Carts Table
+cart_id (Primary Key, UUID)
+user_id (Foreign Key to Users.user_id)
+created_at (Timestamp)
+updated_at (Timestamp)
+2.8. CartItems Table
+cart_item_id (Primary Key, UUID)
+cart_id (Foreign Key to Carts.cart_id)
+product_id (Foreign Key to Products.product_id)
+variant_id (Foreign Key to ProductVariants.variant_id, Nullable if no variant selected)
+quantity (Integer)
+uploaded_image_url (String, URL of the user's customized image)
+price_at_addition (Decimal, price of item at time of adding to cart)
+2.9. Orders Table
+order_id (Primary Key, UUID)
+user_id (Foreign Key to Users.user_id)
+order_date (Timestamp)
+total_amount (Decimal)
+status (Enum: 'Pending', 'Confirmed', 'Ready', 'Out for Delivery', 'Delivered', 'Cancelled')
+delivery_method (Enum: 'digital', 'physical', 'both')
+payment_status (Enum: 'Pending', 'Paid', 'Failed')
+razorpay_payment_id (String, from Razorpay)
+tracking_number (String, for physical delivery)
+tracking_link (String)
+pre_delivery_status (Enum: 'Pending Approval', 'Approved', 'Change Requested')
+created_at (Timestamp)
+updated_at (Timestamp)
+2.10. OrderItems Table
+order_item_id (Primary Key, UUID)
+order_id (Foreign Key to Orders.order_id)
+product_id (Foreign Key to Products.product_id)
+variant_id (Foreign Key to ProductVariants.variant_id, Nullable)
+quantity (Integer)
+unit_price (Decimal)
+uploaded_image_url (String, URL of the user's customized image for this specific order item)
+2
+.11. ShippingAddresses Table
+address_id (Primary Key, UUID)
+user_id (Foreign Key to Users.user_id)
+name (String)
+address_line1 (String)
+address_line2 (String, Nullable)
+city (String)
+state (String)
+zip_code (String)
+phone_number (String)
+is_default (Boolean)
+2.12. ProductReviews Table
+review_id (Primary Key, UUID)
+product_id (Foreign Key to Products.product_id)
+user_id (Foreign Key to Users.user_id)
+rating (Integer, 1-5)
+comment (Text)
+image_url (String, URL of image uploaded in review, Nullable)
+created_at (Timestamp)
+is_approved (Boolean, for admin moderation)
+2.13. DesignPreviews Table
+preview_id (Primary Key, UUID)
+order_id (Foreign Key to Orders.order_id)
+image_url (String, URL of the admin-generated preview)
+admin_notes (Text, Nullable)
+created_at (Timestamp)
+2.14. PreDeliveryConfirmations Table
+confirmation_id (Primary Key, UUID)
+order_id (Foreign Key to Orders.order_id)
+design_preview_id (Foreign Key to DesignPreviews.preview_id)
+user_action (Enum: 'Approve', 'Request Change')
+user_notes (Text, Nullable)
+action_date (Timestamp)
+2.15. SupportQueries Table
+query_id (Primary Key, UUID)
+user_id (Foreign Key to Users.user_id)
+order_id (Foreign Key to Orders.order_id, Nullable)
+subject (String)
+message (Text)
+status (Enum: 'Open', 'In Progress', 'Closed')
+created_at (Timestamp)
+resolved_at (Timestamp, Nullable)
+2.16. ChatMessages Table
+message_id (Primary Key, UUID)
+order_id (Foreign Key to Orders.order_id)
+sender_id (Foreign Key to Users.user_id or Admin ID, distinguish sender type)
+message_text (Text)
+timestamp (Timestamp)
+is_read (Boolean)
+2.17. Reels Table
+reel_id (Primary Key, UUID)
+title (String)
+video_url (String)
+hyperlink_cta (String)
+display_on_homepage (Boolean)
+display_on_product_page (Boolean)
+product_id (Foreign Key to Products.product_id, Nullable)
+2.18. GalleryItems Table
+gallery_item_id (Primary Key, UUID)
+image_url (String)
+description (Text, Nullable)
+tag (String, e.g., "Customer Upload", "Design Inspiration")
+is_featured (Boolean)
+2.19. Settings Table (for Admin Controls)
+setting_key (Primary Key, String, e.g., 'trending_section_visibility', 'footer_about_content')
+setting_value (Text)
+
+
