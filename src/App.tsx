@@ -12,6 +12,9 @@ import OrderTrackingPage from './pages/OrderTrackingPage';
 import ProfilePage from './pages/ProfilePage';
 import GalleryPage from './pages/GalleryPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AboutUsPage from './pages/AboutUsPage';
+import ContactPage from './pages/ContactPage';
+import FAQPage from './pages/FAQPage';
 import { CartProvider } from './contexts/CartContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -46,6 +49,9 @@ export function App() {
                     <Route path="account/orders/:orderId" element={<OrderTrackingPage />} />
                     <Route path="account" element={<ProfilePage />} />
                     <Route path="gallery" element={<GalleryPage />} />
+                    <Route path="about" element={<AboutUsPage />} />
+                    <Route path="contact" element={<ContactPage />} />
+                    <Route path="faq" element={<FAQPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Route>
                 </Routes>

@@ -45,7 +45,9 @@ const Header = () => {
             <Link to="/" className="font-medium hover:text-terracotta-600 transition-colors">Home</Link>
             <Link to="/category/all" className="font-medium hover:text-terracotta-600 transition-colors">Shop</Link>
             <Link to="/gallery" className="font-medium hover:text-terracotta-600 transition-colors">Gallery</Link>
-            <Link to="/how-it-works" className="font-medium hover:text-terracotta-600 transition-colors">How It Works</Link>
+           
+            <Link to="/about" className="font-medium hover:text-terracotta-600 transition-colors">About</Link>
+          
           </nav>
 
           {/* Icons */}
@@ -142,6 +144,9 @@ const Header = () => {
             <Link to="/category/all" className="py-2 border-b border-gray-100">Shop</Link>
             <Link to="/gallery" className="py-2 border-b border-gray-100">Gallery</Link>
             <Link to="/how-it-works" className="py-2 border-b border-gray-100">How It Works</Link>
+            <Link to="/about" className="py-2 border-b border-gray-100">About</Link>
+            <Link to="/contact" className="py-2 border-b border-gray-100">Contact</Link>
+            <Link to="/faq" className="py-2 border-b border-gray-100">FAQ</Link>
             {isAuthenticated ? (
               <Link to="/account" className="py-2 border-b border-gray-100">My Account</Link>
             ) : (
