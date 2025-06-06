@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Camera, CreditCard, Pen, Heart, House, LogOut, Mail, MapPin, Package, Phone, Save, User } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../features/auth/authHooks';
 import { useOrders } from '../contexts/OrderContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import toast from 'react-hot-toast';

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import CategoryPage from './pages/CategoryPage';
@@ -16,9 +16,17 @@ import { CartProvider } from './contexts/CartContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { OrderProvider } from './contexts/OrderContext';
+import { useDispatch } from 'react-redux';
+import { verifyToken } from './features/auth/authSlice';
 import './index.css';
+import { selectAuthStatus } from './features/auth/authSelectors';
+import { useAppSelector } from './utils/hooks';
 
 export function App() {
+
+  const dispatch = useDispatch();
+  const hasVerified = useRef(false);
+  const status = useAppSelector(selectAuthStatus)
   useEffect(() => {
     // Load Google Fonts
     const link = document.createElement('link');
@@ -26,10 +34,22 @@ export function App() {
     link.rel = 'stylesheet';
     document.head.appendChild(link);
   }, []);
+  
+  
+
+  useEffect(() => {
+    if (!hasVerified.current && status === 'idle') {
+      hasVerified.current = true;
+      dispatch(verifyToken());
+    }
+  }, [ status, dispatch]);
+
 
   return (
     <Router>
+      
       <AuthProvider>
+        
         <CartProvider>
           <FavoritesProvider>
             <OrderProvider>
@@ -54,6 +74,7 @@ export function App() {
           </FavoritesProvider>
         </CartProvider>
       </AuthProvider>
+
     </Router>
   );
 }

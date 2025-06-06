@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, User, X } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { useAuth } from '../features/auth/authHooks';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -85,27 +85,21 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     return isValid;
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
     try {
       if (isLoginMode) {
-        const success = await login(formData.email, formData.password);
-        if (success) {
-          toast.success('Logged in successfully!');
-          onClose();
-        }
+        await login(formData.email, formData.password);
+        onClose();
       } else {
-        const success = await register(formData.name, formData.email, formData.password);
-        if (success) {
-          toast.success('Account created successfully!');
-          onClose();
-        }
+        await register(formData.name, formData.email, formData.password);
+        onClose();
       }
     } catch (error) {
-      toast.error('Something went wrong. Please try again.');
+      toast.error(error?.toString() || 'Something went wrong. Please try again.');
     }
   };
   

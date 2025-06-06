@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Heart, Menu, Search, ShoppingCart, User, X } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useFavorites } from '../contexts/FavoritesContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../features/auth/authHooks';
 import LoginModal from './LoginModal';
 
 const Header = () => {
