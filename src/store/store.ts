@@ -3,11 +3,17 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import authReducer, { clearAuthState } from '../features/auth/authSlice';
 import cartReducer from '../features/cart/cartSlice';
+import categoryReducer from '../features/category/categorySlice';
+import productReducer from '../features/product/productSlice'
 import { configureApi } from '../config/axiosConfig';
+import { ThunkAction, Action } from '@reduxjs/toolkit';
+
 
 const rootReducer = combineReducers({
   auth: authReducer,
   cart: cartReducer,
+  product: productReducer,
+  category: categoryReducer,
 });
 
 const persistConfig = {
@@ -32,3 +38,4 @@ configureApi(
 export const persistor = persistStore(store);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export type AppThunk = ThunkAction<void, RootState, null, Action<string>>;

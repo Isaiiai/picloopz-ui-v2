@@ -64,10 +64,6 @@ export const loginUser = createAsyncThunk<AuthResponse, { email: string; passwor
   }
 );
 
-// Logout
-export const logoutUser = createAsyncThunk<void>('auth/logout', async () => {
-  await api.post('/auth/logout');
-});
 
 // Verify Token
 export const verifyToken = createAsyncThunk<
@@ -144,11 +140,6 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.error = payload || 'Login failed';
         toast.error(payload || 'Invalid email or password');
-      })
-
-      .addCase(logoutUser.fulfilled, () => {
-        toast.success('Logged out successfully');
-        return initialState;
       })
 
       .addCase(verifyToken.pending, (state) => {

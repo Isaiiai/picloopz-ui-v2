@@ -1,22 +1,31 @@
-export interface VariantInfo {
-  name: string;
-  price: number;
-  imageUrl: string;
-}
-
 export interface CartItem {
-  _id: string;
+  id: string;
   productId: string;
-  name: string;
+  productName: string;
+  productImage?: string;
+  variantId?: string;
+  variantName?: string;
   quantity: number;
-  price: number;
-  variantId: string;
-  uploadedImage: string;
-  variantInfo: VariantInfo;
+  unitPrice: number;
+  totalPrice: number;
+  addedAt: string;
 }
 
 export interface CartState {
-  cartItems: CartItem[];
+  items: CartItem[];
+  totalItems: number;
+  totalAmount: number;
   loading: boolean;
   error: string | null;
+}
+
+export interface AddToCartPayload {
+  productId: string;
+  variantId?: string;
+  quantity: number;
+}
+
+export interface UpdateCartItemPayload {
+  itemId: string;
+  quantity: number;
 }

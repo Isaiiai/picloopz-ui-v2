@@ -1,8 +1,8 @@
 import {
   registerUser,
   loginUser,
-  logoutUser,
   verifyToken,
+  clearAuthState,
 } from './authSlice';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks';
 
@@ -30,7 +30,7 @@ export const useAuth = () => {
       dispatch(registerUser({ name, email, password, phone })),
     login: (email: string, password: string) =>
       dispatch(loginUser({ email, password })),
-    logout: () => dispatch(logoutUser()),
+    logout: () => dispatch(clearAuthState()),
     verify: () => dispatch(verifyToken()),
   };
 };

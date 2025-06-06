@@ -6,8 +6,10 @@ import { useFavorites } from '../contexts/FavoritesContext';
 interface Product {
   id: number;
   name: string;
+  basePrice: number;
   description: string;
   variants: Array<{
+    additionalPrice: number;
     name: string;
     price: number;
     imageUrl: string;
@@ -95,7 +97,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         
         <div className="mt-1 flex justify-between items-center">
           <span className="text-terracotta-600 font-medium">
-            {formatPrice(product.variants[0].price)}
+            {formatPrice(product.basePrice + product.variants[0].additionalPrice)}
           </span>
           
           <div className="flex items-center">

@@ -4,18 +4,29 @@ import { ChevronRight, Heart, Share2, ShoppingCart, Star, Upload, Camera, Check,
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '../features/cart/useCart';
 import { useFavorites } from '../contexts/FavoritesContext';
-import { mockProducts, mockReviews, type Review } from '../data/mockData';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '../store/store';
+import { 
+  selectCurrentProduct, 
+  selectProductLoading,
+  selectCategoryInfo,
+  selectCategoryProducts
+} from '../features/product/productSelectors';
+import { getProductById, getProductsByCategory } from '../features/product/productThunks';
+import { clearCurrentProduct } from '../features/product/productSlice';
 
 const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();
+  const dispatch = useDispatch<AppDispatch>();
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorites();
   
-  // Find the product from mock data
-  const product = mockProducts.find(p => p.id === Number(productId));
-  const productReviews = mockReviews[Number(productId)] || [];
+  const product = useSelector(selectCurrentProduct);
+  const loading = useSelector(selectProductLoading);
+  const categoryInfo = useSelector(selectCategoryInfo);
+  const relatedProducts = useSelector(selectCategoryProducts);
   
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -31,13 +42,27 @@ const ProductDetailPage = () => {
     images: [] as string[]
   });
   
-  // Handle redirecting if product not found
+  // Fetch product and related products
   useEffect(() => {
-    if (!product && productId) {
-      toast.error('Product not found');
+    if (productId) {
+      dispatch(getProductById(productId));
     }
-  }, [product, productId]);
-  
+
+    return () => {
+      dispatch(clearCurrentProduct());
+    };
+  }, [dispatch, productId]);
+
+  // Fetch related products when product is loaded
+  useEffect(() => {
+    if (product?.categoryId) {
+      dispatch(getProductsByCategory({
+        categoryId: product.categoryId,
+        params: { limit: 4, exclude: product.id }
+      }));
+    }
+  }, [dispatch, product?.categoryId, product?.id]);
+
   // Dropzone configuration for image upload
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -86,11 +111,9 @@ const ProductDetailPage = () => {
     
     if (product) {
       addToCart({
-        ...product,
-        selectedVariant,
-        quantity,
-        uploadedImage,
-        price: product.variants[selectedVariant].price
+        productId: product.id,
+        variantId: product.variants[selectedVariant].id,
+        quantity: quantity,
       });
       toast.success('Added to cart!');
     }
@@ -122,13 +145,27 @@ const ProductDetailPage = () => {
 
   // Collect all review images for gallery
   useEffect(() => {
-    const allImages: string[] = [];
-    productReviews.forEach((review: Review) => {
-      allImages.push(...review.images);
-    });
-    setReviewImages(allImages);
-  }, [productReviews]);
-  
+    if (product?.reviews) {
+      const allImages: string[] = [];
+      product.reviews.forEach((review) => {
+        allImages.push(...review.images);
+      });
+      setReviewImages(allImages);
+    }
+  }, [product?.reviews]);
+
+  // If loading
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
   // If product not found
   if (!product) {
     return (
@@ -141,11 +178,6 @@ const ProductDetailPage = () => {
       </div>
     );
   }
-  
-  // Get related products
-  const relatedProducts = mockProducts
-    .filter(p => p.categoryId === product.categoryId && p.id !== product.id)
-    .slice(0, 4);
 
   return (
     <div className="bg-cream-50 min-h-screen">
@@ -155,7 +187,7 @@ const ProductDetailPage = () => {
           <Link to="/" className="hover:text-terracotta-600 transition-colors">Home</Link>
           <ChevronRight size={16} className="mx-2" />
           <Link to={`/category/${product.categoryId}`} className="hover:text-terracotta-600 transition-colors">
-            {product.category}
+            {categoryInfo?.name || 'Category'}
           </Link>
           <ChevronRight size={16} className="mx-2" />
           <span className="text-gray-700 font-medium">{product.name}</span>
@@ -234,7 +266,7 @@ const ProductDetailPage = () => {
             className="bg-white rounded-2xl p-8 shadow-lg h-fit"
           >
             <div className="flex flex-wrap gap-2 mb-4">
-              {product.tags.map((tag, index) => (
+              {product.tags?.map((tag, index) => (
                 <span key={index} className="px-3 py-1 bg-terracotta-50 text-terracotta-700 text-xs font-medium rounded-full">
                   {tag}
                 </span>
@@ -253,19 +285,19 @@ const ProductDetailPage = () => {
                   />
                 ))}
               </div>
-              <span className="text-lg font-medium text-gray-900">{product.rating}</span>
+              <span className="text-lg font-medium text-gray-900">{product.rating.toFixed(1)}</span>
               <span className="text-gray-500 mx-2">•</span>
               <span className="text-gray-600">
                 {product.reviewCount} reviews
               </span>
               <span className="text-gray-500 mx-2">•</span>
               <span className="text-gray-600">
-                {product.soldCount} sold
+                {product.orderCount} sold
               </span>
             </div>
             
             <div className="text-3xl font-bold text-terracotta-600 mb-8">
-              ${product.variants[selectedVariant].price.toFixed(2)}
+              ${(product.basePrice+product.variants[selectedVariant].additionalPrice).toFixed(2)}
             </div>
             
             <div className="mb-8">
@@ -282,7 +314,7 @@ const ProductDetailPage = () => {
                     }`}
                   >
                     <div className="font-medium">{variant.name}</div>
-                    <div className="text-sm opacity-75">${variant.price.toFixed(2)}</div>
+                    <div className="text-sm opacity-75">${(product.basePrice+variant.additionalPrice).toFixed(2)}</div>
                   </button>
                 ))}
               </div>
@@ -489,29 +521,19 @@ const ProductDetailPage = () => {
                     </div>
                     <div className="flex justify-between py-2">
                       <dt className="font-medium text-gray-700">Shipping:</dt>
-                      <dd className="text-gray-600">{product.shipping}</dd>
+                      <dd className="text-gray-600">{product.shippingInfo}</dd>
                     </div>
                   </dl>
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-4 text-gray-900">Care Instructions</h3>
                   <ul className="space-y-2 text-gray-600">
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 bg-terracotta-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Handle with care to maintain quality
-                    </li>
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 bg-terracotta-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Clean gently with appropriate materials
-                    </li>
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 bg-terracotta-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Store in a safe, dry place when not displayed
-                    </li>
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 bg-terracotta-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Avoid direct sunlight for extended periods
-                    </li>
+                    {product.careInstructions?.map((instruction, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="w-2 h-2 bg-terracotta-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        {instruction}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -532,7 +554,7 @@ const ProductDetailPage = () => {
                           />
                         ))}
                       </div>
-                      <span className="text-xl font-semibold text-gray-900">{product.rating}</span>
+                      <span className="text-xl font-semibold text-gray-900">{product.rating.toFixed(1)}</span>
                       <span className="text-gray-500 ml-2">based on {product.reviewCount} reviews</span>
                     </div>
                   </div>
@@ -644,71 +666,85 @@ const ProductDetailPage = () => {
                 </AnimatePresence>
 
                 {/* Reviews List */}
-                <div className="space-y-6">
-                  {productReviews.map((review: Review) => (
-                    <div key={review.id} className="border border-cream-200 rounded-xl p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center">
-                          <img 
-                            src={review.userAvatar} 
-                            alt={review.userName}
-                            className="w-12 h-12 rounded-full object-cover mr-4"
-                          />
-                          <div>
-                            <div className="flex items-center">
-                              <h4 className="font-semibold text-gray-900">{review.userName}</h4>
-                              {review.verified && (
-                                <Verified size={16} className="text-blue-500 ml-2" />
-                              )}
-                            </div>
-                            <div className="flex items-center mt-1">
-                              <div className="flex mr-2">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star 
-                                    key={i} 
-                                    size={14} 
-                                    className={i < review.rating ? 'text-amber-400 fill-current' : 'text-gray-300'} 
-                                  />
-                                ))}
+                {product.reviews && product.reviews.length > 0 ? (
+                  <div className="space-y-6">
+                    {product.reviews.map((review) => (
+                      <div key={review.id} className="border border-cream-200 rounded-xl p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center">
+                            <img 
+                              src={review.user.avatar} 
+                              alt={review.user.name}
+                              className="w-12 h-12 rounded-full object-cover mr-4"
+                            />
+                            <div>
+                              <div className="flex items-center">
+                                <h4 className="font-semibold text-gray-900">{review.user.name}</h4>
+                                {review.isVerified && (
+                                  <Verified size={16} className="text-blue-500 ml-2" />
+                                )}
                               </div>
-                              <span className="text-sm text-gray-500">{review.date}</span>
+                              <div className="flex items-center mt-1">
+                                <div className="flex mr-2">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star 
+                                      key={i} 
+                                      size={14} 
+                                      className={i < review.rating ? 'text-amber-400 fill-current' : 'text-gray-300'} 
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-gray-500">{new Date(review.date).toLocaleDateString()}</span>
+                              </div>
                             </div>
                           </div>
+                          <button className="text-gray-400 hover:text-gray-600">
+                            <MoreHorizontal size={20} />
+                          </button>
                         </div>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <MoreHorizontal size={20} />
-                        </button>
-                      </div>
-                      
-                      <p className="text-gray-700 mb-4 leading-relaxed">{review.comment}</p>
-                      
-                      {review.images.length > 0 && (
-                        <div className="grid grid-cols-4 gap-3 mb-4">
-                          {review.images.map((image, index) => (
-                            <img 
-                              key={index}
-                              src={image} 
-                              alt={`Review image ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                              onClick={() => {
-                                setSelectedImageIndex(index);
-                                setShowImageModal(true);
-                              }}
-                            />
-                          ))}
+                        
+                        <p className="text-gray-700 mb-4 leading-relaxed">{review.comment}</p>
+                        
+                        {review.images.length > 0 && (
+                          <div className="grid grid-cols-4 gap-3 mb-4">
+                            {review.images.map((image, index) => (
+                              <img 
+                                key={index}
+                                src={image} 
+                                alt={`Review image ${index + 1}`}
+                                className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => {
+                                  setSelectedImageIndex(index);
+                                  setShowImageModal(true);
+                                }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between pt-4 border-t border-cream-100">
+                          <button className="flex items-center text-gray-500 hover:text-terracotta-600 transition-colors">
+                            <ThumbsUp size={16} className="mr-2" />
+                            Helpful
+                          </button>
+                          {review.isVerifiedPurchase && (
+                            <span className="text-xs text-gray-400">Verified Purchase</span>
+                          )}
                         </div>
-                      )}
-                      
-                      <div className="flex items-center justify-between pt-4 border-t border-cream-100">
-                        <button className="flex items-center text-gray-500 hover:text-terracotta-600 transition-colors">
-                          <ThumbsUp size={16} className="mr-2" />
-                          Helpful
-                        </button>
-                        <span className="text-xs text-gray-400">Verified Purchase</span>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 mb-6">No reviews yet. Be the first to review this product!</p>
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
+                    >
+                      Write a Review
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -749,7 +785,7 @@ const ProductDetailPage = () => {
                         alt={related.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      {related.trending && (
+                      {related.isTrending && (
                         <span className="absolute top-3 left-3 px-2 py-1 bg-terracotta-500 text-white text-xs font-medium rounded-full">
                           Trending
                         </span>
@@ -765,7 +801,7 @@ const ProductDetailPage = () => {
                         </p>
                         <div className="flex items-center">
                           <Star size={14} className="text-amber-400 fill-current mr-1" />
-                          <span className="text-sm text-gray-600">{related.rating}</span>
+                          <span className="text-sm text-gray-600">{related.rating.toFixed(1)}</span>
                         </div>
                       </div>
                     </div>
@@ -787,6 +823,14 @@ const ProductDetailPage = () => {
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
             onClick={() => setShowImageModal(false)}
           >
+            <button 
+              className="absolute top-4 right-4 text-white hover:text-terracotta-300 transition-colors"
+              onClick={() => setShowImageModal(false)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
             <motion.img
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}

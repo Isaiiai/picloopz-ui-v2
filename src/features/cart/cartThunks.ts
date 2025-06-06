@@ -1,44 +1,83 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { CartItem } from './cartTypes';
+import { AppThunk } from '../../store/store';
+import { setLoading, setError, setCart, clearCart } from './cartSlice';
+import { AddToCartPayload, UpdateCartItemPayload } from './cartTypes';
+import api from '../../config/axiosConfig';
 
-const API_BASE = 'http://localhost:3000/api/cart';
-const authHeader = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-  },
-});
-
-export const fetchCart = createAsyncThunk('cart/fetchCart', async () => {
-  const res = await axios.get(`${API_BASE}`, authHeader());
-  return res.data.cartItems as CartItem[];
-});
-
-export const addToCart = createAsyncThunk(
-  'cart/addToCart',
-  async ({ productId, variantId, quantity }: { productId: string; variantId: string; quantity: number }) => {
-    const res = await axios.post(`${API_BASE}/add`, { productId, variantId, quantity }, authHeader());
-    return res.data.cartItem as CartItem;
+export const fetchCart = (): AppThunk => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.get('/cart');
+    dispatch(setCart({
+      items: response.data.items,
+      totalItems: response.data.totalItems,
+      totalAmount: response.data.totalAmount,
+    }));
+  } catch (error) {
+    dispatch(setError(error.message));
   }
-);
+};
 
-export const updateCartItem = createAsyncThunk(
-  'cart/updateCartItem',
-  async ({ cartItemId, quantity }: { cartItemId: string; quantity: number }) => {
-    const res = await axios.put(`${API_BASE}/update/${cartItemId}`, { quantity }, authHeader());
-    return res.data.cartItem as CartItem;
+export const addToCart = (payload: AddToCartPayload): AppThunk => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.post('/cart/add', payload);
+    dispatch(setCart({
+      items: response.data.items,
+      totalItems: response.data.totalItems,
+      totalAmount: response.data.totalAmount,
+    }));
+  } catch (error) {
+    dispatch(setError(error.message));
   }
-);
+};
 
-export const removeFromCart = createAsyncThunk(
-  'cart/removeFromCart',
-  async (cartItemId: string) => {
-    await axios.delete(`${API_BASE}/remove/${cartItemId}`, authHeader());
-    return cartItemId;
+export const updateCartItem = (payload: UpdateCartItemPayload): AppThunk => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.put(`/cart/items/${payload.itemId}`, {
+      quantity: payload.quantity,
+    });
+    dispatch(setCart({
+      items: response.data.items,
+      totalItems: response.data.totalItems,
+      totalAmount: response.data.totalAmount,
+    }));
+  } catch (error) {
+    dispatch(setError(error.message));
   }
-);
+};
 
-export const clearCart = createAsyncThunk('cart/clearCart', async () => {
-  await axios.delete(`${API_BASE}/clear`, authHeader());
-  return [];
-});
+export const removeCartItem = (itemId: string): AppThunk => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.delete(`/cart/items/${itemId}`);
+    dispatch(setCart({
+      items: response.data.items,
+      totalItems: response.data.totalItems,
+      totalAmount: response.data.totalAmount,
+    }));
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+};
+
+export const emptyCart = (): AppThunk => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    await api.delete('/cart');
+    dispatch(clearCart());
+  } catch (error) {
+    dispatch(setError(error.message));
+  }
+};
+
+export const getCartSummary = (): AppThunk => async (dispatch) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await api.get('/cart/summary');
+    return response.data;
+  } catch (error) {
+    dispatch(setError(error.message));
+    throw error;
+  }
+};
