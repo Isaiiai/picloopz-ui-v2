@@ -5,6 +5,8 @@ import authReducer, { clearAuthState } from '../features/auth/authSlice';
 import cartReducer from '../features/cart/cartSlice';
 import categoryReducer from '../features/category/categorySlice';
 import productReducer from '../features/product/productSlice'
+import favoriteReducer from '../features/favorite/favoriteSlice'
+import orderReducer from '../features/order/orderSlice'
 import { configureApi } from '../config/axiosConfig';
 import { ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -14,6 +16,8 @@ const rootReducer = combineReducers({
   cart: cartReducer,
   product: productReducer,
   category: categoryReducer,
+  favorite: favoriteReducer,
+  order: orderReducer,
 });
 
 const persistConfig = {

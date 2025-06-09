@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
-import { useFavorites } from '../contexts/FavoritesContext';
+import { useFavorite } from '../features/favorite/useFavorite';
 
 const FavoritesPage = () => {
-  const { favorites, removeFromFavorites, clearFavorites } = useFavorites();
+  const { favorites, removeFromFavorites } = useFavorite();
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -14,7 +14,7 @@ const FavoritesPage = () => {
           <div className="flex justify-between items-center mb-6">
             <p className="text-gray-600">{favorites.length} {favorites.length === 1 ? 'item' : 'items'}</p>
             <button 
-              onClick={clearFavorites}
+              onClick={()=> {}}
               className="text-red-500 flex items-center hover:text-red-700 transition-colors"
             >
               <Trash2 size={16} className="mr-1" />
@@ -24,28 +24,27 @@ const FavoritesPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {favorites.map(product => (
-              <div key={product.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+              <div key={product.productId} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
                 <div className="flex h-40 md:h-56">
                   <div className="w-1/3 bg-gray-100">
-                    <Link to={`/product/${product.id}`}>
+                    <Link to={`/product/${product.productId}`}>
                       <img 
-                        src={product.variants[0].imageUrl} 
-                        alt={product.name} 
+                        src={product.productImage} 
+                        alt={product.productName} 
                         className="w-full h-full object-cover"
                       />
                     </Link>
                   </div>
                   
                   <div className="w-2/3 p-4 flex flex-col">
-                    <Link to={`/product/${product.id}`} className="hover:text-purple-600 transition-colors">
-                      <h3 className="font-medium mb-1">{product.name}</h3>
+                    <Link to={`/product/${product.productId}`} className="hover:text-purple-600 transition-colors">
+                      <h3 className="font-medium mb-1">{product.productName}</h3>
                     </Link>
-                    <p className="text-purple-600 font-medium">${product.variants[0].price.toFixed(2)}</p>
-                    <p className="text-gray-500 text-sm mb-3">Category: {product.category}</p>
+                    <p className="text-purple-600 font-medium">${product.productPrice.toFixed(2)}</p>
                     
                     <div className="mt-auto flex flex-wrap gap-2">
                       <Link 
-                        to={`/product/${product.id}`}
+                        to={`/product/${product.productId}`}
                         className="flex-1 px-3 py-2 bg-purple-600 text-white text-sm rounded flex items-center justify-center hover:bg-purple-700 transition-colors"
                       >
                         <ShoppingCart size={16} className="mr-1" />
@@ -53,7 +52,7 @@ const FavoritesPage = () => {
                       </Link>
                       
                       <button 
-                        onClick={() => removeFromFavorites(product.id)}
+                        onClick={() => removeFromFavorites(product.productId)}
                         className="px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded flex items-center justify-center hover:bg-gray-100 transition-colors"
                         aria-label="Remove from favorites"
                       >

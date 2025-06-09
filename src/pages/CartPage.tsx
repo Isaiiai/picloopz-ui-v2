@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '../features/cart/useCart';
-import { useOrders } from '../contexts/OrderContext';
+import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
+import { CreateOrderData } from '../features/order/orderTypes';
 
 interface FormData {
   name: string;
@@ -60,14 +61,30 @@ const CartPage = () => {
       toast.error('Please fill in all required fields');
       return;
     }
+
+    const orderData: CreateOrderData = {
+    items: cart.items.map(item => ({
+      productId: item.productId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      uploadedImageUrl: 'https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?q=80&w=600&auto=format&fit=crop',
+    })),
+    shippingAddress: {
+      fullName: formData.name,
+      phone: formData.phone,
+      addressLine1: formData.address,
+      city: formData.city,
+      state: formData.state,
+      postalCode: formData.zipCode,
+      country: formData.country,
+    },
+    paymentMethod: 'cod',
+    notes: formData.notes || '',
+  };
     
     // Create the order
     try {
-      const order = await createOrder({
-        ...formData,
-        items: cart.items,
-        totalAmount: cart.totalAmount
-      });
+      const order = await createOrder(orderData);
       
       // Clear cart after successful order
       emptyCart();

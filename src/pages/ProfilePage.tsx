@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Camera, CreditCard, Pen, Heart, House, LogOut, Mail, MapPin, Package, Phone, Save, User } from 'lucide-react';
 import { useAuth } from '../features/auth/authHooks';
-import { useOrders } from '../contexts/OrderContext';
-import { useFavorites } from '../contexts/FavoritesContext';
+import { useOrders } from '../features/order/useOrder';
+import { useFavorite } from '../features/favorite/useFavorite';
 import toast from 'react-hot-toast';
 
 const ProfilePage = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { orders } = useOrders();
-  const { favorites } = useFavorites();
+  const { favorites } = useFavorite();
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('profile');
@@ -80,16 +80,16 @@ const ProfilePage = () => {
                 <span className="font-medium">{order.id}</span>
               </div>
               <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                order.status === 'pending' ? 'bg-amber-100 text-amber-800' :
-                order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                order.status === 'ready' ? 'bg-purple-100 text-purple-800' :
-                order.status === 'out_for_delivery' ? 'bg-indigo-100 text-indigo-800' :
+                order.status === 'Pending' ? 'bg-amber-100 text-amber-800' :
+                order.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
+                order.status === 'Ready' ? 'bg-purple-100 text-purple-800' :
+                order.status === 'Out for Delivery' ? 'bg-indigo-100 text-indigo-800' :
                 'bg-green-100 text-green-800'
               }`}>
-                {order.status === 'pending' ? 'Pending' : 
-                 order.status === 'confirmed' ? 'Confirmed' : 
-                 order.status === 'ready' ? 'Ready' : 
-                 order.status === 'out_for_delivery' ? 'Out for Delivery' : 'Delivered'}
+                {order.status === 'Pending' ? 'Pending' : 
+                 order.status === 'Confirmed' ? 'Confirmed' : 
+                 order.status === 'Ready' ? 'Ready' : 
+                 order.status === 'Out for Delivery' ? 'Out for Delivery' : 'Delivered'}
               </span>
             </div>
             
@@ -97,7 +97,7 @@ const ProfilePage = () => {
               {order.items.slice(0, 3).map((item, i) => (
                 <div key={i} className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
                   <img 
-                    src={item.imageUrl} 
+                    src={item.uploadedImageUrl} 
                     alt={item.name} 
                     className="w-full h-full object-cover"
                   />
@@ -390,20 +390,20 @@ const ProfilePage = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {favorites.map(product => (
                       <Link 
-                        to={`/product/${product.id}`} 
+                        to={`/product/${product.productId}`} 
                         key={product.id} 
                         className="block border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                       >
                         <div className="h-40 bg-gray-100">
                           <img 
-                            src={product.variants[0].imageUrl} 
-                            alt={product.name} 
+                            src={product.productImage} 
+                            alt={product.productName} 
                             className="w-full h-full object-cover"
                           />
                         </div>
                         <div className="p-3">
-                          <h3 className="font-medium">{product.name}</h3>
-                          <p className="text-terracotta-600 font-medium">${product.variants[0].price.toFixed(2)}</p>
+                          <h3 className="font-medium">{product.productName}</h3>
+                          <p className="text-terracotta-600 font-medium">${product.productPrice.toFixed(2)}</p>
                         </div>
                       </Link>
                     ))}

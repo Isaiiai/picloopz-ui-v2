@@ -61,7 +61,7 @@ const productSlice = createSlice({
       })
       .addCase(getTopSellingProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
         state.loading = false;
-        state.topSellingProducts = action.payload;
+        state.topSellingProducts = action.payload.products;
       })
       .addCase(getTopSellingProducts.rejected, (state, action) => {
         state.loading = false;
@@ -77,8 +77,8 @@ const productSlice = createSlice({
         getProductsByCategory.fulfilled,
         (state, action: PayloadAction<{ products: Product[]; category: any; pagination: any }>) => {
           state.loading = false;
-          state.categoryProducts = action.payload.products;
-          state.categoryInfo = action.payload.category;
+          state.categoryProducts = action.payload.data.products;
+          state.categoryInfo = action.payload.data.category;
           state.pagination = action.payload.pagination;
         }
       )

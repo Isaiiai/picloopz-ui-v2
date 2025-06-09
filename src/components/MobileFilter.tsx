@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, X } from 'lucide-react';
+import { Category } from '../features/category/categoryTypes';
 
 interface MobileFilterProps {
   isOpen: boolean;
@@ -12,14 +13,15 @@ interface MobileFilterProps {
   selectedFilters: {
     variants: string[];
     materials: string[];
-    categories: string[];
+    categoryId: string;
   };
   toggleFilter: (type: 'variants' | 'materials', value: string) => void;
   clearFilters: () => void;
   variantOptions: string[];
   materialOptions: string[];
   categoryId?: string;
-  navigate: (url: string) => void;
+  categories: Category[];
+  onCategoryChange: (categoryId: string) => void;
 }
 
 const MobileFilter: FC<MobileFilterProps> = ({
@@ -34,12 +36,11 @@ const MobileFilter: FC<MobileFilterProps> = ({
   clearFilters,
   variantOptions,
   materialOptions,
+  categories,
   categoryId,
-  navigate
+  onCategoryChange,
 }) => {
-  const toggleTab = (tab: string) => {
-    setActiveTab(activeTab === tab ? null : tab);
-  };
+  const toggleTab = (tab: string) => setActiveTab(activeTab === tab ? null : tab);
 
   return (
     <AnimatePresence>
@@ -101,23 +102,22 @@ const MobileFilter: FC<MobileFilterProps> = ({
                       transition={{ duration: 0.3 }}
                       className="overflow-hidden pt-3 space-y-2"
                     >
-                      {type === 'categories' && ['all', 'furniture'].map((cat) => (
-                        <div key={cat} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={`mobile-category-${cat}`}
-                            checked={selectedFilters.categories.includes(cat)}
-                            onChange={() => {
-                              navigate(`/category/${cat}`);
-                              setIsOpen(false);
-                            }}
-                            className="w-4 h-4 text-terracotta-600 rounded border-gray-300"
-                          />
-                          <label htmlFor={`mobile-category-${cat}`} className="ml-2 text-sm text-gray-700 capitalize">
-                            {cat === 'all' ? 'All Products' : cat}
-                          </label>
-                        </div>
-                      ))}
+                      {type === 'categories' &&
+                        categories.map((cat) => (
+                          <div key={cat.id} className="flex items-center">
+                            <input
+                              type="radio"
+                              name="mobile-category"
+                              id={`mobile-category-${cat.id}`}
+                              checked={categoryId === cat.id}
+                              onChange={() => onCategoryChange(cat.id)}
+                              className="w-4 h-4 text-terracotta-600 border-gray-300"
+                            />
+                            <label htmlFor={`mobile-category-${cat.id}`} className="ml-2 text-sm text-gray-700">
+                              {cat.name}
+                            </label>
+                          </div>
+                        ))}
 
                       {type === 'price' && (
                         <>
@@ -137,14 +137,24 @@ const MobileFilter: FC<MobileFilterProps> = ({
                             <input
                               type="number"
                               value={priceRange[0]}
-                              onChange={(e) => setPriceRange([Math.max(0, parseInt(e.target.value) || 0), priceRange[1]])}
+                              onChange={(e) =>
+                                setPriceRange([
+                                  Math.max(0, parseInt(e.target.value) || 0),
+                                  priceRange[1],
+                                ])
+                              }
                               className="w-full p-2 border border-cream-200 rounded text-sm"
                               placeholder="Min"
                             />
                             <input
                               type="number"
                               value={priceRange[1]}
-                              onChange={(e) => setPriceRange([priceRange[0], Math.max(priceRange[0], parseInt(e.target.value) || 0)])}
+                              onChange={(e) =>
+                                setPriceRange([
+                                  priceRange[0],
+                                  Math.max(priceRange[0], parseInt(e.target.value) || 0),
+                                ])
+                              }
                               className="w-full p-2 border border-cream-200 rounded text-sm"
                               placeholder="Max"
                             />
@@ -152,35 +162,37 @@ const MobileFilter: FC<MobileFilterProps> = ({
                         </>
                       )}
 
-                      {type === 'variants' && variantOptions.map((variant) => (
-                        <div key={variant} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={`mobile-variant-${variant}`}
-                            checked={selectedFilters.variants.includes(variant)}
-                            onChange={() => toggleFilter('variants', variant)}
-                            className="w-4 h-4 text-terracotta-600 rounded border-gray-300"
-                          />
-                          <label htmlFor={`mobile-variant-${variant}`} className="ml-2 text-sm text-gray-700">
-                            {variant}
-                          </label>
-                        </div>
-                      ))}
+                      {type === 'variants' &&
+                        variantOptions.map((variant) => (
+                          <div key={variant} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`mobile-variant-${variant}`}
+                              checked={selectedFilters.variants.includes(variant)}
+                              onChange={() => toggleFilter('variants', variant)}
+                              className="w-4 h-4 text-terracotta-600 border-gray-300"
+                            />
+                            <label htmlFor={`mobile-variant-${variant}`} className="ml-2 text-sm text-gray-700">
+                              {variant}
+                            </label>
+                          </div>
+                        ))}
 
-                      {type === 'materials' && materialOptions.map((material) => (
-                        <div key={material} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={`mobile-material-${material}`}
-                            checked={selectedFilters.materials.includes(material)}
-                            onChange={() => toggleFilter('materials', material)}
-                            className="w-4 h-4 text-terracotta-600 rounded border-gray-300"
-                          />
-                          <label htmlFor={`mobile-material-${material}`} className="ml-2 text-sm text-gray-700">
-                            {material}
-                          </label>
-                        </div>
-                      ))}
+                      {type === 'materials' &&
+                        materialOptions.map((material) => (
+                          <div key={material} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`mobile-material-${material}`}
+                              checked={selectedFilters.materials.includes(material)}
+                              onChange={() => toggleFilter('materials', material)}
+                              className="w-4 h-4 text-terracotta-600 border-gray-300"
+                            />
+                            <label htmlFor={`mobile-material-${material}`} className="ml-2 text-sm text-gray-700">
+                              {material}
+                            </label>
+                          </div>
+                        ))}
                     </motion.div>
                   )}
                 </AnimatePresence>

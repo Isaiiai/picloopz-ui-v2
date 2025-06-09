@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { Category } from '../features/category/categoryTypes';
 
 interface FilterSidebarProps {
   priceRange: [number, number];
@@ -6,14 +7,15 @@ interface FilterSidebarProps {
   selectedFilters: {
     variants: string[];
     materials: string[];
-    categories: string[];
+    categoryId: string;
   };
   toggleFilter: (type: 'variants' | 'materials', value: string) => void;
   clearFilters: () => void;
   variantOptions: string[];
   materialOptions: string[];
   categoryId?: string;
-  navigate: (url: string) => void;
+  categories: Category[];
+  onCategoryChange: (categoryId: string) => void;
 }
 
 const FilterSidebar: FC<FilterSidebarProps> = ({
@@ -25,7 +27,8 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
   variantOptions,
   materialOptions,
   categoryId,
-  navigate,
+  categories,
+  onCategoryChange,
 }) => {
   return (
     <div className="hidden md:block w-72 flex-shrink-0">
@@ -40,30 +43,30 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
           </button>
         </div>
 
-        {/* Categories */}
         <div className="mb-6 border-b border-cream-200 pb-6">
           <h4 className="font-medium mb-3 text-gray-700">Categories</h4>
           <div className="space-y-2">
-            {['all', 'furniture'].map((cat) => (
-              <div key={cat} className="flex items-center">
+            {categories.map((cat) => (
+              <div key={cat.id} className="flex items-center">
                 <input
-                  type="checkbox"
-                  id={`category-${cat}`}
-                  checked={selectedFilters.categories.includes(cat)}
-                  onChange={() => {
-                    navigate(`/category/${cat}`);
-                  }}
-                  className="w-4 h-4 text-terracotta-600 rounded border-gray-300 focus:ring-terracotta-500"
+                  type="radio"
+                  name="category"
+                  id={`category-${cat.id}`}
+                  checked={categoryId === cat.id}
+                  onChange={() => onCategoryChange(cat.id)}
+                  className="w-4 h-4 text-terracotta-600 border-gray-300 focus:ring-terracotta-500"
                 />
-                <label htmlFor={`category-${cat}`} className="ml-2 text-sm text-gray-700 capitalize">
-                  {cat === 'all' ? 'All Products' : cat}
+                <label
+                  htmlFor={`category-${cat.id}`}
+                  className="ml-2 text-sm text-gray-700 capitalize"
+                >
+                  {cat.name}
                 </label>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Price */}
         <div className="mb-6 border-b border-cream-200 pb-6">
           <h4 className="font-medium mb-3 text-gray-700">Price Range</h4>
           <div className="space-y-4">
@@ -98,7 +101,6 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
           </div>
         </div>
 
-        {/* Variants */}
         <div className="mb-6 border-b border-cream-200 pb-6">
           <h4 className="font-medium mb-3 text-gray-700">Variants</h4>
           <div className="space-y-2">
@@ -109,7 +111,7 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
                   id={`variant-${variant}`}
                   checked={selectedFilters.variants.includes(variant)}
                   onChange={() => toggleFilter('variants', variant)}
-                  className="w-4 h-4 text-terracotta-600 rounded border-gray-300 focus:ring-terracotta-500"
+                  className="w-4 h-4 text-terracotta-600 border-gray-300"
                 />
                 <label htmlFor={`variant-${variant}`} className="ml-2 text-sm text-gray-700">
                   {variant}
@@ -119,7 +121,6 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
           </div>
         </div>
 
-        {/* Materials */}
         <div>
           <h4 className="font-medium mb-3 text-gray-700">Materials</h4>
           <div className="space-y-2">
@@ -130,7 +131,7 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
                   id={`material-${material}`}
                   checked={selectedFilters.materials.includes(material)}
                   onChange={() => toggleFilter('materials', material)}
-                  className="w-4 h-4 text-terracotta-600 rounded border-gray-300 focus:ring-terracotta-500"
+                  className="w-4 h-4 text-terracotta-600 border-gray-300"
                 />
                 <label htmlFor={`material-${material}`} className="ml-2 text-sm text-gray-700">
                   {material}

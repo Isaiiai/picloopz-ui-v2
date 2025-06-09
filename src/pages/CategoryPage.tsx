@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import ProductGrid from '../components/ProductGrid';
@@ -13,16 +13,28 @@ import {
   selectProductError,
   selectProductPagination,
   selectCategoryInfo,
+  selectTrendingProducts,
+  selectTopSellingProducts,
 } from '../features/product/productSelectors';
-
+import {
+  selectCategories,
+  selectCurrentCategory,
+  selectCategoryLoading,
+  selectCategoryError,
+} from '../features/category/categorySelectors';
 import {
   getProducts,
   getProductsByCategory,
+  getTopSellingProducts,
+  getTrendingProducts,
 } from '../features/product/productThunks';
-
+import { fetchCategories, fetchCategoryById } from '../features/category/categoryThunks';
 import { clearCategoryProducts } from '../features/product/productSlice';
 import type { AppDispatch } from '../store/store';
 import { Filter } from 'lucide-react';
+import { useDebounceEffect } from '../utils/useDebounceEffect';
+
+type ViewMode = 'all' | 'category' | 'trending' | 'top-selling';
 
 const DEFAULT_PRICE_RANGE: [number, number] = [0, 200];
 const VARIANT_OPTIONS = ['Small', 'Medium', 'Large', 'One Size'];
@@ -35,27 +47,72 @@ const CategoryPage = () => {
 
   const allProducts = useSelector(selectProducts);
   const categoryProducts = useSelector(selectCategoryProducts);
-  const categoryInfo = useSelector(selectCategoryInfo);
-  const loading = useSelector(selectProductLoading);
-  const error = useSelector(selectProductError);
+  const productCategoryInfo = useSelector(selectCategoryInfo);
+  const productLoading = useSelector(selectProductLoading);
+  const productError = useSelector(selectProductError);
   const pagination = useSelector(selectProductPagination);
+  const categories = useSelector(selectCategories);
+  const currentCategory = useSelector(selectCurrentCategory);
+  const categoryLoading = useSelector(selectCategoryLoading);
+  const categoryError = useSelector(selectCategoryError);
+  const trendingProducts = useSelector(selectTrendingProducts);
+  const topSellingProducts = useSelector(selectTopSellingProducts);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<[number, number]>(DEFAULT_PRICE_RANGE);
+  const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [selectedFilters, setSelectedFilters] = useState({
-    variants: [],
-    materials: [],
-    categories: categoryId !== 'all' ? [categoryId || ''] : [],
+    variants: [] as string[],
+    materials: [] as string[],
+    categoryId: '',
   });
-  const [sortParams, setSortParams] = useState({ sort: 'createdAt', sortOrder: 'desc' });
 
-  const displayedProducts = categoryId === 'all' ? allProducts : categoryProducts;
-  const currentCategory = categoryId === 'all'
-    ? { id: 'all', name: 'All Products', imageUrl: '' }
-    : categoryInfo;
+  const sortParams = useState({ sort: 'createdAt', sortOrder: 'desc' })[0];
 
-  const buildSearchParams = useCallback((page: number = 1) => {
+  const displayedProducts = useMemo(() => {
+    switch (viewMode) {
+      case 'trending': return trendingProducts;
+      case 'top-selling': return topSellingProducts;
+      case 'category': return categoryProducts;
+      default: return allProducts;
+    }
+  }, [viewMode, trendingProducts, topSellingProducts, categoryProducts, allProducts]);
+
+  const displayCategories = useMemo(() => [
+    { id: 'all', name: 'All Products' },
+    { id: 'trending', name: 'Trending' },
+    { id: 'top-selling', name: 'Top Selling' },
+    ...categories,
+  ], [categories]);
+
+  const combinedCategoryInfo = useMemo(() => {
+    if (categoryId === 'all') return { id: 'all', name: 'All Products', imageUrl: '' };
+    if (categoryId === 'trending') return { id: 'trending', name: 'Trending Products', imageUrl: '' };
+    if (categoryId === 'top-selling') return { id: 'top-selling', name: 'Top Selling Products', imageUrl: '' };
+    return currentCategory || productCategoryInfo;
+  }, [categoryId, currentCategory, productCategoryInfo]);
+
+  useEffect(() => {
+    dispatch(fetchCategories({ limit: 10, sort: 'displayOrder', sortOrder: 'asc' }));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (categoryId === 'trending' || categoryId === 'top-selling') {
+      setViewMode(categoryId);
+    } else if (categoryId && categoryId !== 'all') {
+      dispatch(fetchCategoryById(categoryId));
+      setViewMode('category');
+      setSelectedFilters(prev => ({ ...prev, categoryId }));
+    } else {
+      setViewMode('all');
+      setSelectedFilters(prev => ({ ...prev, categoryId: '' }));
+    }
+
+    return () => dispatch(clearCategoryProducts());
+  }, [categoryId, dispatch]);
+
+  const buildSearchParams = useCallback((page = 1) => {
     const params: Record<string, any> = {
       minPrice: priceRange[0],
       maxPrice: priceRange[1],
@@ -65,51 +122,32 @@ const CategoryPage = () => {
       page,
     };
 
-    if (selectedFilters.variants.length > 0) {
-      params.tags = selectedFilters.variants;
-    }
-
-    if (selectedFilters.materials.length > 0) {
-      params.search = selectedFilters.materials.join(' ');
-    }
+    if (selectedFilters.variants.length) params.tags = selectedFilters.variants;
+    if (selectedFilters.materials.length) params.search = selectedFilters.materials.join(' ');
+    if (viewMode === 'category') params.categoryId = selectedFilters.categoryId;
 
     return params;
-  }, [priceRange, selectedFilters, sortParams]);
+  }, [priceRange, sortParams, selectedFilters, viewMode]);
 
-  const fetchProducts = useCallback((page: number = 1) => {
+  const fetchProducts = useCallback((page = 1) => {
     const params = buildSearchParams(page);
-    if (categoryId === 'all') {
-      dispatch(getProducts(params));
-    } else {
-      dispatch(getProductsByCategory({ categoryId, params }));
+
+    switch (viewMode) {
+      case 'trending':
+        dispatch(getTrendingProducts());
+        break;
+      case 'top-selling':
+        dispatch(getTopSellingProducts());
+        break;
+      case 'category':
+        dispatch(getProductsByCategory({ categoryId: selectedFilters.categoryId, params }));
+        break;
+      default:
+        dispatch(getProducts(params));
     }
-  }, [buildSearchParams, categoryId, dispatch]);
+  }, [buildSearchParams, viewMode, selectedFilters.categoryId, dispatch]);
 
-  useEffect(() => {
-    fetchProducts(1);
-    return () => {
-      if (categoryId !== 'all') dispatch(clearCategoryProducts());
-    };
-  }, [categoryId]);
-
-  useEffect(() => {
-    const debounce = setTimeout(() => fetchProducts(1), 400);
-    return () => clearTimeout(debounce);
-  }, [priceRange, selectedFilters, sortParams]);
-
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastProductRef = useCallback((node: HTMLDivElement | null) => {
-    if (loading) return;
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && pagination.page < pagination.totalPages) {
-        fetchProducts(pagination.page + 1);
-      }
-    });
-
-    if (node) observer.current.observe(node);
-  }, [loading, pagination, fetchProducts]);
+  useDebounceEffect(() => fetchProducts(1), [priceRange, selectedFilters, sortParams, viewMode], 400);
 
   const toggleFilter = (type: 'variants' | 'materials', value: string) => {
     setSelectedFilters(prev => ({
@@ -122,15 +160,38 @@ const CategoryPage = () => {
 
   const clearFilters = () => {
     setPriceRange(DEFAULT_PRICE_RANGE);
-    setSelectedFilters({ variants: [], materials: [], categories: categoryId !== 'all' ? [categoryId || ''] : [] });
+    setSelectedFilters({ variants: [], materials: [], categoryId: '' });
+    setViewMode('all');
+    navigate('/category/all'); 
   };
+
+  const handleCategoryChange = (catId: string) => {
+    navigate(`/category/${catId}`);
+  };
+
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastProductRef = useCallback((node: HTMLDivElement | null) => {
+    if (productLoading) return;
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && pagination.page < pagination.totalPages) {
+        fetchProducts(pagination.page + 1);
+      }
+    });
+
+    if (node) observer.current.observe(node);
+  }, [productLoading, pagination, fetchProducts]);
+
+  const loading = productLoading || categoryLoading;
+  const error = productError || categoryError;
 
   if (error) return <ErrorDisplay error={error} onRetry={() => navigate(0)} />;
 
   return (
     <div className="bg-cream-50 min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <BreadcrumbBanner currentCategory={currentCategory} />
+        <BreadcrumbBanner currentCategory={combinedCategoryInfo} categories={categories} />
 
         <div className="flex flex-col md:flex-row gap-8">
           <FilterSidebar
@@ -142,11 +203,12 @@ const CategoryPage = () => {
             variantOptions={VARIANT_OPTIONS}
             materialOptions={MATERIAL_OPTIONS}
             categoryId={categoryId}
-            navigate={navigate}
+            categories={displayCategories}
+            onCategoryChange={handleCategoryChange}
           />
 
           <div className="md:hidden mb-6">
-            <button 
+            <button
               onClick={() => setIsFilterOpen(true)}
               className="w-full py-3 px-4 bg-white rounded-xl flex items-center justify-center gap-2 text-gray-700 shadow-md"
             >
@@ -168,6 +230,8 @@ const CategoryPage = () => {
             materialOptions={MATERIAL_OPTIONS}
             categoryId={categoryId}
             navigate={navigate}
+            categories={displayCategories}
+            onCategoryChange={handleCategoryChange}
           />
 
           <ProductGrid
@@ -177,7 +241,7 @@ const CategoryPage = () => {
             pagination={pagination}
             clearFilters={clearFilters}
             sortParams={sortParams}
-            setSortParams={setSortParams}
+            setSortParams={() => {}}
             fetchProducts={fetchProducts}
             buildSearchParams={buildSearchParams}
             categoryId={categoryId}

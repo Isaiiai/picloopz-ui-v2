@@ -4,11 +4,46 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CategorySlider from '../components/CategorySlider';
 import ProductCard from '../components/ProductCard';
-import { mockCategories, mockProducts, mockTestimonials, mockAdvertisements } from '../data/mockData';
+import { mockTestimonials, mockAdvertisements } from '../data/mockData';
+import { fetchCategories } from '../features/category/categoryThunks';
+import { selectCategories, selectCategoryLoading, selectCategoryError } from '../features/category/categorySelectors';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { getTopSellingProducts, getTrendingProducts,  } from '../features/product/productThunks';
+import { selectTopSellingProducts, selectTrendingProducts } from '../features/product/productSelectors';
 
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const testimonialRef = useRef<HTMLDivElement>(null);
+
+  const dispatch = useDispatch();
+  const categories = useSelector(selectCategories);
+  const categoryLoading = useSelector(selectCategoryLoading);
+  const categoryError = useSelector(selectCategoryError);
+  const topSellingProducts = useSelector(selectTopSellingProducts);
+  const trendingProducts = useSelector(selectTrendingProducts);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          dispatch(
+            fetchCategories({
+              limit: 10,
+              sort: 'displayOrder',
+              sortOrder: 'asc',
+            })
+          ),
+          dispatch(getTopSellingProducts()),
+          dispatch(getTrendingProducts()),
+        ]);
+      } catch (error) {
+        console.error('Error fetching homepage data:', error);
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % mockAdvertisements.length);
@@ -28,14 +63,14 @@ const HomePage = () => {
   }, []);
 
   // Get top selling products
-  const topSellingProducts = mockProducts
-    .sort((a, b) => b.soldCount - a.soldCount)
-    .slice(0, 4);
+  // const topSellingProducts = mockProducts
+  //   .sort((a, b) => b.soldCount - a.soldCount)
+  //   .slice(0, 4);
 
   // Get trending products
-  const trendingProducts = mockProducts
-    .filter(product => product.trending)
-    .slice(0, 4);
+  // const trendingProducts = mockProducts
+  //   .filter(product => product.trending)
+  //   .slice(0, 4);
 
   return (
     <div className="pb-12">
@@ -178,7 +213,7 @@ const HomePage = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-          <CategorySlider categories={mockCategories} />
+          <CategorySlider categories={categories} />
           </motion.div>
         </div>
       </section>

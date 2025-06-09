@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
 import { useCart } from '../features/cart/useCart';
-import { useFavorites } from '../contexts/FavoritesContext';
+import { useFavorite } from '../features/favorite/useFavorite';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../store/store';
 import { 
@@ -21,7 +21,7 @@ const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const { addToCart } = useCart();
-  const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorites();
+  const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorite();
   
   const product = useSelector(selectCurrentProduct);
   const loading = useSelector(selectProductLoading);
@@ -58,7 +58,7 @@ const ProductDetailPage = () => {
     if (product?.categoryId) {
       dispatch(getProductsByCategory({
         categoryId: product.categoryId,
-        params: { limit: 4, exclude: product.id }
+        params: { limit: 4 }
       }));
     }
   }, [dispatch, product?.categoryId, product?.id]);
@@ -126,7 +126,7 @@ const ProductDetailPage = () => {
         removeFromFavorites(product.id);
         toast.success('Removed from favorites');
       } else {
-        addToFavorites(product);
+        addToFavorites(product.id);
         toast.success('Added to favorites');
       }
     }

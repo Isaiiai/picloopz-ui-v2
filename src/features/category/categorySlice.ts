@@ -7,9 +7,7 @@ const initialState: CategoryState = {
   currentCategory: null,
   loading: false,
   error: null,
-  total: 0,
-  page: 1,
-  limit: 50,
+  pagination: []
 };
 
 const categorySlice = createSlice({
@@ -25,10 +23,8 @@ const categorySlice = createSlice({
       })
       .addCase(fetchCategories.fulfilled, (state, action: PayloadAction<CategoryListResponse>) => {
         state.loading = false;
-        state.categories = action.payload.categories;
-        state.total = action.payload.total;
-        state.page = action.payload.page;
-        state.limit = action.payload.limit;
+        state.categories = action.payload.data.categories;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;

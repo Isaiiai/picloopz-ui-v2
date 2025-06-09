@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
-import { useFavorites } from '../contexts/FavoritesContext';
+import { useFavorite } from '../features/favorite/useFavorite';
 
 interface Product {
   id: number;
@@ -26,7 +26,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorites();
+  const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorite();
   
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     if (isInFavorites(product.id)) {
       removeFromFavorites(product.id);
     } else {
-      addToFavorites(product);
+      addToFavorites(product.id);
     }
   };
   

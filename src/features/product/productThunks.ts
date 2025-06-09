@@ -21,7 +21,7 @@ export const getTrendingProducts = createAsyncThunk(
   async (limit: number = 10, { rejectWithValue }) => {
     try {
       const response = await api.get('/products/trending', { params: { limit } });
-      return response.data.products;
+      return response.data.data.products;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch trending products');
     }
@@ -34,7 +34,7 @@ export const getTopSellingProducts = createAsyncThunk(
   async (limit: number = 10, { rejectWithValue }) => {
     try {
       const response = await api.get('/products/top-selling', { params: { limit } });
-      return response.data.products;
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch top-selling products');
     }
@@ -47,6 +47,7 @@ export const getProductsByCategory = createAsyncThunk(
   async ({ categoryId, params }: { categoryId: string; params?: Partial<ProductSearchParams> }, { rejectWithValue }) => {
     try {
       const response = await api.get(`/products/category/${categoryId}`, { params });
+      console.log(response.data)
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch category products');

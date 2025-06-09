@@ -8,20 +8,27 @@ export interface Category {
   updatedAt: string;
 }
 
+export interface Pagination {
+  currentPage: number,
+  hasNext: boolean,
+  hasPrevious: boolean,
+  pageSize: number,
+  totalItems: number
+  totalPages: number
+}
+
 export interface CategoryListResponse {
   categories: Category[];
-  total: number;
-  page: number;
-  limit: number;
+  pagination: Pagination[];
 }
+
+
 
 export interface CategoryState {
   categories: Category[];
   currentCategory: Category | null;
   loading: boolean;
   error: string | null;
-  total: number;
-  page: number;
-  limit: number;
+  pagination: Pagination[];
 }
 

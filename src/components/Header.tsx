@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Heart, Menu, Search, ShoppingCart, User, X } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import { useFavorites } from '../contexts/FavoritesContext';
+import { useCart } from '../features/cart/useCart';
+import { useFavorite } from '../features/favorite/useFavorite';
 import { useAuth } from '../features/auth/authHooks';
 import LoginModal from './LoginModal';
 
@@ -10,8 +10,8 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const { cartItems } = useCart();
-  const { favorites } = useFavorites();
+  const { cart } = useCart();
+  const { favorites } = useFavorite();
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
@@ -63,9 +63,9 @@ const Header = () => {
             </Link>
             <Link to="/cart" className="p-1 hover:text-terracotta-500 transition-colors relative">
               <ShoppingCart size={20} />
-              {cartItems.length > 0 && (
+              {cart.totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  {cartItems.length}
+                  {cart.totalItems}
                 </span>
               )}
             </Link>
@@ -111,9 +111,9 @@ const Header = () => {
             </Link>
             <Link to="/cart" className="p-1 relative">
               <ShoppingCart size={20} />
-              {cartItems.length > 0 && (
+              {cart.items.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  {cartItems.length}
+                  {cart.items.length}
                 </span>
               )}
             </Link>
