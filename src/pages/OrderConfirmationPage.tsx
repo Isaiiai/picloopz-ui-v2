@@ -86,14 +86,14 @@ const OrderConfirmationPage = () => {
                 <div className="flex-1">
                   <div className="flex justify-between">
                     <div>
-                      <h3 className="font-medium">{item.name}</h3>
+                      <h3 className="font-medium">{item.productName}</h3>
                       <p className="text-gray-500 text-sm">
                         Variant: {item.variantName}
                       </p>
                     </div>
                     
                     <div className="text-right">
-                      <p className="font-medium">${item.totalPrice.toFixed(2)}</p>
+                      <p className="font-medium">₹{(item.totalPrice ?? 0).toFixed(2)}</p>
                       <p className="text-gray-500 text-sm">Qty: {item.quantity}</p>
                     </div>
                   </div>
@@ -106,18 +106,24 @@ const OrderConfirmationPage = () => {
           <div className="p-6 bg-gray-50">
             <div className="flex justify-between mb-2">
               <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium">${currentOrder.totalAmount.toFixed(2)}</span>
+              <span className="font-medium">₹{currentOrder.subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600">Tax</span>
+              <span className="font-medium">
+                ₹{currentOrder.tax.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between mb-2">
               <span className="text-gray-600">Shipping</span>
               <span className="font-medium">
-                {currentOrder.totalAmount >= 50 ? 'Free' : '$5.00'}
+                ₹{currentOrder.shippingCost.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between pt-3 border-t border-gray-200 text-lg font-semibold">
               <span>Total</span>
               <span className="text-terracotta-700">
-                ${(currentOrder.totalAmount + (currentOrder.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
+                ₹{(currentOrder.totalAmount + (currentOrder.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
               </span>
             </div>
           </div>

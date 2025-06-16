@@ -95,12 +95,20 @@ const ProfilePage = () => {
             
             <div className="flex flex-wrap gap-2 mb-3">
               {order.items.slice(0, 3).map((item, i) => (
-                <div key={i} className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
-                  <img 
-                    src={item.uploadedImageUrl} 
-                    alt={item.name} 
-                    className="w-full h-full object-cover"
-                  />
+                <div key={i} className='flex'>
+                  <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
+                    <img 
+                      src={item.uploadedImageUrl} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className='flex-row px-2'>
+                    <h3 className="font-normal">{item.productName}</h3>
+                    <p className="text-gray-500 text-sm">
+                      Variant: {item.variantName}
+                    </p>
+                  </div>
                 </div>
               ))}
               {order.items.length > 3 && (
@@ -113,7 +121,7 @@ const ProfilePage = () => {
             <div className="flex justify-between items-center">
               <div>
                 <span className="text-sm text-gray-500 mr-2">Total:</span>
-                <span className="font-medium text-terracotta-700">${order.totalAmount.toFixed(2)}</span>
+                <span className="font-medium text-terracotta-700">₹{order.totalAmount.toFixed(2)}</span>
               </div>
               <Link 
                 to={`/account/orders/${order.id}`}
@@ -403,7 +411,7 @@ const ProfilePage = () => {
                         </div>
                         <div className="p-3">
                           <h3 className="font-medium">{product.productName}</h3>
-                          <p className="text-terracotta-600 font-medium">${product.productPrice.toFixed(2)}</p>
+                          <p className="text-terracotta-600 font-medium">₹{product.productPrice.toFixed(2)}</p>
                         </div>
                       </Link>
                     ))}

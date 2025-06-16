@@ -45,7 +45,6 @@ const Header = () => {
             <Link to="/" className="font-medium hover:text-terracotta-600 transition-colors">Home</Link>
             <Link to="/category/all" className="font-medium hover:text-terracotta-600 transition-colors">Shop</Link>
             <Link to="/gallery" className="font-medium hover:text-terracotta-600 transition-colors">Gallery</Link>
-            <Link to="/how-it-works" className="font-medium hover:text-terracotta-600 transition-colors">How It Works</Link>
           </nav>
 
           {/* Icons */}

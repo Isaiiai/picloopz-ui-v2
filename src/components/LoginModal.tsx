@@ -11,6 +11,7 @@ interface LoginModalProps {
 interface FormData {
   name: string;
   email: string;
+  phone: string;
   password: string;
 }
 
@@ -28,6 +29,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
+    phone: '',
     password: ''
   });
   
@@ -95,7 +97,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         await login(formData.email, formData.password);
         onClose();
       } else {
-        await register(formData.name, formData.email, formData.password);
+        await register(formData.name, formData.email, formData.password, "9988776655");
         onClose();
       }
     } catch (error) {

@@ -3,6 +3,7 @@ export type OrderStatus = 'Pending' | 'Confirmed' | 'Ready' | 'Out for Delivery'
 export interface OrderItem {
   id?: string;
   productId: string;
+  productName: String;
   name: string;
   productImage?: string;
   variantId?: string;

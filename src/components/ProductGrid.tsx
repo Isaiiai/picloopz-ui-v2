@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { Loader, Filter, ArrowUpDown } from 'lucide-react';
 import ProductCard from './ProductCard';
+import ProductGridSkeletonLoader from './ProductGridSkeletonLoader';
 
 interface ProductGridProps {
   products: any[];
@@ -34,6 +35,9 @@ const ProductGrid: FC<ProductGridProps> = ({
     fetchProducts(1);
   };
 
+  if(loading)
+    return <ProductGridSkeletonLoader/>
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,8 +50,8 @@ const ProductGrid: FC<ProductGridProps> = ({
           <p className="text-gray-600">
             Showing{' '}
             <span className="font-semibold text-gray-800">{products?.length}</span> of{' '}
-            {pagination.total}{' '}
-            {pagination.total === 1 ? 'product' : 'products'}
+            {pagination.totalItems}{' '}
+            {pagination.totalItems === 1 ? 'product' : 'products'}
           </p>
           <div className="relative w-full sm:w-auto">
             <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">

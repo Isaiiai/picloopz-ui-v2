@@ -73,7 +73,7 @@ const OrderTrackingPage = () => {
       case 'Confirmed': return 2;
       case 'Ready': return 3;
       case 'Out for Delivery': return 4;
-      case 'delivered': return 5;
+      case 'Delivered': return 5;
       default: return 1;
     }
   };

@@ -44,6 +44,7 @@ export const registerUser = createAsyncThunk<AuthResponse, { name: string; email
   async (userData, { rejectWithValue }) => {
     try {
       const { data } = await api.post<AuthResponse>('/auth/register', userData);
+      console.log(data);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');

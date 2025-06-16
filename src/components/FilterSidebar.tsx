@@ -4,15 +4,7 @@ import { Category } from '../features/category/categoryTypes';
 interface FilterSidebarProps {
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
-  selectedFilters: {
-    variants: string[];
-    materials: string[];
-    categoryId: string;
-  };
-  toggleFilter: (type: 'variants' | 'materials', value: string) => void;
   clearFilters: () => void;
-  variantOptions: string[];
-  materialOptions: string[];
   categoryId?: string;
   categories: Category[];
   onCategoryChange: (categoryId: string) => void;
@@ -21,11 +13,7 @@ interface FilterSidebarProps {
 const FilterSidebar: FC<FilterSidebarProps> = ({
   priceRange,
   setPriceRange,
-  selectedFilters,
-  toggleFilter,
   clearFilters,
-  variantOptions,
-  materialOptions,
   categoryId,
   categories,
   onCategoryChange,
@@ -51,13 +39,13 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
                 <input
                   type="radio"
                   name="category"
-                  id={`category-${cat.id}`}
+                  id={`category-₹{cat.id}`}
                   checked={categoryId === cat.id}
                   onChange={() => onCategoryChange(cat.id)}
                   className="w-4 h-4 text-terracotta-600 border-gray-300 focus:ring-terracotta-500"
                 />
                 <label
-                  htmlFor={`category-${cat.id}`}
+                  htmlFor={`category-₹{cat.id}`}
                   className="ml-2 text-sm text-gray-700 capitalize"
                 >
                   {cat.name}
@@ -71,13 +59,13 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
           <h4 className="font-medium mb-3 text-gray-700">Price Range</h4>
           <div className="space-y-4">
             <div className="flex justify-between text-sm text-gray-500">
-              <span>${priceRange[0]}</span>
-              <span>${priceRange[1]}</span>
+              <span>₹{priceRange[0]}</span>
+              <span>₹{priceRange[1]}</span>
             </div>
             <input
               type="range"
               min="0"
-              max="200"
+              max="1000"
               value={priceRange[1]}
               onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
               className="w-full accent-terracotta-500"
@@ -101,45 +89,9 @@ const FilterSidebar: FC<FilterSidebarProps> = ({
           </div>
         </div>
 
-        <div className="mb-6 border-b border-cream-200 pb-6">
-          <h4 className="font-medium mb-3 text-gray-700">Variants</h4>
-          <div className="space-y-2">
-            {variantOptions.map((variant) => (
-              <div key={variant} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`variant-${variant}`}
-                  checked={selectedFilters.variants.includes(variant)}
-                  onChange={() => toggleFilter('variants', variant)}
-                  className="w-4 h-4 text-terracotta-600 border-gray-300"
-                />
-                <label htmlFor={`variant-${variant}`} className="ml-2 text-sm text-gray-700">
-                  {variant}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
+      
 
-        <div>
-          <h4 className="font-medium mb-3 text-gray-700">Materials</h4>
-          <div className="space-y-2">
-            {materialOptions.map((material) => (
-              <div key={material} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`material-${material}`}
-                  checked={selectedFilters.materials.includes(material)}
-                  onChange={() => toggleFilter('materials', material)}
-                  className="w-4 h-4 text-terracotta-600 border-gray-300"
-                />
-                <label htmlFor={`material-${material}`} className="ml-2 text-sm text-gray-700">
-                  {material}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
+        
       </div>
     </div>
   );

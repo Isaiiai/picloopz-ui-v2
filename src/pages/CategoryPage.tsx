@@ -36,9 +36,7 @@ import { useDebounceEffect } from '../utils/useDebounceEffect';
 
 type ViewMode = 'all' | 'category' | 'trending' | 'top-selling';
 
-const DEFAULT_PRICE_RANGE: [number, number] = [0, 200];
-const VARIANT_OPTIONS = ['Small', 'Medium', 'Large', 'One Size'];
-const MATERIAL_OPTIONS = ['Ceramic', 'Wood', 'Glass', 'Metal', 'Stone'];
+const DEFAULT_PRICE_RANGE: [number, number] = [0, 1000];
 
 const CategoryPage = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -68,7 +66,7 @@ const CategoryPage = () => {
     categoryId: '',
   });
 
-  const sortParams = useState({ sort: 'createdAt', sortOrder: 'desc' })[0];
+  const [sortParams, setSortParams] = useState({ sort: 'createdAt', sortOrder: 'desc' });
 
   const displayedProducts = useMemo(() => {
     switch (viewMode) {
@@ -101,6 +99,7 @@ const CategoryPage = () => {
     if (categoryId === 'trending' || categoryId === 'top-selling') {
       setViewMode(categoryId);
     } else if (categoryId && categoryId !== 'all') {
+      console.log(categoryId)
       dispatch(fetchCategoryById(categoryId));
       setViewMode('category');
       setSelectedFilters(prev => ({ ...prev, categoryId }));
@@ -140,6 +139,7 @@ const CategoryPage = () => {
         dispatch(getTopSellingProducts());
         break;
       case 'category':
+        console.log(selectedFilters.categoryId)
         dispatch(getProductsByCategory({ categoryId: selectedFilters.categoryId, params }));
         break;
       default:
@@ -197,11 +197,7 @@ const CategoryPage = () => {
           <FilterSidebar
             priceRange={priceRange}
             setPriceRange={setPriceRange}
-            selectedFilters={selectedFilters}
-            toggleFilter={toggleFilter}
             clearFilters={clearFilters}
-            variantOptions={VARIANT_OPTIONS}
-            materialOptions={MATERIAL_OPTIONS}
             categoryId={categoryId}
             categories={displayCategories}
             onCategoryChange={handleCategoryChange}
@@ -226,8 +222,6 @@ const CategoryPage = () => {
             selectedFilters={selectedFilters}
             toggleFilter={toggleFilter}
             clearFilters={clearFilters}
-            variantOptions={VARIANT_OPTIONS}
-            materialOptions={MATERIAL_OPTIONS}
             categoryId={categoryId}
             navigate={navigate}
             categories={displayCategories}
@@ -241,7 +235,7 @@ const CategoryPage = () => {
             pagination={pagination}
             clearFilters={clearFilters}
             sortParams={sortParams}
-            setSortParams={() => {}}
+            setSortParams={setSortParams}
             fetchProducts={fetchProducts}
             buildSearchParams={buildSearchParams}
             categoryId={categoryId}

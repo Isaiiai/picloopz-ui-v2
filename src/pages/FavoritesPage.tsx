@@ -40,7 +40,7 @@ const FavoritesPage = () => {
                     <Link to={`/product/${product.productId}`} className="hover:text-purple-600 transition-colors">
                       <h3 className="font-medium mb-1">{product.productName}</h3>
                     </Link>
-                    <p className="text-purple-600 font-medium">${product.productPrice.toFixed(2)}</p>
+                    <p className="text-purple-600 font-medium">₹{product.productPrice.toFixed(2)}</p>
                     
                     <div className="mt-auto flex flex-wrap gap-2">
                       <Link 

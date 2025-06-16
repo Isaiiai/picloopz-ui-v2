@@ -78,8 +78,6 @@ const MobileFilter: FC<MobileFilterProps> = ({
             {[
               { label: 'Categories', type: 'categories' },
               { label: 'Price Range', type: 'price' },
-              { label: 'Variants', type: 'variants' },
-              { label: 'Materials', type: 'materials' },
             ].map(({ label, type }) => (
               <div key={type} className="py-3">
                 <button
@@ -162,37 +160,6 @@ const MobileFilter: FC<MobileFilterProps> = ({
                         </>
                       )}
 
-                      {type === 'variants' &&
-                        variantOptions.map((variant) => (
-                          <div key={variant} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              id={`mobile-variant-${variant}`}
-                              checked={selectedFilters.variants.includes(variant)}
-                              onChange={() => toggleFilter('variants', variant)}
-                              className="w-4 h-4 text-terracotta-600 border-gray-300"
-                            />
-                            <label htmlFor={`mobile-variant-${variant}`} className="ml-2 text-sm text-gray-700">
-                              {variant}
-                            </label>
-                          </div>
-                        ))}
-
-                      {type === 'materials' &&
-                        materialOptions.map((material) => (
-                          <div key={material} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              id={`mobile-material-${material}`}
-                              checked={selectedFilters.materials.includes(material)}
-                              onChange={() => toggleFilter('materials', material)}
-                              className="w-4 h-4 text-terracotta-600 border-gray-300"
-                            />
-                            <label htmlFor={`mobile-material-${material}`} className="ml-2 text-sm text-gray-700">
-                              {material}
-                            </label>
-                          </div>
-                        ))}
                     </motion.div>
                   )}
                 </AnimatePresence>

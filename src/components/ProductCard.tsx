@@ -40,7 +40,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
   
   const formatPrice = (price: number) => {
-    return `$${price.toFixed(2)}`;
+    return `₹${price.toFixed(2)}`;
   };
   
   return (
@@ -52,7 +52,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <Link to={`/product/${product.id}`}>
         <div className="relative overflow-hidden rounded-lg aspect-square bg-gray-100 mb-3">
           <img 
-            src={product.variants[0].imageUrl} 
+            src={product.variants[0]?.imageUrl} 
             alt={product.name} 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />

@@ -18,6 +18,7 @@ const productSlice = createSlice({
     clearCategoryProducts(state) {
       state.categoryProducts = [];
       state.categoryInfo = null;
+      state.loading = true;
     },
     resetProductState() {
       return { ...initialState };

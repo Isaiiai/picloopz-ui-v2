@@ -4,9 +4,11 @@ import storage from 'redux-persist/lib/storage';
 import authReducer, { clearAuthState } from '../features/auth/authSlice';
 import cartReducer from '../features/cart/cartSlice';
 import categoryReducer from '../features/category/categorySlice';
-import productReducer from '../features/product/productSlice'
-import favoriteReducer from '../features/favorite/favoriteSlice'
-import orderReducer from '../features/order/orderSlice'
+import productReducer from '../features/product/productSlice';
+import favoriteReducer from '../features/favorite/favoriteSlice';
+import orderReducer from '../features/order/orderSlice';
+import uploadReducer from '../features/upload/uploadSlice';
+import reviewReducer from '../features/review/reviewSlice';
 import { configureApi } from '../config/axiosConfig';
 import { ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -18,6 +20,8 @@ const rootReducer = combineReducers({
   category: categoryReducer,
   favorite: favoriteReducer,
   order: orderReducer,
+  upload: uploadReducer,
+  reviews: reviewReducer,
 });
 
 const persistConfig = {

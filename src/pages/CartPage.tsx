@@ -5,6 +5,7 @@ import { useCart } from '../features/cart/useCart';
 import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
 import { CreateOrderData } from '../features/order/orderTypes';
+import { useUpload } from '../features/upload/useUpload';
 
 interface FormData {
   name: string;
@@ -15,6 +16,7 @@ interface FormData {
   state: string;
   zipCode: string;
   country: string;
+  notes: string;
 }
 
 const CartPage = () => {
@@ -24,6 +26,8 @@ const CartPage = () => {
     removeCartItem, 
     emptyCart 
   } = useCart();
+
+  const { singleUpload, clear } = useUpload();
   
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -33,7 +37,8 @@ const CartPage = () => {
     city: '',
     state: '',
     zipCode: '',
-    country: 'United States'
+    country: 'United States',
+    notes: '',
   });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -67,7 +72,7 @@ const CartPage = () => {
       productId: item.productId,
       variantId: item.variantId,
       quantity: item.quantity,
-      uploadedImageUrl: 'https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?q=80&w=600&auto=format&fit=crop',
+      uploadedImageUrl: singleUpload?.url?.toString() ?? '',
     })),
     shippingAddress: {
       fullName: formData.name,
@@ -85,10 +90,8 @@ const CartPage = () => {
     // Create the order
     try {
       const order = await createOrder(orderData);
-      
-      // Clear cart after successful order
-      emptyCart();
-      
+        emptyCart();
+        clear();
       // Redirect to order confirmation page
       navigate('/order-confirmation', { state: { order } });
     } catch (error) {
@@ -125,9 +128,9 @@ const CartPage = () => {
                 {cart.items.map(item => (
                   <div key={item.id} className="p-4 flex">
                     <div className="w-24 h-24 bg-gray-100 rounded overflow-hidden mr-4">
-                      {item.productImage && (
+                      {item && (
                         <img 
-                          src={item.productImage} 
+                          src="https://res.cloudinary.com/datwhboeh/image/upload/v1749658112/picloopz/products/xfhz8vobsraq6fegfpiy.jpg"
                           alt={item.productName} 
                           className="w-full h-full object-cover"
                         />
@@ -144,7 +147,7 @@ const CartPage = () => {
                             </p>
                           )}
                           <p className="text-purple-600 font-medium mt-1">
-                            ${item.unitPrice.toFixed(2)}
+                            ₹{item.unitPrice.toFixed(2)}
                           </p>
                         </div>
                         
@@ -182,7 +185,7 @@ const CartPage = () => {
                         
                         <div className="text-right">
                           <span className="font-medium">
-                            ${(item.unitPrice * item.quantity).toFixed(2)}
+                            ₹{(item.unitPrice * item.quantity).toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -203,20 +206,20 @@ const CartPage = () => {
               <div className="p-4 space-y-4">
                 <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${cart.totalAmount.toFixed(2)}</span>
+                  <span className="font-medium">₹{cart.totalAmount.toFixed(2)}</span>
                 </div>
                 
                 <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">
-                    {cart.totalAmount >= 50 ? 'Free' : '$5.00'}
+                    {cart.totalAmount >= 50 ? 'Free' : '₹5.00'}
                   </span>
                 </div>
                 
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
                   <span className="text-purple-600">
-                    ${(cart.totalAmount + (cart.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
+                    ₹{(cart.totalAmount + (cart.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
                   </span>
                 </div>
                 
