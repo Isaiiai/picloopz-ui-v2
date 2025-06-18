@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import ProductGrid from '../components/ProductGrid';
 import FilterSidebar from '../components/FilterSidebar';
@@ -67,6 +67,8 @@ const CategoryPage = () => {
   });
 
   const [sortParams, setSortParams] = useState({ sort: 'createdAt', sortOrder: 'desc' });
+  const [searchParams] = useSearchParams();
+  const searchQueryFromUrl = searchParams.get('search') || '';
 
   const displayedProducts = useMemo(() => {
     switch (viewMode) {
@@ -94,6 +96,14 @@ const CategoryPage = () => {
   useEffect(() => {
     dispatch(fetchCategories({ limit: 10, sort: 'displayOrder', sortOrder: 'asc' }));
   }, [dispatch]);
+
+  useEffect(() => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      materials: searchQueryFromUrl.trim() ? [searchQueryFromUrl] : [],
+    }));
+  }, [searchQueryFromUrl]);
+
 
   useEffect(() => {
     if (categoryId === 'trending' || categoryId === 'top-selling') {

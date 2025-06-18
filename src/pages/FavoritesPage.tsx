@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { Heart, ShoppingCart, ShoppingCartIcon, Trash2 } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
 
 const FavoritesPage = () => {
   const { favorites, removeFromFavorites } = useFavorite();
+
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -47,7 +48,6 @@ const FavoritesPage = () => {
                         to={`/product/${product.productId}`}
                         className="flex-1 px-3 py-2 bg-purple-600 text-white text-sm rounded flex items-center justify-center hover:bg-purple-700 transition-colors"
                       >
-                        <ShoppingCart size={16} className="mr-1" />
                         View Details
                       </Link>
                       
