@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, ShoppingBag, Trash2 } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import { useOrders } from '../contexts/OrderContext';
+import { useCart } from '../features/cart/useCart';
+import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
+import { CreateOrderData } from '../features/order/orderTypes';
+import { useUpload } from '../features/upload/useUpload';
 
 interface FormData {
   name: string;
@@ -14,10 +16,19 @@ interface FormData {
   state: string;
   zipCode: string;
   country: string;
+  notes: string;
 }
 
 const CartPage = () => {
-  const { cartItems, removeFromCart, updateQuantity, clearCart, cartTotal } = useCart();
+  const { 
+    cart, 
+    updateCartItem, 
+    removeCartItem, 
+    emptyCart 
+  } = useCart();
+
+  const { singleUpload, clear } = useUpload();
+  
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -26,7 +37,8 @@ const CartPage = () => {
     city: '',
     state: '',
     zipCode: '',
-    country: 'United States'
+    country: 'United States',
+    notes: '',
   });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -37,9 +49,9 @@ const CartPage = () => {
     }));
   };
   
-  const handleQuantityChange = (productId: number, newQuantity: number) => {
+  const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) newQuantity = 1;
-    updateQuantity(productId, newQuantity);
+    updateCartItem({ itemId, quantity: newQuantity });
   };
   
   const { createOrder } = useOrders();
@@ -54,11 +66,32 @@ const CartPage = () => {
       toast.error('Please fill in all required fields');
       return;
     }
+
+    const orderData: CreateOrderData = {
+    items: cart.items.map(item => ({
+      productId: item.productId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      uploadedImageUrl: singleUpload?.url?.toString() ?? '',
+    })),
+    shippingAddress: {
+      fullName: formData.name,
+      phone: formData.phone,
+      addressLine1: formData.address,
+      city: formData.city,
+      state: formData.state,
+      postalCode: formData.zipCode,
+      country: formData.country,
+    },
+    paymentMethod: 'cod',
+    notes: formData.notes || '',
+  };
     
     // Create the order
     try {
-      const order = await createOrder(formData);
-      
+      const order = await createOrder(orderData);
+        emptyCart();
+        clear();
       // Redirect to order confirmation page
       navigate('/order-confirmation', { state: { order } });
     } catch (error) {
@@ -68,22 +101,22 @@ const CartPage = () => {
   
   const isFormValid = () => {
     const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
-    return requiredFields.every(field => formData[field]);
+    return requiredFields.every(field => formData[field]) && cart.items.length > 0;
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 font-playfair">Shopping Cart</h1>
       
-      {cartItems.length > 0 ? (
+      {cart.items.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
               <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 className="font-semibold">Cart Items ({cartItems.length})</h2>
+                <h2 className="font-semibold">Cart Items ({cart.items.length})</h2>
                 <button 
-                  onClick={clearCart}
+                  onClick={emptyCart}
                   className="text-sm text-red-500 hover:text-red-700 transition-colors flex items-center"
                 >
                   <Trash2 size={14} className="mr-1" />
@@ -92,30 +125,34 @@ const CartPage = () => {
               </div>
               
               <div className="divide-y divide-gray-200">
-                {cartItems.map(item => (
-                  <div key={`${item.id}-${item.selectedVariant}`} className="p-4 flex">
+                {cart.items.map(item => (
+                  <div key={item.id} className="p-4 flex">
                     <div className="w-24 h-24 bg-gray-100 rounded overflow-hidden mr-4">
-                      <img 
-                        src={item.variants[item.selectedVariant].imageUrl} 
-                        alt={item.name} 
-                        className="w-full h-full object-cover"
-                      />
+                      {item && (
+                        <img 
+                          src="https://res.cloudinary.com/datwhboeh/image/upload/v1749658112/picloopz/products/xfhz8vobsraq6fegfpiy.jpg"
+                          alt={item.productName} 
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                     
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <div>
-                          <h3 className="font-medium">{item.name}</h3>
-                          <p className="text-gray-500 text-sm">
-                            Variant: {item.variants[item.selectedVariant].name}
-                          </p>
+                          <h3 className="font-medium">{item.productName}</h3>
+                          {item.variantName && (
+                            <p className="text-gray-500 text-sm">
+                              Variant: {item.variantName}
+                            </p>
+                          )}
                           <p className="text-purple-600 font-medium mt-1">
-                            ${item.price.toFixed(2)}
+                            ₹{item.unitPrice.toFixed(2)}
                           </p>
                         </div>
                         
                         <button 
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeCartItem(item.id)}
                           className="text-gray-400 hover:text-red-500 transition-colors"
                           aria-label="Remove item"
                         >
@@ -148,20 +185,8 @@ const CartPage = () => {
                         
                         <div className="text-right">
                           <span className="font-medium">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            ₹{(item.unitPrice * item.quantity).toFixed(2)}
                           </span>
-                        </div>
-                      </div>
-                      
-                      {/* Uploaded Image Preview */}
-                      <div className="mt-3 flex items-center">
-                        <span className="text-sm text-gray-500 mr-2">Uploaded Image:</span>
-                        <div className="w-10 h-10 rounded overflow-hidden border border-gray-200">
-                          <img 
-                            src={item.uploadedImage} 
-                            alt="Uploaded preview" 
-                            className="w-full h-full object-cover"
-                          />
                         </div>
                       </div>
                     </div>
@@ -181,20 +206,20 @@ const CartPage = () => {
               <div className="p-4 space-y-4">
                 <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${cartTotal.toFixed(2)}</span>
+                  <span className="font-medium">₹{cart.totalAmount.toFixed(2)}</span>
                 </div>
                 
                 <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">
-                    {cartTotal >= 50 ? 'Free' : '$5.00'}
+                    {cart.totalAmount >= 50 ? 'Free' : '₹5.00'}
                   </span>
                 </div>
                 
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
                   <span className="text-purple-600">
-                    ${(cartTotal + (cartTotal >= 50 ? 0 : 5)).toFixed(2)}
+                    ₹{(cart.totalAmount + (cart.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
                   </span>
                 </div>
                 
@@ -336,15 +361,15 @@ const CartPage = () => {
                 
                 <button
                   onClick={handleCheckout}
-                  disabled={!isFormValid()}
+                  disabled={!isFormValid() || cart.loading}
                   className={`w-full py-3 rounded-full font-medium flex items-center justify-center ${
-                    isFormValid()
+                    isFormValid() && !cart.loading
                       ? 'bg-purple-600 text-white hover:bg-purple-700'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   } transition-colors`}
                 >
-                  Proceed to Checkout
-                  <ChevronRight size={18} className="ml-1" />
+                  {cart.loading ? 'Processing...' : 'Proceed to Checkout'}
+                  {!cart.loading && <ChevronRight size={18} className="ml-1" />}
                 </button>
               </div>
             </div>

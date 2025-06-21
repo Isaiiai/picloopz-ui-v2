@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Heart, Menu, Search, ShoppingCart, User, X } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import { useFavorites } from '../contexts/FavoritesContext';
-import { useAuth } from '../contexts/AuthContext';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Heart, Menu, ShoppingCart, User, X } from 'lucide-react';
+import { useCart } from '../features/cart/useCart';
+import { useFavorite } from '../features/favorite/useFavorite';
+import { useAuth } from '../features/auth/authHooks';
 import LoginModal from './LoginModal';
+import ProductSearch from './ProductSearch';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const { cartItems } = useCart();
-  const { favorites } = useFavorites();
+  const { cart } = useCart();
+  const { favorites } = useFavorite();
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
@@ -31,28 +33,41 @@ const Header = () => {
     closeMenu();
   }, [location]);
 
+  const handleSearch = (query: string) => {
+    navigate(`/category/all?search=${encodeURIComponent(query)}`);
+  };
+
   return (
     <header className={`sticky top-0 w-full z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm' : 'bg-white'}`}>
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto px-4">
+        {/* Top Bar - Logo and Icons */}
+        <div className="flex items-center justify-between py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <span className="text-2xl font-playfair font-bold text-terracotta-700 tracking-wide">Picloopz</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="font-medium hover:text-terracotta-600 transition-colors">Home</Link>
-            <Link to="/category/all" className="font-medium hover:text-terracotta-600 transition-colors">Shop</Link>
-            <Link to="/gallery" className="font-medium hover:text-terracotta-600 transition-colors">Gallery</Link>
-            <Link to="/how-it-works" className="font-medium hover:text-terracotta-600 transition-colors">How It Works</Link>
-          </nav>
+          <div className='flex items-center gap-8'>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-8">
+              <Link to="/" className="font-medium hover:text-terracotta-600 transition-colors">Home</Link>
+              <Link to="/category/all" className="font-medium hover:text-terracotta-600 transition-colors">Shop</Link>
+              <Link to="/gallery" className="font-medium hover:text-terracotta-600 transition-colors">Gallery</Link>
+              <Link to="/about" className="font-medium hover:text-terracotta-600 transition-colors">About</Link>
+            </nav>
 
-          {/* Icons */}
+            {/* Desktop Search - Only visible on desktop */}
+            <div className="hidden md:block">
+              <ProductSearch 
+                onSearch={handleSearch} 
+                initialValue=""
+                placeholder="Search products..."
+              />
+            </div>
+          </div>
+
+          {/* Icons - Desktop */}
           <div className="hidden md:flex items-center space-x-5">
-            <button aria-label="Search" className="p-1 hover:text-terracotta-600 transition-colors">
-              <Search size={20} />
-            </button>
             <Link to="/favorites" className="p-1 hover:text-terracotta-500 transition-colors relative">
               <Heart size={20} />
               {favorites.length > 0 && (
@@ -63,9 +78,9 @@ const Header = () => {
             </Link>
             <Link to="/cart" className="p-1 hover:text-terracotta-500 transition-colors relative">
               <ShoppingCart size={20} />
-              {cartItems.length > 0 && (
+              {cart.totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  {cartItems.length}
+                  {cart.totalItems}
                 </span>
               )}
             </Link>
@@ -111,9 +126,9 @@ const Header = () => {
             </Link>
             <Link to="/cart" className="p-1 relative">
               <ShoppingCart size={20} />
-              {cartItems.length > 0 && (
+              {cart.items.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  {cartItems.length}
+                  {cart.items.length}
                 </span>
               )}
             </Link>
@@ -125,6 +140,16 @@ const Header = () => {
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
+        </div>
+
+        {/* Search Bar - Always visible on mobile below the top bar */}
+        <div className="md:hidden pb-3">
+          <ProductSearch 
+            onSearch={handleSearch} 
+            initialValue=""
+            placeholder="Search products..."
+            isMobile
+          />
         </div>
       </div>
 
@@ -142,6 +167,9 @@ const Header = () => {
             <Link to="/category/all" className="py-2 border-b border-gray-100">Shop</Link>
             <Link to="/gallery" className="py-2 border-b border-gray-100">Gallery</Link>
             <Link to="/how-it-works" className="py-2 border-b border-gray-100">How It Works</Link>
+            <Link to="/about" className="py-2 border-b border-gray-100">About</Link>
+            <Link to="/contact" className="py-2 border-b border-gray-100">Contact</Link>
+            <Link to="/faq" className="py-2 border-b border-gray-100">FAQ</Link>
             {isAuthenticated ? (
               <Link to="/account" className="py-2 border-b border-gray-100">My Account</Link>
             ) : (
