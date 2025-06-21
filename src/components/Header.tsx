@@ -40,7 +40,6 @@ const Header = () => {
   return (
     <header className={`sticky top-0 w-full z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm' : 'bg-white'}`}>
       <div className="container mx-auto px-4">
-        {/* Top Bar - Logo and Icons */}
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center">

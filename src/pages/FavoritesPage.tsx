@@ -3,7 +3,7 @@ import { Heart, ShoppingCart, ShoppingCartIcon, Trash2 } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
 
 const FavoritesPage = () => {
-  const { favorites, removeFromFavorites } = useFavorite();
+  const { favorites, removeFromFavorites, clearAll } = useFavorite();
 
   
   return (
@@ -15,7 +15,7 @@ const FavoritesPage = () => {
           <div className="flex justify-between items-center mb-6">
             <p className="text-gray-600">{favorites.length} {favorites.length === 1 ? 'item' : 'items'}</p>
             <button 
-              onClick={()=> {}}
+              onClick={()=>{clearAll()}}
               className="text-red-500 flex items-center hover:text-red-700 transition-colors"
             >
               <Trash2 size={16} className="mr-1" />

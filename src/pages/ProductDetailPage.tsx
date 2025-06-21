@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,39 +13,30 @@ import {
   selectCurrentProduct,
   selectProductLoading,
   selectCategoryInfo,
-  selectCategoryProducts
+  selectCategoryProducts,
 } from '../features/product/productSelectors';
 import {
   getProductById,
-  getProductsByCategory
+  getProductsByCategory,
 } from '../features/product/productThunks';
 import {
-  clearCurrentProduct
+  clearCurrentProduct,
 } from '../features/product/productSlice';
-import {
-  clearError as clearReviewError
-} from '../features/review/reviewSlice';
+import { clearError as clearReviewError } from '../features/review/reviewSlice';
 import { clearUploadState } from '../features/upload/uploadSlice';
 
 import ProductGallery from '../components/product/ProductGallery';
 import ProductInfo from '../components/product/ProductInfo';
-import ProductTabs from '../components/product/ProductTabs';
-import RelatedProducts from '../components/product/RelatedProducts';
-import ImageModal from '../components/product/ImageModal';
-import { useDropzone } from 'react-dropzone';
 import SkeletonLoader from '../components/SkeletonLoader';
+import { useDropzone } from 'react-dropzone';
 
-interface Review {
-  id: string;
-  rating: number;
-  comment: string;
-  images: string[];
-}
+const ProductTabs = lazy(() => import('../components/product/ProductTabs'));
+const RelatedProducts = lazy(() => import('../components/product/RelatedProducts'));
+const ImageModal = lazy(() => import('../components/product/ImageModal'));
 
 const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const dispatch = useDispatch<AppDispatch>();
-  
 
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorite();
@@ -54,7 +45,7 @@ const ProductDetailPage = () => {
     uploadMultiple,
     clear: clearUpload,
     singleUpload,
-    multipleUpload,
+    reviewImageUpload,
     loading: uploadLoading,
     error: uploadError,
   } = useUpload();
@@ -74,17 +65,50 @@ const ProductDetailPage = () => {
   const categoryInfo = useSelector(selectCategoryInfo);
   const relatedProducts = useSelector(selectCategoryProducts);
 
+  const requiredFilesCount = 2;
+
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [editingReview, setEditingReview] = useState(null);
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [files, setFiles] = useState<File[]>([]);
   const [newReview, setNewReview] = useState({
     rating: 5,
     comment: '',
-    images: [] as string[]
+    images: [],
+  });
+
+  const flatReviewImages = useMemo(() => reviews.flatMap((r) => r.images), [reviews]);
+
+  const onEditReview = useCallback((review) => {
+    setEditingReview(review);
+    setNewReview({
+      rating: review.rating,
+      comment: review.comment,
+      images: review.images,
+    });
+  }, []);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (filesToUpload.length + acceptedFiles.length > requiredFilesCount) {
+      toast.error(`You can only upload ${requiredFilesCount} images`);
+      return;
+    }
+    const newFiles = [...filesToUpload, ...acceptedFiles];
+    setFilesToUpload(newFiles);
+    const newPreviewUrls = acceptedFiles.map((file) => URL.createObjectURL(file));
+    setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+  }, [filesToUpload]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png'] },
+    maxFiles: requiredFilesCount,
+    onDrop,
   });
 
   useEffect(() => {
@@ -95,15 +119,15 @@ const ProductDetailPage = () => {
   }, [uploadError, clearUpload]);
 
   useEffect(() => {
-    if (multipleUpload?.uploads?.length) {
-      setNewReview(prev => ({
+    if (reviewImageUpload?.uploads?.length) {
+      setNewReview((prev) => ({
         ...prev,
-        images: [...prev.images, ...multipleUpload.uploads.map(u => u.url)]
+        images: [...prev.images, ...reviewImageUpload.uploads.map((u) => u.url)],
       }));
       setFiles([]);
       dispatch(clearUploadState());
     }
-  }, [multipleUpload, dispatch]);
+  }, [reviewImageUpload]);
 
   useEffect(() => {
     if (productId) {
@@ -117,21 +141,23 @@ const ProductDetailPage = () => {
   }, [dispatch, productId]);
 
   useEffect(() => {
-    if (product?.categoryId) {
+    if (product?.categoryId?._id) {
       dispatch(getProductsByCategory({ categoryId: product.categoryId._id, params: { limit: 4 } }));
     }
-  }, [dispatch, product?.categoryId]);
-  
+  }, [dispatch, product?.categoryId?._id]);
+
+  useEffect(() => {
+    return () => previewUrls.forEach((url) => URL.revokeObjectURL(url));
+  }, [previewUrls]);
 
   const handleAddToCart = () => {
-    if (product) {
-      addToCart({
-        productId: product.id,
-        variantId: product.variants[selectedVariant].id,
-        quantity,
-      });
-      toast.success('Added to cart!');
-    }
+    if (!product) return;
+    addToCart({
+      productId: product.id,
+      variantId: product.variants[selectedVariant].id,
+      quantity,
+    });
+    toast.success('Added to cart!');
   };
 
   const toggleFavorite = () => {
@@ -145,27 +171,39 @@ const ProductDetailPage = () => {
     }
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { 'image/*': ['.jpeg', '.jpg', '.png'] },
-    maxFiles: 1,
-    onDrop: (acceptedFiles) => {
-      const file = acceptedFiles[0];
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('productId', productId || '');
-        uploadSingle(formData);
-      }
+  const handleUploadCartImages = async () => {
+    if (filesToUpload.length < requiredFilesCount) {
+      toast.error(`Please upload ${requiredFilesCount} images`);
+      return;
     }
-  });
+    const formData = new FormData();
+    filesToUpload.forEach((file) => formData.append('images', file));
+    formData.append('productId', productId || '');
+    try {
+      await uploadMultiple({
+        formData,
+        purpose: 'cart',
+        onUploadProgress: (e: ProgressEvent) => {
+          const progress = Math.round((e.loaded * 100) / (e.total || 1));
+          setUploadProgress(progress);
+        },
+      });
+      toast.success('Images uploaded successfully!');
+      setFilesToUpload([]);
+      setPreviewUrls([]);
+      setUploadProgress(0);
+    } catch {
+      toast.error('Failed to upload images');
+    }
+  };
 
   const handleUploadReviewImages = async () => {
     if (!files.length) return;
     const formData = new FormData();
-    files.forEach(file => formData.append('images', file));
+    files.forEach((file) => formData.append('images', file));
     formData.append('productId', productId || '');
     try {
-      await uploadMultiple(formData);
+      await uploadMultiple({ formData, purpose: 'review' });
     } catch {
       toast.error('Failed to upload images');
     }
@@ -176,28 +214,14 @@ const ProductDetailPage = () => {
       toast.error('Please add a comment to your review');
       return;
     }
-
     try {
       if (editingReview) {
-        await editReview(
-          editingReview.id,
-          {
-            rating: newReview.rating,
-            comment: newReview.comment,
-            images: newReview.images,
-          }
-        );
+        await editReview(editingReview.id, newReview);
         toast.success('Review updated!');
       } else {
-        await submitReview({
-          productId,
-          rating: newReview.rating,
-          comment: newReview.comment,
-          images: newReview.images,
-        });
+        await submitReview({ productId, ...newReview });
         toast.success('Review submitted!');
       }
-      
       setNewReview({ rating: 5, comment: '', images: [] });
       setEditingReview(null);
     } catch {
@@ -211,17 +235,16 @@ const ProductDetailPage = () => {
   };
 
   if (loading || !product) {
-  return (
-    <div className="container mx-auto px-4 py-12">
-      <SkeletonLoader />
-    </div>
-  );
-}
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <SkeletonLoader />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-cream-50 min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumbs */}
         <div className="flex items-center text-sm text-gray-500 mb-8">
           <span>Home</span>
           <span className="mx-2">/</span>
@@ -230,14 +253,13 @@ const ProductDetailPage = () => {
           <span className="text-gray-700 font-medium">{product.name}</span>
         </div>
 
-        {/* Product Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           <ProductGallery
             productName={product.name}
             variants={product.variants}
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
-            reviewImages={reviews.flatMap((r) => r.images)}
+            reviewImages={flatReviewImages}
             selectedImageIndex={selectedImageIndex}
             setSelectedImageIndex={setSelectedImageIndex}
             showImageModal={showImageModal}
@@ -259,48 +281,44 @@ const ProductDetailPage = () => {
             handleAddToCart={handleAddToCart}
             isInFavorites={isInFavorites(product.id)}
             toggleFavorite={toggleFavorite}
+            requiredFilesCount={requiredFilesCount}
+            filesToUpload={filesToUpload}
+            setFilesToUpload={setFilesToUpload}
+            previewUrls={previewUrls}
+            setPreviewUrls={setPreviewUrls}
+            uploadProgress={uploadProgress}
+            handleUploadCartImages={handleUploadCartImages}
           />
         </div>
 
-        {/* Tabs */}
-        <ProductTabs
-          product={product}
-          reviews={reviews}
-          total={total}
-          averageRating={averageRating}
-          newReview={newReview}
-          setNewReview={setNewReview}
-          files={files}
-          setFiles={setFiles}
-          handleSubmitReview={handleSubmitReview}
-          handleUploadReviewImages={handleUploadReviewImages}
-          uploadLoading={uploadLoading}
-          reviewLoading={reviewLoading}
-          onEditReview={(review) => {
-            setEditingReview(review);
-            setNewReview({
-              rating: review.rating,
-              comment: review.comment,
-              images: review.images
-            });
-          }}
-          editingReview={editingReview}
-          onImageClick={handleImageClick}
-        />
+        <Suspense fallback={<SkeletonLoader />}>
+          <ProductTabs
+            product={product}
+            reviews={reviews}
+            total={total}
+            averageRating={averageRating}
+            newReview={newReview}
+            setNewReview={setNewReview}
+            files={files}
+            setFiles={setFiles}
+            handleSubmitReview={handleSubmitReview}
+            handleUploadReviewImages={handleUploadReviewImages}
+            uploadLoading={uploadLoading}
+            reviewLoading={reviewLoading}
+            onEditReview={onEditReview}
+            editingReview={editingReview}
+            onImageClick={handleImageClick}
+          />
 
-        {/* Related Products */}
-        <RelatedProducts relatedProducts={relatedProducts} categoryId={product.categoryId} />
+          <RelatedProducts relatedProducts={relatedProducts} categoryId={product.categoryId} />
+
+          <ImageModal
+            isOpen={showImageModal}
+            onClose={() => setShowImageModal(false)}
+            imageUrl={flatReviewImages[selectedImageIndex] || product.variants[selectedVariant].imageUrl}
+          />
+        </Suspense>
       </div>
-
-      {/* Image Modal */}
-      <ImageModal
-        isOpen={showImageModal}
-        onClose={() => setShowImageModal(false)}
-        imageUrl={
-          reviews.flatMap(r => r.images)[selectedImageIndex] || 
-          product.variants[selectedVariant].imageUrl
-        }
-      />
     </div>
   );
 };

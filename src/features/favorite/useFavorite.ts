@@ -4,7 +4,8 @@ import {
   fetchFavorites,
   addFavorite,
   removeFavorite,
-  fetchFavoriteCount
+  fetchFavoriteCount,
+  clearAllFavorites
 } from '../favorite/favoriteThunk';
 
 export const useFavorite = () => {
@@ -20,6 +21,10 @@ export const useFavorite = () => {
   const removeFromFavorites = (productId: string) => {
     dispatch(removeFavorite(productId));
   };
+
+  const clearAll = () => {
+    dispatch(clearAllFavorites());
+  }
 
   const loadFavorites = () => {
     dispatch(fetchFavorites());
@@ -42,6 +47,7 @@ export const useFavorite = () => {
     removeFromFavorites,
     isInFavorites,
     loadFavorites,
-    loadFavoritesCount
+    loadFavoritesCount,
+    clearAll
   };
 };

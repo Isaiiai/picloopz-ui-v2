@@ -3,6 +3,7 @@ import { Star, Upload, Check, ShoppingCart, Heart, Share2, Verified } from 'luci
 import { DropzoneRootProps, DropzoneInputProps } from 'react-dropzone';
 import ProductShareMenu from './ProductShareMenu';
 import { useReview } from '../../features/review/useReview';
+import { useUpload } from '../../features/upload/useUpload';
 
 interface ProductInfoProps {
   product: any;
@@ -19,6 +20,13 @@ interface ProductInfoProps {
   handleAddToCart: () => void;
   isInFavorites: boolean;
   toggleFavorite: () => void;
+  requiredFilesCount: number;
+  filesToUpload: File[];
+  previewUrls: string[];
+  uploadProgress: number;
+  setFilesToUpload: (q: File[]) => any;
+  setPreviewUrls: (q: string[]) => any;
+  handleUploadCartImages: () => any;
 }
 
 const ProductInfo: React.FC<ProductInfoProps> = ({
@@ -36,8 +44,16 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   handleAddToCart,
   isInFavorites,
   toggleFavorite,
+  requiredFilesCount,
+  filesToUpload,
+  uploadProgress,
+  previewUrls,
+  setFilesToUpload,
+  setPreviewUrls,
+  handleUploadCartImages
 }) => {
   const { total } = useReview();
+  const { loading, cartImagesUpload } = useUpload();
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -80,7 +96,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
       {/* Price */}
       <div className="text-3xl font-bold text-terracotta-600 mb-8">
-        ₹{(product.basePrice + product.variants[selectedVariant].additionalPrice).toFixed(2)}
+        ₹{(product.variants[selectedVariant].price).toFixed(2)}
       </div>
 
       {/* Variant Selection */}
@@ -99,7 +115,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             >
               <div className="font-medium">{variant.name}</div>
               <div className="text-sm opacity-75">
-                ₹{(product.basePrice + variant.additionalPrice).toFixed(2)}
+                ₹{(variant.price).toFixed(2)}
               </div>
             </button>
           ))}
@@ -134,51 +150,117 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
       {/* Upload Image */}
       <div className="mb-8">
-        <h3 className="font-semibold mb-2 text-gray-900">Upload Your Photo</h3>
+        <h3 className="font-semibold mb-2 text-gray-900">
+          Upload Your Photos ({requiredFilesCount} required)
+        </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Upload an image to customize your product. This is required before adding to cart.
+          {cartImagesUpload?.uploads?.length === requiredFilesCount
+            ? "All images uploaded successfully!"
+            : `Please upload ${requiredFilesCount} images to customize your product`}
         </p>
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
-            isDragActive
-              ? 'border-terracotta-400 bg-terracotta-50'
-              : singleUpload
-              ? 'border-green-400 bg-green-50'
-              : 'border-cream-300 hover:border-terracotta-300 hover:bg-cream-50'
-          }`}
-        >
-          <input {...getInputProps()} />
-          {uploadLoading ? (
-            <div className="space-y-3">
-              <div className="animate-pulse flex justify-center">
-                <div className="h-10 w-10 bg-terracotta-200 rounded-full"></div>
-              </div>
-              <p className="text-sm text-gray-600 font-medium">Uploading image...</p>
-            </div>
-          ) : singleUpload ? (
-            <div className="space-y-3">
-              <div className="relative inline-block">
-                <img
-                  src={singleUpload.url}
-                  alt="Uploaded preview"
-                  className="max-h-32 mx-auto object-contain rounded-lg"
-                />
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                  <Check size={14} className="text-white" />
-                </div>
-              </div>
-              <p className="text-sm text-green-600 font-medium">Image uploaded successfully!</p>
-              <p className="text-xs text-gray-500">Click or drag to replace the image</p>
-            </div>
-          ) : (
+        
+        {/* Dropzone */}
+        {(!cartImagesUpload || cartImagesUpload.uploads.length < requiredFilesCount) && (
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+              isDragActive ? 'border-terracotta-400 bg-terracotta-50' : 'border-cream-300 hover:border-terracotta-300 hover:bg-cream-50'
+            }`}
+          >
+            <input {...getInputProps()} />
             <div className="space-y-3">
               <Upload className="mx-auto text-gray-400" size={40} />
-              <p className="text-gray-700 font-medium">Drag and drop an image here, or click to select</p>
-              <p className="text-xs text-gray-500">Supported formats: JPG, PNG. Max size: 5MB</p>
+              <p className="text-gray-700 font-medium">
+                Drag and drop images here, or click to select
+              </p>
+              <p className="text-xs text-gray-500">
+                {filesToUpload.length + (cartImagesUpload?.uploads?.length || 0)}/{requiredFilesCount} images selected
+              </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Progress Bar */}
+        {loading.cartUploadLoading && (
+          <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="bg-terracotta-600 h-2.5 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+        )}
+
+        {/* Preview section */}
+        {(previewUrls.length > 0 || cartImagesUpload?.uploads?.length) && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">
+              {cartImagesUpload?.uploads?.length === requiredFilesCount
+                ? "Uploaded Images:"
+                : "Selected Images:"}
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {/* Show uploaded images first */}
+              {cartImagesUpload?.uploads?.map((upload, index) => (
+                <div key={`uploaded-${index}`} className="relative">
+                  <img
+                    src={upload.url}
+                    alt={`Uploaded ${index + 1}`}
+                    className="h-20 w-20 object-cover rounded-lg"
+                  />
+                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white">
+                    <Check size={12} />
+                  </div>
+                </div>
+              ))}
+              
+              {/* Show local previews for not-yet-uploaded files */}
+              {previewUrls.map((url, index) => (
+                <div key={`preview-${index}`} className="relative">
+                  <img
+                    src={url}
+                    alt={`Preview ${index + 1}`}
+                    className="h-20 w-20 object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={() => {
+                      const newFiles = [...filesToUpload];
+                      const newPreviews = [...previewUrls];
+                      newFiles.splice(index, 1);
+                      newPreviews.splice(index, 1);
+                      setFilesToUpload(newFiles);
+                      setPreviewUrls(newPreviews);
+                    }}
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Upload button */}
+        {filesToUpload.length > 0 && !loading.cartUploadLoading && (
+          <div className="mt-4">
+            <button
+              onClick={handleUploadCartImages}
+              disabled={filesToUpload.length + (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount}
+              className={`w-full py-2 px-4 rounded-lg font-medium ${
+                filesToUpload.length + (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-terracotta-600 text-white hover:bg-terracotta-700'
+              }`}
+            >
+              Upload {filesToUpload.length} Image{filesToUpload.length !== 1 ? 's' : ''}
+            </button>
+            {filesToUpload.length + (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount && (
+              <p className="text-xs text-red-500 mt-1">
+                Please select {requiredFilesCount - (filesToUpload.length + (cartImagesUpload?.uploads?.length || 0))} more image{requiredFilesCount - (filesToUpload.length + (cartImagesUpload?.uploads?.length || 0)) !== 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Buttons */}
@@ -187,15 +269,18 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleAddToCart}
-          disabled={!singleUpload || uploadLoading}
+          disabled={
+            (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount ||
+            loading.cartUploadLoading
+          }
           className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-lg transition-all ${
-            singleUpload && !uploadLoading
+            cartImagesUpload && !loading.cartUploadLoading
               ? 'bg-terracotta-600 text-white hover:bg-terracotta-700 shadow-lg hover:shadow-xl'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
           }`}
         >
           <ShoppingCart size={20} />
-          {uploadLoading ? 'Processing...' : 'Add to Cart'}
+          {loading.cartUploadLoading ? 'Processing...' : 'Add to Cart'}
         </motion.button>
 
         <div className="flex gap-3">

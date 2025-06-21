@@ -61,3 +61,15 @@ export const checkIfFavorite = createAsyncThunk<boolean, string>(
     }
   }
 );
+
+export const clearAllFavorites = createAsyncThunk(
+  'favorites/clearAllFavorites',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.delete('/favorites/clear-all');
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);

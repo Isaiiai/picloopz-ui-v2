@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Star, Camera, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Review } from '../../features/review/reviewTypes';
+import { useUpload } from '../../features/upload/useUpload';
 
 interface ReviewFormModalProps {
   isOpen: boolean;
@@ -43,6 +44,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
   setReview,
   isEditOn,
 }) => {
+  const { loading } = useUpload();
   const { getRootProps, getInputProps } = useDropzone({
     accept: { 'image/*': ['.jpeg', '.jpg', '.png'] },
     maxFiles: 4,
@@ -159,11 +161,11 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
               <div
                 {...getRootProps()}
                 className={`border-2 border-dashed ${
-                  uploadLoading ? 'border-gray-300' : 'border-cream-300'
+                  loading.reviewUploadLoading ? 'border-gray-300' : 'border-cream-300'
                 } rounded-xl p-6 text-center cursor-pointer hover:border-terracotta-300 transition-colors`}
               >
                 <input {...getInputProps()} />
-                {uploadLoading ? (
+                {loading.reviewUploadLoading ? (
                   <div>Uploading...</div>
                 ) : (
                   <>
@@ -178,13 +180,13 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                 )}
               </div>
 
-              {files.length > 0 && !uploadLoading && (
+              {files.length > 0 && !loading.reviewUploadLoading && (
                 <button
                   onClick={handleUploadReviewImages}
-                  disabled={uploadLoading}
+                  disabled={loading.reviewUploadLoading}
                   className="mt-3 px-4 py-2 bg-terracotta-100 text-terracotta-700 rounded-lg hover:bg-terracotta-200 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {uploadLoading ? 'Uploading...' : `Upload ${files.length} Image(s)`}
+                  {loading.reviewUploadLoading ? 'Uploading...' : `Upload ${files.length} Image(s)`}
                 </button>
               )}
 
@@ -222,7 +224,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting || uploadLoading}
+                disabled={isSubmitting || loading.reviewUploadLoading}
                 className="flex-1 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (

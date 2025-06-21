@@ -6,6 +6,8 @@ import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
 import { CreateOrderData } from '../features/order/orderTypes';
 import { useUpload } from '../features/upload/useUpload';
+import { loadRazorpayScript } from '../utils/loadRazorpayScript';
+import axios from 'axios';
 
 interface FormData {
   name: string;
@@ -27,7 +29,7 @@ const CartPage = () => {
     emptyCart 
   } = useCart();
 
-  const { singleUpload, clear } = useUpload();
+  const { cartImagesUpload, clear } = useUpload();
   
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -54,50 +56,92 @@ const CartPage = () => {
     updateCartItem({ itemId, quantity: newQuantity });
   };
   
-  const { createOrder } = useOrders();
+  const { createOrder, verifyPayment } = useOrders();
   const navigate = useNavigate();
   
   const handleCheckout = async () => {
-    // Validate form
-    const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
-    const missingFields = requiredFields.filter(field => !formData[field]);
-    
-    if (missingFields.length > 0) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
+  const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
+  const missingFields = requiredFields.filter(field => !formData[field]);
 
+  if (missingFields.length > 0) {
+    toast.error('Please fill in all required fields');
+    return;
+  }
+
+  const isRazorpayScriptLoaded = await loadRazorpayScript();
+  if (!isRazorpayScriptLoaded) {
+    toast.error('Razorpay Failed to load. Are you online?');
+    return;
+  }
+
+  try {
     const orderData: CreateOrderData = {
-    items: cart.items.map(item => ({
-      productId: item.productId,
-      variantId: item.variantId,
-      quantity: item.quantity,
-      uploadedImageUrl: singleUpload?.url?.toString() ?? '',
-    })),
-    shippingAddress: {
-      fullName: formData.name,
-      phone: formData.phone,
-      addressLine1: formData.address,
-      city: formData.city,
-      state: formData.state,
-      postalCode: formData.zipCode,
-      country: formData.country,
-    },
-    paymentMethod: 'cod',
-    notes: formData.notes || '',
-  };
-    
-    // Create the order
-    try {
-      const order = await createOrder(orderData);
+      items: cart.items.map(item => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        uploadedImageUrl: cartImagesUpload?.uploads[0]?.url ?? '',
+      })),
+      shippingAddress: {
+        fullName: formData.name,
+        phone: formData.phone,
+        addressLine1: formData.address,
+        city: formData.city,
+        state: formData.state,
+        postalCode: formData.zipCode,
+        country: formData.country,
+      },
+      paymentMethod: 'razorpay',
+      notes: formData.notes || '',
+    };
+
+    // ✅ Get clean response
+    const orderResponse = await createOrder(orderData).unwrap();
+    console.log(orderResponse)
+    const { razorpayOrderId, totalAmount } = orderResponse;
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: totalAmount * 100,
+      currency: 'INR',
+      name: 'Picloopz',
+      description: 'Secure Payment',
+      order_id: razorpayOrderId,
+      handler: async function (response: any) {
+        console.log(response)
+        const verifyRes = await verifyPayment({
+          razorpayOrderId: response.razorpay_order_id,
+          razorpayPaymentId: response.razorpay_payment_id,
+          razorpaySignature: response.razorpay_signature,
+        }).unwrap();
+
+        if (verifyRes.status !== 'Confirmed') {
+          toast.error('Payment verification failed');
+          return;
+        }
+
+        toast.success('Payment Successful!');
         emptyCart();
         clear();
-      // Redirect to order confirmation page
-      navigate('/order-confirmation', { state: { order } });
-    } catch (error) {
-      toast.error('Failed to create order. Please try again.');
-    }
-  };
+        navigate('/order-confirmation', { state: { order: verifyRes.data } });
+      },
+      prefill: {
+        name: formData.name,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: { color: '#6366F1' },
+    };
+
+    const razorpay = new (window as any).Razorpay(options);
+    razorpay.open();
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err?.message || 'Checkout failed');
+  }
+};
+
+
   
   const isFormValid = () => {
     const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
@@ -130,7 +174,7 @@ const CartPage = () => {
                     <div className="w-24 h-24 bg-gray-100 rounded overflow-hidden mr-4">
                       {item && (
                         <img 
-                          src="https://res.cloudinary.com/datwhboeh/image/upload/v1749658112/picloopz/products/xfhz8vobsraq6fegfpiy.jpg"
+                          src={item.productImage}
                           alt={item.productName} 
                           className="w-full h-full object-cover"
                         />
@@ -147,7 +191,7 @@ const CartPage = () => {
                             </p>
                           )}
                           <p className="text-purple-600 font-medium mt-1">
-                            ₹{item.unitPrice.toFixed(2)}
+                            ₹{item.unitPrice}
                           </p>
                         </div>
                         
@@ -206,7 +250,7 @@ const CartPage = () => {
               <div className="p-4 space-y-4">
                 <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">₹{cart.totalAmount.toFixed(2)}</span>
+                  <span className="font-medium">₹{cart.totalAmount}</span>
                 </div>
                 
                 <div className="flex justify-between pb-4 border-b border-gray-200">

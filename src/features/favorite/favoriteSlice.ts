@@ -5,7 +5,8 @@ import {
   addFavorite,
   removeFavorite,
   fetchFavoriteCount,
-  checkIfFavorite
+  checkIfFavorite,
+  clearAllFavorites
 } from './favoriteThunk';
 
 const initialState: FavoriteState = {
@@ -49,6 +50,19 @@ const favoriteSlice = createSlice({
 
       .addCase(fetchFavoriteCount.fulfilled, (state, action: PayloadAction<number>) => {
         state.count = action.payload;
+      })
+      .addCase(clearAllFavorites.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(clearAllFavorites.fulfilled, (state) => {
+        state.favorites = [];
+        state.count = 0;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(clearAllFavorites.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to clear favorites';
       });
   }
 });
