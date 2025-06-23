@@ -10,12 +10,6 @@ import { useUpload } from '../features/upload/useUpload';
 import { useReview } from '../features/review/useReview';
 
 import {
-  selectCurrentProduct,
-  selectProductLoading,
-  selectCategoryInfo,
-  selectCategoryProducts
-} from '../features/product/productSelectors';
-import {
   getProductById,
   getProductsByCategory
 } from '../features/product/productThunks';
@@ -34,13 +28,13 @@ import RelatedProducts from '../components/product/RelatedProducts';
 import ImageModal from '../components/product/ImageModal';
 import { useDropzone } from 'react-dropzone';
 import SkeletonLoader from '../components/SkeletonLoader';
-
-interface Review {
-  id: string;
-  rating: number;
-  comment: string;
-  images: string[];
-}
+import type { Review } from '../features/review/reviewTypes';
+import {
+  selectCurrentProduct,
+  selectProductLoading,
+  selectCategoryInfo,
+  selectCategoryProducts
+} from '../features/product/productSelectors';
 
 const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -118,7 +112,7 @@ const ProductDetailPage = () => {
 
   useEffect(() => {
     if (product?.categoryId) {
-      dispatch(getProductsByCategory({ categoryId: product.categoryId._id, params: { limit: 4 } }));
+      dispatch(getProductsByCategory({ categoryId: product.categoryId, params: { limit: 4 } }));
     }
   }, [dispatch, product?.categoryId]);
   
@@ -220,24 +214,26 @@ const ProductDetailPage = () => {
 
   return (
     <div className="bg-cream-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-screen-xl px-2 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 overflow-x-hidden">
         {/* Breadcrumbs */}
-        <div className="flex items-center text-sm text-gray-500 mb-8">
-          <span>Home</span>
+        <div className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 md:mb-8 px-1 sm:px-0">
+          <a href="/" className="hover:text-terracotta-600">Home</a>
           <span className="mx-2">/</span>
-          <span>{categoryInfo?.name || 'Category'}</span>
+          <a href={`/category/${product?.categoryId}`} className="hover:text-terracotta-600">
+            {product?.categoryName || 'Category'}
+          </a>
           <span className="mx-2">/</span>
           <span className="text-gray-700 font-medium">{product.name}</span>
         </div>
 
         {/* Product Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 mb-8 sm:mb-12 lg:mb-16">
           <ProductGallery
             productName={product.name}
-            variants={product.variants}
+            variants={(product.variants || []).map(v => ({ name: v.name, imageUrl: v.imageUrl || '' }))}
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
-            reviewImages={reviews.flatMap((r) => r.images)}
+            reviewImages={reviews?.flatMap?.((r) => r.images) || []}
             selectedImageIndex={selectedImageIndex}
             setSelectedImageIndex={setSelectedImageIndex}
             showImageModal={showImageModal}
@@ -263,33 +259,62 @@ const ProductDetailPage = () => {
         </div>
 
         {/* Tabs */}
-        <ProductTabs
-          product={product}
-          reviews={reviews}
-          total={total}
-          averageRating={averageRating}
-          newReview={newReview}
-          setNewReview={setNewReview}
-          files={files}
-          setFiles={setFiles}
-          handleSubmitReview={handleSubmitReview}
-          handleUploadReviewImages={handleUploadReviewImages}
-          uploadLoading={uploadLoading}
-          reviewLoading={reviewLoading}
-          onEditReview={(review) => {
-            setEditingReview(review);
-            setNewReview({
-              rating: review.rating,
-              comment: review.comment,
-              images: review.images
-            });
-          }}
-          editingReview={editingReview}
-          onImageClick={handleImageClick}
-        />
+        <div className="mt-8 sm:mt-12">
+          <ProductTabs
+            product={product}
+            reviews={reviews || []}
+            total={total}
+            averageRating={averageRating}
+            newReview={newReview}
+            setNewReview={setNewReview}
+            files={files}
+            setFiles={setFiles}
+            handleSubmitReview={handleSubmitReview}
+            handleUploadReviewImages={handleUploadReviewImages}
+            uploadLoading={uploadLoading}
+            reviewLoading={reviewLoading}
+            onEditReview={(review) => {
+              setEditingReview(review);
+              setNewReview({
+                rating: review.rating,
+                comment: review.comment,
+                images: review.images
+              });
+            }}
+            editingReview={editingReview ?? {
+              id: '',
+              userId: '',
+              userName: '',
+              productId: '',
+              productName: '',
+              rating: 0,
+              comment: '',
+              images: [],
+              isApproved: false,
+              createdAt: '',
+              updatedAt: ''
+            }}
+            onImageClick={handleImageClick}
+          />
+        </div>
 
         {/* Related Products */}
-        <RelatedProducts relatedProducts={relatedProducts} categoryId={product.categoryId} />
+        <div className="mt-8 sm:mt-12">
+          <RelatedProducts
+            relatedProducts={(relatedProducts || []).map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              rating: typeof p.rating === 'number' ? p.rating : 0,
+              categoryId: p.categoryId,
+              isTrending: !!p.isTrending,
+              variants: (p.variants || []).map((v: any) => ({
+                imageUrl: v.imageUrl || '',
+                price: typeof v.price === 'number' ? v.price : 0
+              })),
+            }))}
+            categoryId={product.categoryId}
+          />
+        </div>
       </div>
 
       {/* Image Modal */}
@@ -297,8 +322,8 @@ const ProductDetailPage = () => {
         isOpen={showImageModal}
         onClose={() => setShowImageModal(false)}
         imageUrl={
-          reviews.flatMap(r => r.images)[selectedImageIndex] || 
-          product.variants[selectedVariant].imageUrl
+          (reviews?.flatMap?.(r => r.images)?.[selectedImageIndex]) || 
+          product.variants?.[selectedVariant]?.imageUrl || ''
         }
       />
     </div>

@@ -54,6 +54,7 @@ const Header = () => {
               <Link to="/category/all" className="font-medium hover:text-terracotta-600 transition-colors">Shop</Link>
               <Link to="/gallery" className="font-medium hover:text-terracotta-600 transition-colors">Gallery</Link>
               <Link to="/about" className="font-medium hover:text-terracotta-600 transition-colors">About</Link>
+              <Link to="/how-it-works" className="font-medium hover:text-terracotta-600 transition-colors">How It Works</Link>
             </nav>
 
             {/* Desktop Search - Only visible on desktop */}
@@ -119,16 +120,16 @@ const Header = () => {
             <Link to="/favorites" className="p-1 relative">
               <Heart size={20} />
               {favorites.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
                   {favorites.length}
                 </span>
               )}
             </Link>
             <Link to="/cart" className="p-1 relative">
               <ShoppingCart size={20} />
-              {cart.items.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  {cart.items.length}
+              {cart.totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                  {cart.totalItems}
                 </span>
               )}
             </Link>
@@ -157,7 +158,7 @@ const Header = () => {
       <div className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} md:hidden`}>
         <div className="container mx-auto px-4 py-5">
           <div className="flex justify-between items-center mb-8">
-            <Link to="/" className="text-2xl font-bold text-purple-700 font-playfair">Picloopz</Link>
+            <Link to="/" className="text-2xl font-bold text-terracotta-700 font-playfair">Picloopz</Link>
             <button onClick={closeMenu} className="p-1">
               <X size={24} />
             </button>

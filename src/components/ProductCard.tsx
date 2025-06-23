@@ -4,7 +4,7 @@ import { Heart } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
 
 interface Product {
-  id: number;
+  id: string | number;
   name: string;
   basePrice: number;
   description: string;
@@ -14,8 +14,8 @@ interface Product {
     price: number;
     imageUrl: string;
   }>;
-  category: string;
-  categoryId: string;
+  category?: string;
+  categoryId?: string;
   rating: number;
   reviewCount: number;
 }

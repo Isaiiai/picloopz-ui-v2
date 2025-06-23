@@ -43,7 +43,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="bg-white rounded-2xl p-8 shadow-lg h-fit"
+      className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg h-fit"
     >
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -58,7 +58,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {/* Title */}
-      <h1 className="text-3xl font-bold mb-4 font-playfair text-gray-900">{product.name}</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 font-playfair text-gray-900">{product.name}</h1>
 
       {/* Rating */}
       <div className="flex items-center mb-6">
@@ -79,14 +79,14 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {/* Price */}
-      <div className="text-3xl font-bold text-terracotta-600 mb-8">
+      <div className="text-2xl sm:text-3xl font-bold text-terracotta-600 mb-6 sm:mb-8">
         ₹{(product.basePrice + product.variants[selectedVariant].additionalPrice).toFixed(2)}
       </div>
 
       {/* Variant Selection */}
       <div className="mb-8">
         <h3 className="font-semibold mb-4 text-gray-900">Select Variant</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {product.variants.map((variant: any, index: number) => (
             <button
               key={index}
@@ -182,7 +182,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {/* Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 sm:mb-8">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -219,7 +219,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {/* Guarantees */}
-      <div className="grid grid-cols-2 gap-4 pt-6 border-t border-cream-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-cream-200">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
             <Check size={16} className="text-green-600" />

@@ -45,9 +45,9 @@ const ProductGrid: FC<ProductGridProps> = ({
       transition={{ duration: 0.5, delay: 0.3 }}
       className="flex-1"
     >
-      <div className="bg-white rounded-xl p-6 shadow-md">
+      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-base sm:text-sm">
             Showing{' '}
             <span className="font-semibold text-gray-800">{products?.length}</span> of{' '}
             {pagination.totalItems}{' '}
@@ -58,7 +58,7 @@ const ProductGrid: FC<ProductGridProps> = ({
               <ArrowUpDown size={16} className="text-gray-400" />
             </div>
             <select
-              className="w-full sm:w-auto appearance-none bg-cream-50 border border-cream-200 rounded-lg py-2 pl-4 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:border-transparent"
+              className="w-full sm:w-auto appearance-none bg-cream-50 border border-cream-200 rounded-lg py-3 sm:py-2 pl-4 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:border-transparent text-base sm:text-sm"
               value={`${sortParams.sort}-${sortParams.sortOrder}`}
               onChange={(e) => handleSortChange(e.target.value)}
             >
@@ -72,7 +72,7 @@ const ProductGrid: FC<ProductGridProps> = ({
 
         {products.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {products.map((product, idx) => (
                 <motion.div
                   key={product.id}
@@ -81,7 +81,7 @@ const ProductGrid: FC<ProductGridProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.5) }}
                   whileHover={{ y: -5 }}
-                  className="h-full"
+                  className="h-full p-1 sm:p-0"
                 >
                   <ProductCard product={product} />
                 </motion.div>

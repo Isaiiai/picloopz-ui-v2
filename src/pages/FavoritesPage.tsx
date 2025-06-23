@@ -7,12 +7,12 @@ const FavoritesPage = () => {
 
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 font-playfair">My Favorites</h1>
+    <div className="container mx-auto px-4 py-8 overflow-x-hidden">
+      <h1 className="text-3xl font-bold mb-6 font-playfair text-center sm:text-left">My Favorites</h1>
       
       {favorites.length > 0 ? (
         <>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
             <p className="text-gray-600">{favorites.length} {favorites.length === 1 ? 'item' : 'items'}</p>
             <button 
               onClick={()=> {}}
@@ -26,34 +26,34 @@ const FavoritesPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {favorites.map(product => (
               <div key={product.productId} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-                <div className="flex h-40 md:h-56">
-                  <div className="w-1/3 bg-gray-100">
+                <div className="flex flex-col sm:flex-row h-auto sm:h-40 md:h-56">
+                  <div className="w-full sm:w-1/3 bg-gray-100 flex-shrink-0">
                     <Link to={`/product/${product.productId}`}>
                       <img 
                         src={product.productImage} 
                         alt={product.productName} 
-                        className="w-full h-full object-cover"
+                        className="w-full h-40 sm:h-full object-cover"
                       />
                     </Link>
                   </div>
                   
-                  <div className="w-2/3 p-4 flex flex-col">
+                  <div className="w-full sm:w-2/3 p-4 flex flex-col">
                     <Link to={`/product/${product.productId}`} className="hover:text-purple-600 transition-colors">
-                      <h3 className="font-medium mb-1">{product.productName}</h3>
+                      <h3 className="font-medium mb-1 text-base sm:text-lg">{product.productName}</h3>
                     </Link>
-                    <p className="text-purple-600 font-medium">₹{product.productPrice.toFixed(2)}</p>
+                    <p className="text-purple-600 font-medium text-sm sm:text-base">₹{product.productPrice.toFixed(2)}</p>
                     
-                    <div className="mt-auto flex flex-wrap gap-2">
+                    <div className="mt-4 sm:mt-auto flex flex-col sm:flex-row gap-2">
                       <Link 
                         to={`/product/${product.productId}`}
-                        className="flex-1 px-3 py-2 bg-purple-600 text-white text-sm rounded flex items-center justify-center hover:bg-purple-700 transition-colors"
+                        className="w-full sm:w-auto px-3 py-2 bg-purple-600 text-white text-sm rounded flex items-center justify-center hover:bg-purple-700 transition-colors"
                       >
                         View Details
                       </Link>
                       
                       <button 
                         onClick={() => removeFromFavorites(product.productId)}
-                        className="px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded flex items-center justify-center hover:bg-gray-100 transition-colors"
+                        className="w-full sm:w-auto px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded flex items-center justify-center hover:bg-gray-100 transition-colors"
                         aria-label="Remove from favorites"
                       >
                         <Trash2 size={16} />

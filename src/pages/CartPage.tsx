@@ -105,15 +105,15 @@ const CartPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 font-playfair">Shopping Cart</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-8 overflow-x-hidden">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 font-playfair text-center sm:text-left">Shopping Cart</h1>
       
       {cart.items.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
-              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+              <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <h2 className="font-semibold">Cart Items ({cart.items.length})</h2>
                 <button 
                   onClick={emptyCart}
@@ -123,11 +123,10 @@ const CartPage = () => {
                   Clear All
                 </button>
               </div>
-              
               <div className="divide-y divide-gray-200">
                 {cart.items.map(item => (
-                  <div key={item.id} className="p-4 flex">
-                    <div className="w-24 h-24 bg-gray-100 rounded overflow-hidden mr-4">
+                  <div key={item.id} className="p-4 flex flex-col sm:flex-row gap-4">
+                    <div className="w-full sm:w-24 h-32 sm:h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
                       {item && (
                         <img 
                           src="https://res.cloudinary.com/datwhboeh/image/upload/v1749658112/picloopz/products/xfhz8vobsraq6fegfpiy.jpg"
@@ -136,32 +135,29 @@ const CartPage = () => {
                         />
                       )}
                     </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex justify-between">
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div className="flex flex-col sm:flex-row justify-between gap-2">
                         <div>
-                          <h3 className="font-medium">{item.productName}</h3>
+                          <h3 className="font-medium text-base sm:text-lg">{item.productName}</h3>
                           {item.variantName && (
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 text-xs sm:text-sm">
                               Variant: {item.variantName}
                             </p>
                           )}
-                          <p className="text-purple-600 font-medium mt-1">
+                          <p className="text-purple-600 font-medium mt-1 text-sm sm:text-base">
                             ₹{item.unitPrice.toFixed(2)}
                           </p>
                         </div>
-                        
                         <button 
                           onClick={() => removeCartItem(item.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          className="text-gray-400 hover:text-red-500 transition-colors self-start sm:self-auto"
                           aria-label="Remove item"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
-                      
-                      <div className="flex justify-between items-end mt-2">
-                        <div className="flex items-center border border-gray-300 rounded overflow-hidden w-24">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mt-2 gap-2">
+                        <div className="flex items-center border border-gray-300 rounded overflow-hidden w-full sm:w-24">
                           <button 
                             onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                             className="w-8 h-8 flex items-center justify-center hover:bg-gray-100"
@@ -182,8 +178,7 @@ const CartPage = () => {
                             +
                           </button>
                         </div>
-                        
-                        <div className="text-right">
+                        <div className="text-right w-full sm:w-auto">
                           <span className="font-medium">
                             ₹{(item.unitPrice * item.quantity).toFixed(2)}
                           </span>
@@ -198,7 +193,7 @@ const CartPage = () => {
           
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden sticky top-24">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden lg:sticky lg:top-24">
               <div className="p-4 border-b border-gray-200">
                 <h2 className="font-semibold">Order Summary</h2>
               </div>
@@ -242,7 +237,7 @@ const CartPage = () => {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
                         <label htmlFor="email" className="block text-sm text-gray-600 mb-1">
                           Email *
@@ -289,7 +284,7 @@ const CartPage = () => {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
                         <label htmlFor="city" className="block text-sm text-gray-600 mb-1">
                           City *
@@ -321,7 +316,7 @@ const CartPage = () => {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
                         <label htmlFor="zipCode" className="block text-sm text-gray-600 mb-1">
                           ZIP Code *
