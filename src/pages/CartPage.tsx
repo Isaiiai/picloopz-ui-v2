@@ -97,7 +97,6 @@ const CartPage = () => {
 
     // ✅ Get clean response
     const orderResponse = await createOrder(orderData).unwrap();
-    console.log(orderResponse)
     const { razorpayOrderId, totalAmount } = orderResponse;
 
     const options = {
@@ -108,7 +107,6 @@ const CartPage = () => {
       description: 'Secure Payment',
       order_id: razorpayOrderId,
       handler: async function (response: any) {
-        console.log(response)
         const verifyRes = await verifyPayment({
           razorpayOrderId: response.razorpay_order_id,
           razorpayPaymentId: response.razorpay_payment_id,
@@ -136,7 +134,6 @@ const CartPage = () => {
     const razorpay = new (window as any).Razorpay(options);
     razorpay.open();
   } catch (err: any) {
-    console.error(err);
     toast.error(err?.message || 'Checkout failed');
   }
 };

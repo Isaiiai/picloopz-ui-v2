@@ -12,7 +12,6 @@ export const uploadSingleImage = createAsyncThunk<
   FormData
 >('upload/uploadSingleImage', async (formData, { rejectWithValue }) => {
   try {
-    console.log(formData);
     const response = await api.post('/upload/image', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

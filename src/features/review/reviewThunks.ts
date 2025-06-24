@@ -33,7 +33,6 @@ export const fetchProductReviews = createAsyncThunk<
     const response = await api.get(`/reviews/product/${productId}`, {
       params: { page, limit, sort, sortOrder },
     });
-    console.log(response.data)
     return response.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
