@@ -55,15 +55,8 @@ const CartPage = () => {
       return;
     }
     
-    // Create the order
-    try {
-      const order = await createOrder(formData);
-      
-      // Redirect to order confirmation page
-      navigate('/order-confirmation', { state: { order } });
-    } catch (error) {
-      toast.error('Failed to create order. Please try again.');
-    }
+    // Instead of creating the order here, navigate to the summary page
+    navigate('/order-summary', { state: { formData } });
   };
   
   const isFormValid = () => {
@@ -187,14 +180,14 @@ const CartPage = () => {
                 <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">
-                    {cartTotal >= 50 ? 'Free' : '$5.00'}
+                    {/* {cartTotal >= 50 ? 'Free' : '$5.00'} */}Free
                   </span>
                 </div>
                 
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
                   <span className="text-purple-600">
-                    ${(cartTotal + (cartTotal >= 50 ? 0 : 5)).toFixed(2)}
+                    ${cartTotal.toFixed(2)}
                   </span>
                 </div>
                 
@@ -343,7 +336,7 @@ const CartPage = () => {
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   } transition-colors`}
                 >
-                  Proceed to Checkout
+                  Order Summary
                   <ChevronRight size={18} className="ml-1" />
                 </button>
               </div>

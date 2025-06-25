@@ -15,6 +15,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactPage from './pages/ContactPage';
 import FAQPage from './pages/FAQPage';
+import OrderSummaryPage from './pages/OrderSummaryPage';
 import { CartProvider } from './contexts/CartContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -45,6 +46,7 @@ export function App() {
                     <Route path="product/:productId" element={<ProductDetailPage />} />
                     <Route path="cart" element={<CartPage />} />
                     <Route path="favorites" element={<FavoritesPage />} />
+                    <Route path="order-summary" element={<OrderSummaryPage />} />
                     <Route path="order-confirmation" element={<OrderConfirmationPage />} />
                     <Route path="account/orders/:orderId" element={<OrderTrackingPage />} />
                     <Route path="account" element={<ProfilePage />} />
