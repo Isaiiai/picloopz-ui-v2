@@ -9,6 +9,8 @@ import favoriteReducer from '../features/favorite/favoriteSlice';
 import orderReducer from '../features/order/orderSlice';
 import uploadReducer from '../features/upload/uploadSlice';
 import reviewReducer from '../features/review/reviewSlice';
+import bannerReducer from '../features/banner/bannerSlice';
+import profileReducer from '../features/profile/profileSlice';
 import { configureApi } from '../config/axiosConfig';
 import { ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -22,6 +24,8 @@ const rootReducer = combineReducers({
   order: orderReducer,
   upload: uploadReducer,
   reviews: reviewReducer,
+  banner: bannerReducer,
+  profile: profileReducer,
 });
 
 const persistConfig = {
@@ -35,7 +39,10 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ serializableCheck: false }),
+    getDefaultMiddleware({ 
+      serializableCheck: false,
+      thunk: true 
+    }),
 });
 
 configureApi(

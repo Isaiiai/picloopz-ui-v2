@@ -13,8 +13,15 @@ export interface MultipleUploadResponse {
 }
 
 export interface UploadState {
-  loading: boolean;
+  loading: {
+    reviewUploadLoading: boolean;
+    cartUploadLoading: boolean;
+    profileUploadLoading: boolean;
+    singleUploadLoading: boolean;
+  };
   error: string | null;
   singleUpload: UploadResponse | null;
-  multipleUpload: MultipleUploadResponse | null;
+  reviewImages: MultipleUploadResponse | null;
+  cartImages: MultipleUploadResponse | null;
+  profileImages: MultipleUploadResponse | null;
 }

@@ -36,7 +36,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
         <img
           src={variants[selectedVariant].imageUrl}
           alt={productName}
-          className="w-full h-full object-contain cursor-pointer transition-transform duration-300 hover:scale-105"
+          className="w-full h-full object-contain cursor-pointer rounded-2xl transition-transform duration-300 hover:scale-105"
           onClick={() => setShowImageModal(true)}
         />
       </div>

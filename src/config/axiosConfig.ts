@@ -17,11 +17,14 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = getToken?.();
-  if (token) {
+  const isPublic = config.headers?.['X-Public-Request'];
+
+  if (token && !isPublic) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
 
 api.interceptors.response.use(
   (response) => response,

@@ -15,7 +15,8 @@ export const useUpload = () => {
   const loading = useSelector((state: RootState) => state.upload.loading);
   const error = useSelector((state: RootState) => state.upload.error);
   const singleUpload = useSelector((state: RootState) => state.upload.singleUpload);
-  const multipleUpload = useSelector((state: RootState) => state.upload.multipleUpload);
+  const cartImagesUpload = useSelector((state: RootState) => state.upload.cartImages);
+  const reviewImageUpload = useSelector((state: RootState) => state.upload.reviewImages);
 
   const uploadSingle = useCallback((formData) => {
     dispatch(uploadSingleImage(formData));
@@ -33,7 +34,8 @@ export const useUpload = () => {
     loading,
     error,
     singleUpload,
-    multipleUpload,
+    cartImagesUpload,
+    reviewImageUpload,
     uploadSingle,
     uploadMultiple,
     clear,
