@@ -111,6 +111,20 @@ export const changePassword = createAsyncThunk(
   }
 );
 
+// Add a new action for verifying OTP
+export const verifyOTP = createAsyncThunk<AuthResponse, { email: string, otp: string, name: string, password: string, phone: string }, { rejectValue: string }>(
+  'auth/verifyOTP',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await api.post<{ data: AuthResponse }>('/auth/verify-otp', userData);
+      // Make sure we're returning the correct data structure
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Verification failed');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -183,6 +197,21 @@ const authSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
+      })
+
+      .addCase(verifyOTP.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(verifyOTP.fulfilled, (state, { payload }) => {
+        state.status = 'succeeded';
+        state.user = payload.user;
+        state.token = payload.token;
+        toast.success(`Welcome to Picloopz, ${payload.user.name}!`);
+      })
+      .addCase(verifyOTP.rejected, (state, { payload }) => {
+        state.status = 'failed';
+        state.error = payload || 'Verification failed';
+        toast.error(payload || 'Verification failed');
       });
   }
 });
