@@ -28,7 +28,9 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isOtpMode, setIsOtpMode] = useState(false);
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
   const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [isResetEmailSending, setIsResetEmailSending] = useState(false);
   const { login, verifyUserOTP } = useAuth();
   
   const [formData, setFormData] = useState<FormData>({
@@ -194,14 +196,62 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     }
   };
   
+  // Handle forgot password
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email) {
+      setErrors(prev => ({
+        ...prev,
+        email: 'Email is required to reset password'
+      }));
+      return;
+    }
+    
+    try {
+      setIsResetEmailSending(true);
+      
+      // Call the forgot password endpoint
+      await api.post('/auth/forgot-password', {
+        email: formData.email
+      });
+      
+      toast.success('If an account exists with this email, you will receive a password reset link');
+      
+      // Return to login mode after sending reset email
+      setIsForgotPasswordMode(false);
+      setIsLoginMode(true);
+    } catch (error: any) {
+      // Don't display error details to prevent email enumeration
+      toast.success('If an account exists with this email, you will receive a password reset link');
+    } finally {
+      setIsResetEmailSending(false);
+    }
+  };
+
+  // Modify your existing toggleMode function to reset password mode
   const toggleMode = () => {
     setIsLoginMode(!isLoginMode);
     setIsOtpMode(false);
+    setIsForgotPasswordMode(false);
+    setErrors({ name: '', email: '', password: '', otp: '' });
+  };
+  
+  // Add function to switch to forgot password mode
+  const switchToForgotPassword = () => {
+    setIsLoginMode(false);
+    setIsOtpMode(false);
+    setIsForgotPasswordMode(true);
     setErrors({ name: '', email: '', password: '', otp: '' });
   };
   
   const goBack = () => {
-    setIsOtpMode(false);
+    if (isForgotPasswordMode) {
+      setIsForgotPasswordMode(false);
+      setIsLoginMode(true);
+    } else {
+      setIsOtpMode(false);
+    }
   };
   
   if (!isOpen) return null;
@@ -220,7 +270,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         
         {/* Header */}
         <div className="p-6 pb-0">
-          {isOtpMode && (
+          {(isOtpMode || isForgotPasswordMode) && (
             <button
               onClick={goBack}
               className="flex items-center text-terracotta-600 hover:text-terracotta-800 mb-4"
@@ -231,14 +281,22 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
           )}
           
           <h2 className="text-2xl font-semibold font-playfair text-gray-800">
-            {isLoginMode ? 'Welcome Back' : isOtpMode ? 'Verify Your Email' : 'Create Account'}
+            {isLoginMode 
+              ? 'Welcome Back' 
+              : isOtpMode 
+                ? 'Verify Your Email' 
+                : isForgotPasswordMode
+                  ? 'Reset Your Password'
+                  : 'Create Account'}
           </h2>
           <p className="text-gray-600 mt-1">
             {isLoginMode 
               ? 'Sign in to your account' 
               : isOtpMode 
                 ? 'Enter the verification code sent to your email' 
-                : 'Join the Picloopz community'}
+                : isForgotPasswordMode
+                  ? 'Enter your email to receive a password reset link'
+                  : 'Join the Picloopz community'}
           </p>
         </div>
         
@@ -249,12 +307,14 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               ? handleLogin 
               : isOtpMode 
                 ? handleVerifyOTP 
-                : handleSendOTP
+                : isForgotPasswordMode
+                  ? handleForgotPassword
+                  : handleSendOTP
           } 
           className="p-6"
         >
           <div className="space-y-4">
-            {/* Email field (hidden in OTP mode) */}
+            {/* Email field (shown in all modes except OTP) */}
             {!isOtpMode && (
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -278,8 +338,8 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               </div>
             )}
             
-            {/* Name field (only for registration and not in OTP mode) */}
-            {!isLoginMode && !isOtpMode && (
+            {/* Name field (only for registration and not in OTP or forgot password mode) */}
+            {!isLoginMode && !isOtpMode && !isForgotPasswordMode && (
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
@@ -302,8 +362,8 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               </div>
             )}
             
-            {/* Password field (not in OTP mode) */}
-            {!isOtpMode && (
+            {/* Password field (not in OTP or forgot password mode) */}
+            {!isOtpMode && !isForgotPasswordMode && (
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   Password
@@ -369,6 +429,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               <div className="flex justify-end">
                 <button
                   type="button"
+                  onClick={switchToForgotPassword}
                   className="text-sm text-terracotta-600 hover:text-terracotta-800 font-medium"
                 >
                   Forgot your password?
@@ -379,17 +440,20 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full bg-terracotta-600 hover:bg-terracotta-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              disabled={isResetEmailSending}
+              className="w-full bg-terracotta-600 hover:bg-terracotta-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoginMode 
                 ? 'Sign In' 
                 : isOtpMode 
                   ? 'Verify & Complete Registration' 
-                  : 'Continue to Verification'}
+                  : isForgotPasswordMode
+                    ? isResetEmailSending ? 'Sending...' : 'Send Reset Link'
+                    : 'Continue to Verification'}
             </button>
             
-            {/* Toggle mode (not in OTP mode) */}
-            {!isOtpMode && (
+            {/* Toggle mode (not in OTP or forgot password mode) */}
+            {!isOtpMode && !isForgotPasswordMode && (
               <div className="text-center mt-4">
                 <p className="text-sm text-gray-600">
                   {isLoginMode ? "Don't have an account?" : "Already have an account?"}
