@@ -98,6 +98,18 @@ export const verifyToken = createAsyncThunk<
   }
 );
 
+// Change Password
+export const changePassword = createAsyncThunk(
+  'auth/changePassword',
+  async (credentials: { currentPassword: string; newPassword: string }, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/auth/change-password', credentials);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to change password');
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -159,6 +171,18 @@ const authSlice = createSlice({
         if (payload === 'Session expired') {
           toast.error('Your session has expired. Please log in again.');
         }
+      })
+
+      .addCase(changePassword.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.status = 'idle';
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
       });
   }
 });
