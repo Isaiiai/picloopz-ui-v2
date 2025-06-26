@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
-import { useFavorites } from '../contexts/FavoritesContext';
+import { useFavorite } from '../features/favorite/useFavorite';
 
 interface Product {
-  id: number;
+  id: string | number;
   name: string;
+  basePrice: number;
   description: string;
   variants: Array<{
+    additionalPrice: number;
     name: string;
     price: number;
     imageUrl: string;
   }>;
-  category: string;
-  categoryId: string;
+  category?: string;
+  categoryId?: string;
   rating: number;
   reviewCount: number;
 }
@@ -24,7 +26,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorites();
+  const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorite();
   
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,12 +35,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
     if (isInFavorites(product.id)) {
       removeFromFavorites(product.id);
     } else {
-      addToFavorites(product);
+      addToFavorites(product.id);
     }
   };
   
   const formatPrice = (price: number) => {
-    return `$${price.toFixed(2)}`;
+    return `₹${price.toFixed(2)}`;
   };
   
   return (
@@ -50,7 +52,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <Link to={`/product/${product.id}`}>
         <div className="relative overflow-hidden rounded-lg aspect-square bg-gray-100 mb-3">
           <img 
-            src={product.variants[0].imageUrl} 
+            src={product.variants[0]?.imageUrl} 
             alt={product.name} 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />

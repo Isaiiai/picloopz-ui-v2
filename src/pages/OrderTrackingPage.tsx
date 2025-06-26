@@ -1,38 +1,38 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Check, Clock, CircleHelp, MessageCircle, Package, Phone, Truck } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useOrders, Order } from '../contexts/OrderContext';
+import { useAuth } from '../features/auth/authHooks';
+import { Order } from '../features/order/orderTypes';
+import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
 
 const OrderTrackingPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { getOrder } = useOrders();
+  const { getOrderById, currentOrder } = useOrders();
   const [order, setOrder] = useState<Order | undefined>();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<{ sender: 'user' | 'support', text: string, timestamp: Date }[]>([]);
   
-  useEffect(() => {
-    // Check if user is authenticated
+   useEffect(() => {
     if (!isAuthenticated) {
       toast.error('Please log in to view your order');
       navigate('/login', { state: { from: `/account/orders/${orderId}` } });
       return;
     }
-    
+
     if (orderId) {
-      const foundOrder = getOrder(orderId);
-      if (foundOrder) {
-        setOrder(foundOrder);
-      } else {
-        toast.error('Order not found');
-        navigate('/account/orders');
-      }
+      getOrderById(orderId);
     }
-  }, [orderId, isAuthenticated, navigate, getOrder]);
+  }, [orderId, isAuthenticated, navigate, getOrderById]);
+
+  useEffect(() => {
+    if (currentOrder) {
+      setOrder(currentOrder);
+    }
+  }, [currentOrder]);
   
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,11 +69,11 @@ const OrderTrackingPage = () => {
   
   const getStatusStep = (status: string) => {
     switch(status) {
-      case 'pending': return 1;
-      case 'confirmed': return 2;
-      case 'ready': return 3;
-      case 'out_for_delivery': return 4;
-      case 'delivered': return 5;
+      case 'Pending': return 1;
+      case 'Confirmed': return 2;
+      case 'Ready': return 3;
+      case 'Out for Delivery': return 4;
+      case 'Delivered': return 5;
       default: return 1;
     }
   };
@@ -94,13 +94,13 @@ const OrderTrackingPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
-        <Link 
-          to="/account/orders" 
+        <button 
+          onClick={() => navigate(-1)} 
           className="inline-flex items-center text-gray-600 hover:text-terracotta-600 mb-6"
         >
           <ArrowLeft size={16} className="mr-2" />
-          Back to all orders
-        </Link>
+          Back
+        </button>
         
         <h1 className="text-2xl md:text-3xl font-bold mb-6 font-playfair">Order Tracking</h1>
         
@@ -118,16 +118,16 @@ const OrderTrackingPage = () => {
               </div>
               <div>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium
-                  ${order.status === 'pending' ? 'bg-amber-100 text-amber-800' :
-                    order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                    order.status === 'ready' ? 'bg-purple-100 text-purple-800' :
-                    order.status === 'out_for_delivery' ? 'bg-indigo-100 text-indigo-800' :
+                  ${order.status === 'Pending' ? 'bg-amber-100 text-amber-800' :
+                    order.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
+                    order.status === 'Ready' ? 'bg-purple-100 text-purple-800' :
+                    order.status === 'Out for Delivery' ? 'bg-indigo-100 text-indigo-800' :
                     'bg-green-100 text-green-800'}`}
                 >
-                  {order.status === 'pending' ? 'Pending' : 
-                   order.status === 'confirmed' ? 'Confirmed' : 
-                   order.status === 'ready' ? 'Ready' : 
-                   order.status === 'out_for_delivery' ? 'Out for Delivery' : 'Delivered'}
+                  {order.status === 'Pending' ? 'Pending' : 
+                   order.status === 'Confirmed' ? 'Confirmed' : 
+                   order.status === 'Ready' ? 'Ready' : 
+                   order.status === 'Out for Delivery' ? 'Out for Delivery' : 'Delivered'}
                 </span>
               </div>
             </div>
@@ -176,7 +176,7 @@ const OrderTrackingPage = () => {
                       Your design has been approved and order confirmed.
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {order.isPendingApproval ? 'Waiting for your approval' : 
+                      {order.estimatedDelivery ? 'Waiting for your approval' : 
                        getStatusStep(order.status) >= 2 ? 'Completed' : 'Pending'}
                     </p>
                   </div>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Lock, Mail, User, X } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { Eye, EyeOff, Lock, Mail, User, X, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../features/auth/authHooks';
+import api from '../config/axiosConfig'; // Import api instead of axios
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -11,30 +12,40 @@ interface LoginModalProps {
 interface FormData {
   name: string;
   email: string;
+  phone: string;
   password: string;
+  otp: string;
 }
 
 interface FormErrors {
   name: string;
   email: string;
   password: string;
+  otp: string;
 }
 
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, register } = useAuth();
+  const [isOtpMode, setIsOtpMode] = useState(false);
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
+  const [isResetEmailSending, setIsResetEmailSending] = useState(false);
+  const { login, verifyUserOTP } = useAuth();
   
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
-    password: ''
+    phone: '',
+    password: '',
+    otp: ''
   });
   
   const [errors, setErrors] = useState<FormErrors>({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    otp: ''
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,17 +78,26 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     }
     
     // Validate password
-    if (!formData.password) {
+    if (!isOtpMode && !formData.password) {
       newErrors.password = 'Password is required';
       isValid = false;
-    } else if (formData.password.length < 6) {
+    } else if (!isOtpMode && formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
     }
     
     // Validate name for registration
-    if (!isLoginMode && !formData.name) {
+    if (!isLoginMode && !isOtpMode && !formData.name) {
       newErrors.name = 'Name is required';
+      isValid = false;
+    }
+    
+    // Validate OTP if in OTP mode
+    if (isOtpMode && !formData.otp) {
+      newErrors.otp = 'Verification code is required';
+      isValid = false;
+    } else if (isOtpMode && formData.otp.length !== 6) {
+      newErrors.otp = 'Verification code must be 6 digits';
       isValid = false;
     }
     
@@ -85,33 +105,153 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     return isValid;
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     
     try {
-      if (isLoginMode) {
-        const success = await login(formData.email, formData.password);
-        if (success) {
-          toast.success('Logged in successfully!');
-          onClose();
-        }
-      } else {
-        const success = await register(formData.name, formData.email, formData.password);
-        if (success) {
-          toast.success('Account created successfully!');
-          onClose();
-        }
-      }
-    } catch (error) {
-      toast.error('Something went wrong. Please try again.');
+      // Store phone number in form data
+      const phoneToUse = "9988776655"; // In a real app, collect this from the user
+      setFormData(prev => ({
+        ...prev,
+        phone: phoneToUse
+      }));
+      
+      // Use api instead of axios and the correct endpoint path
+      await api.post('/auth/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phone: phoneToUse
+      });
+      
+      setIsOtpMode(true);
+      toast.success('Verification code sent to your email');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || 'Something went wrong. Please try again.';
+      toast.error(errorMessage);
     }
   };
   
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    try {
+      // Use the verifyUserOTP function from the auth hook
+      await verifyUserOTP(
+        formData.email,
+        formData.otp,
+        formData.name,
+        formData.password,
+        formData.phone || "9988776655" // Preferably use the stored phone
+      );
+      
+      // The auth state will be updated by the verifyUserOTP thunk
+      onClose();
+      // Toast message will be shown by the auth slice
+    } catch (error: any) {
+      // Improved error handling
+      const errorMessage = error?.response?.data?.message || error?.toString() || 'Verification failed. Please try again.';
+      toast.error(errorMessage);
+    }
+  };
+  
+  const handleResendOTP = async () => {
+    if (isResendingOtp) return;
+    
+    try {
+      setIsResendingOtp(true);
+      // Use api instead of axios and the correct endpoint path
+      await api.post('/auth/resend-otp', {
+        email: formData.email,
+        name: formData.name
+      });
+      toast.success('New verification code sent to your email');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || 'Failed to resend code. Please try again.';
+      // Check for name validation error
+      if (errorMessage.includes('Name is required')) {
+        toast.error('Name is required to resend verification code');
+      } else {
+        toast.error(errorMessage);
+      }
+    } finally {
+      setIsResendingOtp(false);
+    }
+  };
+  
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    try {
+      await login(formData.email, formData.password);
+      onClose();
+    } catch (error: any) {
+      toast.error(error?.toString() || 'Something went wrong. Please try again.');
+    }
+  };
+  
+  // Handle forgot password
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email) {
+      setErrors(prev => ({
+        ...prev,
+        email: 'Email is required to reset password'
+      }));
+      return;
+    }
+    
+    try {
+      setIsResetEmailSending(true);
+      
+      // Call the forgot password endpoint
+      await api.post('/auth/forgot-password', {
+        email: formData.email
+      });
+      
+      toast.success('If an account exists with this email, you will receive a password reset link');
+      
+      // Return to login mode after sending reset email
+      setIsForgotPasswordMode(false);
+      setIsLoginMode(true);
+    } catch (error: any) {
+      // Don't display error details to prevent email enumeration
+      toast.success('If an account exists with this email, you will receive a password reset link');
+    } finally {
+      setIsResetEmailSending(false);
+    }
+  };
+
+  // Modify your existing toggleMode function to reset password mode
   const toggleMode = () => {
     setIsLoginMode(!isLoginMode);
-    setErrors({ name: '', email: '', password: '' });
+    setIsOtpMode(false);
+    setIsForgotPasswordMode(false);
+    setErrors({ name: '', email: '', password: '', otp: '' });
+  };
+  
+  // Add function to switch to forgot password mode
+  const switchToForgotPassword = () => {
+    setIsLoginMode(false);
+    setIsOtpMode(false);
+    setIsForgotPasswordMode(true);
+    setErrors({ name: '', email: '', password: '', otp: '' });
+  };
+  
+  const goBack = () => {
+    if (isForgotPasswordMode) {
+      setIsForgotPasswordMode(false);
+      setIsLoginMode(true);
+    } else {
+      setIsOtpMode(false);
+    }
   };
   
   if (!isOpen) return null;
@@ -130,19 +270,76 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         
         {/* Header */}
         <div className="p-6 pb-0">
+          {(isOtpMode || isForgotPasswordMode) && (
+            <button
+              onClick={goBack}
+              className="flex items-center text-terracotta-600 hover:text-terracotta-800 mb-4"
+            >
+              <ArrowLeft size={16} className="mr-1" />
+              Back
+            </button>
+          )}
+          
           <h2 className="text-2xl font-semibold font-playfair text-gray-800">
-            {isLoginMode ? 'Welcome Back' : 'Create Account'}
+            {isLoginMode 
+              ? 'Welcome Back' 
+              : isOtpMode 
+                ? 'Verify Your Email' 
+                : isForgotPasswordMode
+                  ? 'Reset Your Password'
+                  : 'Create Account'}
           </h2>
           <p className="text-gray-600 mt-1">
-            {isLoginMode ? 'Sign in to your account' : 'Join the Picloopz community'}
+            {isLoginMode 
+              ? 'Sign in to your account' 
+              : isOtpMode 
+                ? 'Enter the verification code sent to your email' 
+                : isForgotPasswordMode
+                  ? 'Enter your email to receive a password reset link'
+                  : 'Join the Picloopz community'}
           </p>
         </div>
         
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6">
+        <form 
+          onSubmit={
+            isLoginMode 
+              ? handleLogin 
+              : isOtpMode 
+                ? handleVerifyOTP 
+                : isForgotPasswordMode
+                  ? handleForgotPassword
+                  : handleSendOTP
+          } 
+          className="p-6"
+        >
           <div className="space-y-4">
-            {/* Name field (only for registration) */}
-            {!isLoginMode && (
+            {/* Email field (shown in all modes except OTP) */}
+            {!isOtpMode && (
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`w-full pl-10 pr-4 py-2 border ${errors.email ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-terracotta-400 outline-none transition-colors`}
+                    placeholder="your@email.com"
+                  />
+                </div>
+                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              </div>
+            )}
+            
+            {/* Name field (only for registration and not in OTP or forgot password mode) */}
+            {!isLoginMode && !isOtpMode && !isForgotPasswordMode && (
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
@@ -165,62 +362,74 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               </div>
             )}
             
-            {/* Email field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-gray-400" />
+            {/* Password field (not in OTP or forgot password mode) */}
+            {!isOtpMode && !isForgotPasswordMode && (
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`w-full pl-10 pr-10 py-2 border ${errors.password ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-terracotta-400 outline-none transition-colors`}
+                    placeholder={isLoginMode ? 'Your password' : 'Create a password'}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-2 border ${errors.email ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-terracotta-400 outline-none transition-colors`}
-                  placeholder="your@email.com"
-                />
+                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
               </div>
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-            </div>
+            )}
             
-            {/* Password field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-gray-400" />
-                </div>
+            {/* OTP field (only in OTP mode) */}
+            {isOtpMode && (
+              <div>
+                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
+                  Verification Code
+                </label>
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
+                  id="otp"
+                  name="otp"
+                  type="text"
+                  maxLength={6}
+                  value={formData.otp}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-10 py-2 border ${errors.password ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-terracotta-400 outline-none transition-colors`}
-                  placeholder={isLoginMode ? 'Your password' : 'Create a password'}
+                  className={`w-full px-4 py-2 border ${errors.otp ? 'border-red-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-terracotta-400 outline-none transition-colors text-center text-xl tracking-widest`}
+                  placeholder="123456"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                {errors.otp && <p className="mt-1 text-sm text-red-600">{errors.otp}</p>}
+                
+                <div className="mt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={handleResendOTP}
+                    disabled={isResendingOtp}
+                    className="text-sm text-terracotta-600 hover:text-terracotta-800 font-medium disabled:opacity-50"
+                  >
+                    {isResendingOtp ? 'Sending...' : 'Resend verification code'}
+                  </button>
+                </div>
               </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-            </div>
+            )}
             
             {/* Forgot password link (only for login) */}
             {isLoginMode && (
               <div className="flex justify-end">
                 <button
                   type="button"
+                  onClick={switchToForgotPassword}
                   className="text-sm text-terracotta-600 hover:text-terracotta-800 font-medium"
                 >
                   Forgot your password?
@@ -231,24 +440,33 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full bg-terracotta-600 hover:bg-terracotta-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              disabled={isResetEmailSending}
+              className="w-full bg-terracotta-600 hover:bg-terracotta-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isLoginMode ? 'Sign In' : 'Create Account'}
+              {isLoginMode 
+                ? 'Sign In' 
+                : isOtpMode 
+                  ? 'Verify & Complete Registration' 
+                  : isForgotPasswordMode
+                    ? isResetEmailSending ? 'Sending...' : 'Send Reset Link'
+                    : 'Continue to Verification'}
             </button>
             
-            {/* Toggle mode */}
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-600">
-                {isLoginMode ? "Don't have an account?" : "Already have an account?"}
-                <button
-                  type="button"
-                  onClick={toggleMode}
-                  className="ml-1 text-terracotta-600 hover:text-terracotta-800 font-medium"
-                >
-                  {isLoginMode ? 'Sign Up' : 'Sign In'}
-                </button>
-              </p>
-            </div>
+            {/* Toggle mode (not in OTP or forgot password mode) */}
+            {!isOtpMode && !isForgotPasswordMode && (
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-600">
+                  {isLoginMode ? "Don't have an account?" : "Already have an account?"}
+                  <button
+                    type="button"
+                    onClick={toggleMode}
+                    className="ml-1 text-terracotta-600 hover:text-terracotta-800 font-medium"
+                  >
+                    {isLoginMode ? 'Sign Up' : 'Sign In'}
+                  </button>
+                </p>
+              </div>
+            )}
           </div>
         </form>
       </div>
