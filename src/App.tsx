@@ -25,6 +25,7 @@ import { useOrders } from './features/order/useOrder';
 import { useAuth } from './features/auth/authHooks';
 import DesignApprovalPage from './pages/DesignApprovalPage';
 import ThankYouPage from './pages/ThankYouPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import OrderSummaryPage from './pages/OrderSummaryPage';
 
 export function App() {
@@ -72,6 +73,7 @@ export function App() {
             <Route index element={<HomePage />} />
             <Route path="category/:categoryId" element={<CategoryPage />} />
             <Route path="product/:productId" element={<ProductDetailPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="cart" element={<CartPage />} />
             <Route path="favorites" element={<FavoritesPage />} />
             <Route path="order-confirmation" element={<OrderConfirmationPage />} />

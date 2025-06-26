@@ -3,6 +3,8 @@ import {
   loginUser,
   verifyToken,
   clearAuthState,
+  changePassword,
+  verifyOTP
 } from './authSlice';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks';
 
@@ -32,5 +34,9 @@ export const useAuth = () => {
       dispatch(loginUser({ email, password })),
     logout: () => dispatch(clearAuthState()),
     verify: () => dispatch(verifyToken()),
+    changeUserPassword: (credentials: { currentPassword: string; newPassword: string }) => 
+      dispatch(changePassword(credentials)),
+    verifyUserOTP: (email: string, otp: string, name: string, password: string, phone: string) =>
+      dispatch(verifyOTP({ email, otp, name, password, phone })),
   };
 };
