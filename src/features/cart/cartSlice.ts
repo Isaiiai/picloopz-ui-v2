@@ -3,8 +3,9 @@ import { CartItem, CartState } from './cartTypes';
 
 const initialState: CartState = {
   items: [],
-  totalItems: 0,
+  itemCount: 0,
   totalAmount: 0,
+  cartImages: [],
   loading: false,
   error: null,
 };
@@ -23,9 +24,9 @@ const cartSlice = createSlice({
       state.loading = false;
     },
     // Action to set the entire cart
-    setCart(state, action: PayloadAction<{ items: CartItem[]; totalItems: number; totalAmount: number }>) {
+    setCart(state, action: PayloadAction<{ items: CartItem[]; itemCount: number; totalAmount: number }>) {
       state.items = action.payload.items;
-      state.totalItems = action.payload.totalItems;
+      state.itemCount = action.payload.itemCount;
       state.totalAmount = action.payload.totalAmount;
       state.loading = false;
       state.error = null;
@@ -33,7 +34,7 @@ const cartSlice = createSlice({
     // Action to clear the cart
     clearCart(state) {
       state.items = [];
-      state.totalItems = 0;
+      state.itemCount = 0;
       state.totalAmount = 0;
       state.loading = false;
       state.error = null;

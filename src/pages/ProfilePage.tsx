@@ -164,11 +164,28 @@ const ProfilePage = () => {
               {order.items.slice(0, 3).map((item, i) => (
                 <div key={i} className='flex'>
                   <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
-                    <img src={item.uploadedImageUrl} alt={item.name} className="w-full h-full object-cover" />
+                    <img src={item.productImage} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className='flex-row px-2'>
                     <h3 className="font-normal">{item.productName}</h3>
                     <p className="text-gray-500 text-sm">Variant: {item.variantName}</p>
+                    {item.uploadedImageUrl && item.uploadedImageUrl.length > 0 && (
+                      <div className='mb-2'>
+                        <span className="text-sm text-gray-500 mr-2">Uploaded Images:</span>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          {item.uploadedImageUrl.map((image, idx) => (
+                            <div key={idx} className="w-10 h-10 rounded overflow-hidden border border-gray-200">
+                              <img 
+                                src={image} 
+                                alt={`Uploaded ${idx + 1}`} 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <hr className="my-2 border-gray-200 w-full" />
                   </div>
                 </div>
               ))}

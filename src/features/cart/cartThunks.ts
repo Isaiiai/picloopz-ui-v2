@@ -14,7 +14,7 @@ export const fetchCart = (): AppThunk => async (dispatch, getState) => {
     });
     dispatch(setCart({
       items: response.data.data.items,
-      totalItems: response.data.data.totalItems,
+      itemCount: response.data.data.itemCount,
       totalAmount: response.data.data.totalAmount,
     }));
   } catch (error) {
@@ -33,7 +33,7 @@ export const addToCart = (payload: AddToCartPayload): AppThunk => async (dispatc
     });
     dispatch(setCart({
       items: response.data.data.items,
-      totalItems: response.data.data.totalItems,
+      itemCount: response.data.data.itemCount,
       totalAmount: response.data.data.totalAmount,
     }));
   } catch (error: any) {
@@ -74,7 +74,7 @@ export const removeCartItem = (itemId: string): AppThunk => async (dispatch, get
     });
     dispatch(setCart({
       items: response.data.data.items,
-      totalItems: response.data.data.totalItems,
+      itemCount: response.data.data.itemCount,
       totalAmount: response.data.data.totalAmount,
     }));
   } catch (error) {

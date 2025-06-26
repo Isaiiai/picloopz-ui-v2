@@ -42,14 +42,14 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
       </div>
 
       {/* Variant Thumbnails */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {variants.map((variant, index) => (
           <motion.button
             key={index}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setSelectedVariant(index)}
-            className={`border-2 rounded-xl overflow-hidden aspect-square transition-all ${
+            className={`w-24 h-24 sm:w-full sm:h-full border-2 rounded-xl overflow-hidden aspect-square transition-all ${
               selectedVariant === index
                 ? 'border-terracotta-500 ring-2 ring-terracotta-200 shadow-md'
                 : 'border-cream-200 hover:border-terracotta-300'
@@ -71,7 +71,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
             <Camera size={18} className="mr-2 text-terracotta-500" />
             Customer Photos
           </h3>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {reviewImages.slice(0, 8).map((image, index) => (
               <div
                 key={index}

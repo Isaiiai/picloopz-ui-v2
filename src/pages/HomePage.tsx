@@ -9,8 +9,14 @@ import { fetchCategories } from '../features/category/categoryThunks';
 import { selectCategories, selectCategoryLoading, selectCategoryError } from '../features/category/categorySelectors';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getTopSellingProducts, getTrendingProducts,  } from '../features/product/productThunks';
-import { selectTopSellingProducts, selectTrendingProducts } from '../features/product/productSelectors';
+import {
+  getTopSellingProducts,
+  getTrendingProducts,
+} from '../features/product/productThunks';
+import {
+  selectTopSellingProducts,
+  selectTrendingProducts,
+} from '../features/product/productSelectors';
 import { useBanner } from '../features/banner/useBanner';
 
 const HomePage = () => {
@@ -38,8 +44,8 @@ const HomePage = () => {
               sortOrder: 'asc',
             })
           ),
-          dispatch(getTopSellingProducts()),
-          dispatch(getTrendingProducts()),
+          dispatch(getTopSellingProducts(10)),
+          dispatch(getTrendingProducts(10)),
         ]);
       } catch (error) {
         console.error('Error fetching homepage data:', error);
@@ -121,13 +127,13 @@ const HomePage = () => {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-cream-50 to-cream-200 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/src/assets/pattern-bg.png')] opacity-5"></div>
-        <div className="container mx-auto px-4 md:px-8 relative z-10">
-          <div className="py-20 md:py-28 lg:py-32 flex flex-col lg:flex-row items-center">
+        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl relative z-10">
+          <div className="py-16 md:py-24 lg:py-28 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="lg:w-1/2 lg:pr-12 mb-12 lg:mb-0 z-10"
+              className="lg:w-1/2 lg:pr-8 mb-12 lg:mb-0 z-10"
             >
               <span className="inline-block px-4 py-1 bg-terracotta-100 text-terracotta-700 rounded-full text-sm font-medium mb-6">
                 Handcrafted with Love
@@ -200,7 +206,7 @@ const HomePage = () => {
                   <img 
                     src="https://images.unsplash.com/photo-1620783770629-122b7f187703?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" 
                     alt="Handcrafted framed memories" 
-                    className="w-[1500px] h-[400px] object-cover rounded-lg"
+                    className="w-full h-64 md:h-80 lg:h-[400px] object-cover rounded-lg"
                   />
                   <div className="absolute -bottom-6 -right-6 p-2 bg-white rounded-lg shadow-md">
                     <img 
@@ -228,7 +234,7 @@ const HomePage = () => {
       <section className="py-16 bg-white relative overflow-hidden">
         <div className="absolute top-1 right-10 w-[100px] h-[100px] bg-cream-100 rounded-full -translate-y-1/6 translate-x-1/3 opacity-90"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[200px] bg-terracotta-50 rounded-full translate-y-1/6 -translate-x-1/3 opacity-60"></div>
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl relative z-10">
           <div className="flex flex-col items-center mb-12">
             <span className="text-terracotta-500 text-sm font-medium tracking-wider uppercase mb-2">Explore Our</span>
             <h2 className="text-2xl md:text-3xl font-semibold text-center font-playfair relative inline-block">
@@ -357,77 +363,30 @@ const HomePage = () => {
 
 
       {/* Top Selling Products */}
-      <section className="py-20 bg-white relative overflow-hidden">
-        <div className="absolute left-0 top-1/4 w-64 h-64 bg-terracotta-50 rounded-full -translate-x-1/2 opacity-60 blur-2xl"></div>
-        <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-cream-100 rounded-full translate-x-1/2 opacity-70 blur-xl"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-            <div className="mb-6 md:mb-0">
-              <span className="text-terracotta-500 text-sm font-medium tracking-wider uppercase block mb-1">Customer Favorites</span>
-              <h2 className="text-2xl md:text-3xl font-semibold font-playfair relative inline-block">
-                Top Selling
-                <div className="absolute -bottom-3 left-0 w-16 h-1 bg-terracotta-300 rounded-full"></div>
-              </h2>
-            </div>
-            <Link 
-              to="/category/top-selling" 
-              className="text-terracotta-600 hover:text-terracotta-700 flex items-center transition-colors group"
-            >
-              <span className="mr-1">View All</span> 
-              <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
-            </Link>
+      <section className="py-12 md:py-20 bg-cream-50">
+        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold font-playfair text-gray-800">Top Selling Products</h2>
+            <p className="text-md text-gray-600 mt-2">Loved by our customers, crafted for you.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {topSellingProducts.map((product, idx) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {topSellingProducts?.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
       </section>
 
       {/* Trending Products */}
-      <section className="py-20 bg-gradient-to-b from-cream-50 to-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-32" style={{ 
-          background: 'radial-gradient(50% 50% at 50% 0%, rgba(236, 201, 186, 0.2) 0%, rgba(255, 255, 255, 0) 100%)' 
-        }}></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-            <div className="mb-6 md:mb-0">
-              <span className="text-terracotta-500 text-sm font-medium tracking-wider uppercase block mb-1">Popular Right Now</span>
-              <h2 className="text-2xl md:text-3xl font-semibold font-playfair relative inline-block">
-                Trending Now
-                <div className="absolute -bottom-3 left-0 w-16 h-1 bg-terracotta-300 rounded-full"></div>
-              </h2>
-            </div>
-            <Link 
-              to="/category/trending" 
-              className="text-terracotta-600 hover:text-terracotta-700 flex items-center transition-colors group"
-            >
-              <span className="mr-1">View All</span> 
-              <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
-            </Link>
+      <section className="py-12 md:py-20 bg-white">
+        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold font-playfair text-gray-800">Trending Now</h2>
+            <p className="text-md text-gray-600 mt-2">Discover the latest designs everyone is talking about.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {trendingProducts.map((product, idx) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-                className="h-full"
-              >
-                <ProductCard product={product} />
-              </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {trendingProducts?.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
@@ -435,10 +394,10 @@ const HomePage = () => {
 
       {/* How It Works */}
       <section className="py-24 bg-gradient-to-b from-white to-cream-50 relative overflow-hidden">
-        <div className="absolute left-0 top-0 w-full h-40 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(236,201,186,0.15)_0%,rgba(255,255,255,0)_100%)]"></div>
+        <div className="absolute left-0 top-0 w-full h-40 bg-[radial-gradient(50% 50% at 50% 0%, rgba(236, 201, 186, 0.2) 0%, rgba(255, 255, 255, 0) 100%)"></div>
         <div className="absolute -left-24 top-1/3 w-48 h-48 rounded-full border border-terracotta-200 opacity-30"></div>
         <div className="absolute -right-32 bottom-1/4 w-64 h-64 rounded-full border-2 border-terracotta-100 opacity-40"></div>
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl relative z-10">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block px-4 py-1 bg-terracotta-50 text-terracotta-700 rounded-full text-sm font-medium mb-4">
               Artisan Excellence
@@ -539,11 +498,11 @@ const HomePage = () => {
                   <svg className="w-7 h-7 text-terracotta-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M7.17 6A5.001 5.001 0 002 11c0 2.21 1.79 4 4 4h1v3a1 1 0 001 1h2a1 1 0 001-1v-3c0-2.21-1.79-4-4-4H7.17A3.001 3.001 0 017.17 6zM17.17 6A5.001 5.001 0 0012 11c0 2.21 1.79 4 4 4h1v3a1 1 0 001 1h2a1 1 0 001-1v-3c0-2.21-1.79-4-4-4h-.83A3.001 3.001 0 0117.17 6z"/>
                   </svg>
-                  “We don’t just create art, we create happiness. Your smile is our masterpiece.”
+                  "We don't just create art, we create happiness. Your smile is our masterpiece."
                 </blockquote>
                 <p className="text-gray-800 mb-8 text-lg leading-relaxed">
-                  We believe in perfection and your complete satisfaction. That’s why we’ve implemented a unique 
-                  <span className="text-terracotta-800 font-semibold"> pre-delivery approval process</span> where you’ll 
+                  We believe in perfection and your complete satisfaction. That's why we've implemented a unique 
+                  <span className="text-terracotta-800 font-semibold"> pre-delivery approval process</span> where you'll 
                   review every detail before final production.
                 </p>
                 <motion.ul 
@@ -595,7 +554,7 @@ const HomePage = () => {
         <div className="absolute top-0 left-0 w-full h-24 bg-cream-50" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)' }}></div>
         <div className="absolute bottom-0 right-0 w-32 h-32 bg-terracotta-50 rounded-full translate-y-1/2 translate-x-1/2 opacity-50"></div>
         <div className="absolute top-1/4 left-0 w-24 h-24 bg-cream-100 rounded-full -translate-x-1/2 opacity-60"></div>
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl relative z-10">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <span className="inline-block px-4 py-1 bg-terracotta-50 text-terracotta-700 rounded-full text-sm font-medium mb-4">
               Inspiration Gallery
@@ -769,7 +728,7 @@ const HomePage = () => {
 
       {/* Testimonials */}
       <section className="py-16 bg-cream-50" ref={testimonialRef}>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl">
           <h2 className="text-2xl md:text-3xl font-semibold text-center mb-12 font-playfair">What Our Customers Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {mockTestimonials.slice(0, 3).map((testimonial, index) => (

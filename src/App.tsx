@@ -25,6 +25,7 @@ import { useOrders } from './features/order/useOrder';
 import { useAuth } from './features/auth/authHooks';
 import DesignApprovalPage from './pages/DesignApprovalPage';
 import ThankYouPage from './pages/ThankYouPage';
+import OrderSummaryPage from './pages/OrderSummaryPage';
 
 export function App() {
   const dispatch = useAppDispatch();
@@ -82,6 +83,7 @@ export function App() {
             <Route path="gallery" element={<GalleryPage />} />
             <Route path="/design/approve/:token" element={<DesignApprovalPage />} />
             <Route path="/thank-you" element={<ThankYouPage />} />
+            <Route path="order-summary" element={<OrderSummaryPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
