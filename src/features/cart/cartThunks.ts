@@ -31,6 +31,7 @@ export const addToCart = (payload: AddToCartPayload): AppThunk => async (dispatc
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('Add to cart response:', response);
     dispatch(setCart({
       items: response.data.data.items,
       itemCount: response.data.data.itemCount,
