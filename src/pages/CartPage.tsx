@@ -6,8 +6,6 @@ import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
 import { CreateOrderData } from '../features/order/orderTypes';
 import { useUpload } from '../features/upload/useUpload';
-import { loadRazorpayScript } from '../utils/loadRazorpayScript';
-import axios from 'axios';
 
 interface FormData {
   name: string;
@@ -24,12 +22,9 @@ interface FormData {
 const CartPage = () => {
   const { 
     cart, 
-    updateCartItem, 
     removeCartItem, 
     emptyCart 
   } = useCart();
-
-  const { cartImagesUpload, clear } = useUpload();
   
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -51,92 +46,53 @@ const CartPage = () => {
     }));
   };
   
-  const handleQuantityChange = (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) newQuantity = 1;
-    updateCartItem({ itemId, quantity: newQuantity });
-  };
-  
-  const { createOrder, verifyPayment } = useOrders();
+  const { createOrder } = useOrders();
   const navigate = useNavigate();
   
-  const handleCheckout = async () => {
-  const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
-  const missingFields = requiredFields.filter(field => !formData[field]);
+  const handleProceedToCheckout = async () => {
+    const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
 
-  if (missingFields.length > 0) {
-    toast.error('Please fill in all required fields');
-    return;
-  }
+    if (missingFields.length > 0) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
 
-  const isRazorpayScriptLoaded = await loadRazorpayScript();
-  if (!isRazorpayScriptLoaded) {
-    toast.error('Razorpay Failed to load. Are you online?');
-    return;
-  }
+    try {
+      const orderData: CreateOrderData = {
+        items: cart.items.map(item => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: 1,
+          uploadedImageUrl: item.cartImages,
+        })),
+        shippingAddress: {
+          fullName: formData.name,
+          phone: formData.phone,
+          addressLine1: formData.address,
+          city: formData.city,
+          state: formData.state,
+          postalCode: formData.zipCode,
+          country: formData.country,
+        },
+        paymentMethod: 'razorpay',
+        notes: formData.notes || '',
+      };
 
-  try {
-    const orderData: CreateOrderData = {
-      items: cart.items.map(item => ({
-        productId: item.productId,
-        variantId: item.variantId,
-        quantity: item.quantity,
-        uploadedImageUrl: cartImagesUpload?.uploads[0]?.url ?? '',
-      })),
-      shippingAddress: {
-        fullName: formData.name,
-        phone: formData.phone,
-        addressLine1: formData.address,
-        city: formData.city,
-        state: formData.state,
-        postalCode: formData.zipCode,
-        country: formData.country,
-      },
-      paymentMethod: 'razorpay',
-      notes: formData.notes || '',
-    };
+      const orderResponse = await createOrder(orderData).unwrap();
+      
+      // Navigate to Order Summary with the order data
+      navigate('/order-summary', { 
+        state: { 
+          orderData: orderResponse,
+          formData 
+        } 
+      });
 
-    // ✅ Get clean response
-    const orderResponse = await createOrder(orderData).unwrap();
-    const { razorpayOrderId, totalAmount } = orderResponse;
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: totalAmount * 100,
-      currency: 'INR',
-      name: 'Picloopz',
-      description: 'Secure Payment',
-      order_id: razorpayOrderId,
-      handler: async function (response: any) {
-        const verifyRes = await verifyPayment({
-          razorpayOrderId: response.razorpay_order_id,
-          razorpayPaymentId: response.razorpay_payment_id,
-          razorpaySignature: response.razorpay_signature,
-        }).unwrap();
-
-        if (verifyRes.status !== 'Confirmed') {
-          toast.error('Payment verification failed');
-          return;
-        }
-
-        toast.success('Payment Successful!');
-        emptyCart();
-        clear();
-        navigate('/order-confirmation', { state: { order: verifyRes.data } });
-      },
-      prefill: {
-        name: formData.name,
-        email: formData.email,
-        contact: formData.phone,
-      },
-      theme: { color: '#6366F1' },
-    };
-
-    const razorpay = new (window as any).Razorpay(options);
-    razorpay.open();
-  } catch (err: any) {
-    toast.error(err?.message || 'Checkout failed');
-  }
-};
+    } catch (err: any) {
+      toast.error(err?.message || 'Order creation failed');
+    }
+  };
 
 
   
@@ -146,15 +102,15 @@ const CartPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 font-playfair">Shopping Cart</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-8 overflow-x-hidden">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 font-playfair text-center sm:text-left">Shopping Cart</h1>
       
       {cart.items.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
-              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+              <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <h2 className="font-semibold">Cart Items ({cart.items.length})</h2>
                 <button 
                   onClick={emptyCart}
@@ -164,11 +120,10 @@ const CartPage = () => {
                   Clear All
                 </button>
               </div>
-              
               <div className="divide-y divide-gray-200">
                 {cart.items.map(item => (
-                  <div key={item.id} className="p-4 flex">
-                    <div className="w-24 h-24 bg-gray-100 rounded overflow-hidden mr-4">
+                  <div key={item.id} className="p-4 flex flex-col sm:flex-row gap-4">
+                    <div className="w-full sm:w-24 h-32 sm:h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
                       {item && (
                         <img 
                           src={item.productImage}
@@ -177,75 +132,80 @@ const CartPage = () => {
                         />
                       )}
                     </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex justify-between">
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div className="flex flex-col sm:flex-row justify-between gap-2">
                         <div>
-                          <h3 className="font-medium">{item.productName}</h3>
+                          <h3 className="font-medium text-base sm:text-lg">{item.productName}</h3>
                           {item.variantName && (
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 text-xs sm:text-sm">
                               Variant: {item.variantName}
                             </p>
                           )}
-                          <p className="text-purple-600 font-medium mt-1">
-                            ₹{item.unitPrice}
+                          <p className="text-purple-600 font-medium mt-1 text-sm sm:text-base">
+                            ₹{item.unitPrice.toFixed(2)}
                           </p>
                         </div>
-                        
                         <button 
                           onClick={() => removeCartItem(item.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          className="text-gray-400 hover:text-red-500 transition-colors self-start sm:self-auto"
                           aria-label="Remove item"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
-                      
-                      <div className="flex justify-between items-end mt-2">
-                        <div className="flex items-center border border-gray-300 rounded overflow-hidden w-24">
-                          <button 
-                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                            className="w-8 h-8 text-center focus:outline-none"
-                          />
-                          <button 
-                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100"
-                          >
-                            +
-                          </button>
-                        </div>
-                        
-                        <div className="text-right">
-                          <span className="font-medium">
-                            ₹{(item.unitPrice * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
+                      <div className="flex flex-wrap flex-row-reverse gap-2 mt-2">
+                        {item.cartImages.map((cartImage, idx) => (
+                          <div key={idx} className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
+                            <img
+                              src={cartImage}
+                              alt={`Custom image ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
                       </div>
+
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+              <div className="p-4 space-y-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Items Total</span>
+                  <span>₹{cart.totalAmount.toFixed(2)}</span>
+                </div>
+
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Taxes & Shipping</span>
+                  <span className="text-gray-400 italic">Calculated next</span>
+                </div>
+
+                <hr className="my-2 border-gray-200" />
+
+                <div className="flex justify-between font-semibold text-base text-gray-800">
+                  <span>Final Total</span>
+                  <span>₹{cart.totalAmount.toFixed(2)}</span>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-2">
+                  <span className="font-medium text-gray-700">Note:</span> Tax and shipping charges will be calculated at the payment step.
+                </p>
+              </div>
+            </div>
+
           </div>
           
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden sticky top-24">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden lg:sticky lg:top-24">
               <div className="p-4 border-b border-gray-200">
-                <h2 className="font-semibold">Order Summary</h2>
+                <h2 className="font-semibold">Shipping Information</h2>
               </div>
               
               <div className="p-4 space-y-4">
-                <div className="flex justify-between pb-4 border-b border-gray-200">
+                {/* <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">₹{cart.totalAmount}</span>
                 </div>
@@ -262,11 +222,11 @@ const CartPage = () => {
                   <span className="text-purple-600">
                     ₹{(cart.totalAmount + (cart.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
                   </span>
-                </div>
+                </div> */}
                 
                 {/* Shipping Information Form */}
                 <div className="pt-4">
-                  <h3 className="font-medium mb-3">Shipping Information</h3>
+                  {/* <h3 className="font-medium mb-3">Shipping Information</h3> */}
                   <div className="space-y-3">
                     <div>
                       <label htmlFor="name" className="block text-sm text-gray-600 mb-1">
@@ -283,7 +243,7 @@ const CartPage = () => {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
                         <label htmlFor="email" className="block text-sm text-gray-600 mb-1">
                           Email *
@@ -330,7 +290,7 @@ const CartPage = () => {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
                         <label htmlFor="city" className="block text-sm text-gray-600 mb-1">
                           City *
@@ -362,7 +322,7 @@ const CartPage = () => {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
                         <label htmlFor="zipCode" className="block text-sm text-gray-600 mb-1">
                           ZIP Code *
@@ -394,6 +354,7 @@ const CartPage = () => {
                           <option value="Canada">Canada</option>
                           <option value="United Kingdom">United Kingdom</option>
                           <option value="Australia">Australia</option>
+                          <option value="India">India</option>
                         </select>
                       </div>
                     </div>
@@ -401,7 +362,7 @@ const CartPage = () => {
                 </div>
                 
                 <button
-                  onClick={handleCheckout}
+                  onClick={handleProceedToCheckout}
                   disabled={!isFormValid() || cart.loading}
                   className={`w-full py-3 rounded-full font-medium flex items-center justify-center ${
                     isFormValid() && !cart.loading

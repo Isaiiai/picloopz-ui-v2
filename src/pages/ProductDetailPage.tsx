@@ -10,12 +10,6 @@ import { useUpload } from '../features/upload/useUpload';
 import { useReview } from '../features/review/useReview';
 
 import {
-  selectCurrentProduct,
-  selectProductLoading,
-  selectCategoryInfo,
-  selectCategoryProducts,
-} from '../features/product/productSelectors';
-import {
   getProductById,
   getProductsByCategory,
 } from '../features/product/productThunks';
@@ -28,6 +22,12 @@ import { clearUploadState } from '../features/upload/uploadSlice';
 import ProductGallery from '../components/product/ProductGallery';
 import ProductInfo from '../components/product/ProductInfo';
 import SkeletonLoader from '../components/SkeletonLoader';
+import {
+  selectCurrentProduct,
+  selectProductLoading,
+  selectCategoryInfo,
+  selectCategoryProducts
+} from '../features/product/productSelectors';
 import { useDropzone } from 'react-dropzone';
 
 const ProductTabs = lazy(() => import('../components/product/ProductTabs'));
@@ -41,11 +41,11 @@ const ProductDetailPage = () => {
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorite();
   const {
-    uploadSingle,
     uploadMultiple,
     clear: clearUpload,
     singleUpload,
     reviewImageUpload,
+    cartImagesUpload,
     loading: uploadLoading,
     error: uploadError,
   } = useUpload();
@@ -62,13 +62,11 @@ const ProductDetailPage = () => {
 
   const product = useSelector(selectCurrentProduct);
   const loading = useSelector(selectProductLoading);
-  const categoryInfo = useSelector(selectCategoryInfo);
   const relatedProducts = useSelector(selectCategoryProducts);
 
   const requiredFilesCount = 2;
 
   const [selectedVariant, setSelectedVariant] = useState(0);
-  const [quantity, setQuantity] = useState(1);
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [editingReview, setEditingReview] = useState(null);
@@ -150,13 +148,15 @@ const ProductDetailPage = () => {
     return () => previewUrls.forEach((url) => URL.revokeObjectURL(url));
   }, [previewUrls]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async() => {
     if (!product) return;
-    addToCart({
+    const imageUrls = cartImagesUpload?.uploads.map(upload => upload.url) || [];
+    await addToCart({
       productId: product.id,
       variantId: product.variants[selectedVariant].id,
-      quantity,
+      cartImages: imageUrls
     });
+    clearUpload();
     toast.success('Added to cart!');
   };
 
@@ -188,10 +188,10 @@ const ProductDetailPage = () => {
           setUploadProgress(progress);
         },
       });
-      toast.success('Images uploaded successfully!');
       setFilesToUpload([]);
       setPreviewUrls([]);
       setUploadProgress(0);
+      toast.success('Images uploaded successfully!');
     } catch {
       toast.error('Failed to upload images');
     }
@@ -244,19 +244,23 @@ const ProductDetailPage = () => {
 
   return (
     <div className="bg-cream-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center text-sm text-gray-500 mb-8">
-          <span>Home</span>
+      <div className="container mx-auto max-w-screen-xl px-2 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 overflow-x-hidden">
+        {/* Breadcrumbs */}
+        <div className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 md:mb-8 px-1 sm:px-0">
+          <a href="/" className="hover:text-terracotta-600">Home</a>
           <span className="mx-2">/</span>
-          <span>{categoryInfo?.name || 'Category'}</span>
+          <a href={`/category/${product?.categoryId}`} className="hover:text-terracotta-600">
+            {product?.categoryName || 'Category'}
+          </a>
           <span className="mx-2">/</span>
           <span className="text-gray-700 font-medium">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        {/* Product Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 mb-8 sm:mb-12 lg:mb-16">
           <ProductGallery
             productName={product.name}
-            variants={product.variants}
+            variants={(product.variants || []).map(v => ({ name: v.name, imageUrl: v.imageUrl || '' }))}
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
             reviewImages={flatReviewImages}
@@ -271,8 +275,6 @@ const ProductDetailPage = () => {
             averageRating={averageRating}
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
-            quantity={quantity}
-            setQuantity={setQuantity}
             getRootProps={getRootProps}
             getInputProps={getInputProps}
             isDragActive={isDragActive}
@@ -291,10 +293,11 @@ const ProductDetailPage = () => {
           />
         </div>
 
-        <Suspense fallback={<SkeletonLoader />}>
+        {/* Tabs */}
+        <div className="mt-8 sm:mt-12">
           <ProductTabs
             product={product}
-            reviews={reviews}
+            reviews={reviews || []}
             total={total}
             averageRating={averageRating}
             newReview={newReview}
@@ -305,20 +308,59 @@ const ProductDetailPage = () => {
             handleUploadReviewImages={handleUploadReviewImages}
             uploadLoading={uploadLoading}
             reviewLoading={reviewLoading}
-            onEditReview={onEditReview}
-            editingReview={editingReview}
+            onEditReview={(review) => {
+              setEditingReview(review);
+              setNewReview({
+                rating: review.rating,
+                comment: review.comment,
+                images: review.images
+              });
+            }}
+            editingReview={editingReview ?? {
+              id: '',
+              userId: '',
+              userName: '',
+              productId: '',
+              productName: '',
+              rating: 0,
+              comment: '',
+              images: [],
+              isApproved: false,
+              createdAt: '',
+              updatedAt: ''
+            }}
             onImageClick={handleImageClick}
           />
+        </div>
 
-          <RelatedProducts relatedProducts={relatedProducts} categoryId={product.categoryId} />
-
-          <ImageModal
-            isOpen={showImageModal}
-            onClose={() => setShowImageModal(false)}
-            imageUrl={flatReviewImages[selectedImageIndex] || product.variants[selectedVariant].imageUrl}
+        {/* Related Products */}
+        <div className="mt-8 sm:mt-12">
+          <RelatedProducts
+            relatedProducts={(relatedProducts || []).map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              rating: typeof p.rating === 'number' ? p.rating : 0,
+              categoryId: p.categoryId,
+              isTrending: !!p.isTrending,
+              variants: (p.variants || []).map((v: any) => ({
+                imageUrl: v.imageUrl || '',
+                price: typeof v.price === 'number' ? v.price : 0
+              })),
+            }))}
+            categoryId={product.categoryId}
           />
-        </Suspense>
+        </div>
       </div>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        imageUrl={
+          (reviews?.flatMap?.(r => r.images)?.[selectedImageIndex]) || 
+          product.variants?.[selectedVariant]?.imageUrl || ''
+        }
+      />
     </div>
   );
 };

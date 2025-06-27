@@ -214,7 +214,7 @@ const CategoryPage = () => {
           <div className="md:hidden mb-6">
             <button
               onClick={() => setIsFilterOpen(true)}
-              className="w-full py-3 px-4 bg-white rounded-xl flex items-center justify-center gap-2 text-gray-700 shadow-md"
+              className="w-full py-3 px-4 bg-white rounded-xl flex items-center justify-center gap-2 text-gray-700 shadow-md border border-gray-200"
             >
               <Filter size={18} /> Filter Products
             </button>
@@ -230,6 +230,8 @@ const CategoryPage = () => {
             selectedFilters={selectedFilters}
             toggleFilter={toggleFilter}
             clearFilters={clearFilters}
+            variantOptions={[]}
+            materialOptions={[]}
             categoryId={categoryId}
             navigate={navigate}
             categories={displayCategories}
@@ -246,7 +248,8 @@ const CategoryPage = () => {
             setSortParams={setSortParams}
             fetchProducts={fetchProducts}
             buildSearchParams={buildSearchParams}
-            categoryId={categoryId}
+            currentCategoryName={combinedCategoryInfo?.name || 'Products'}
+            viewMode={viewMode}
           />
         </div>
       </div>

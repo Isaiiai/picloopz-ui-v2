@@ -50,7 +50,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
     <div className="bg-white rounded-2xl shadow-lg mb-16">
       {/* Tab Buttons */}
       <div className="border-b border-cream-200">
-        <div className="flex space-x-0 overflow-x-auto">
+        <div className="flex space-x-0 overflow-x-auto scrollbar-thin scrollbar-thumb-cream-200">
           {[
             { id: 'description', label: 'Description' },
             { id: 'details', label: 'Details' },
@@ -72,11 +72,11 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         {activeTab === 'description' && (
           <div className="prose max-w-none">
-            <p className="text-gray-700 text-lg leading-relaxed">{product.description}</p>
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <p className="text-gray-700 text-base sm:text-lg leading-relaxed break-words">{product.description}</p>
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
               <FeatureCard title="Premium Quality" desc="Crafted with the finest materials for lasting beauty" />
               <FeatureCard title="Custom Made" desc="Personalized just for you with your special moments" />
               <FeatureCard title="Fast Delivery" desc="Quick processing and reliable shipping" />
@@ -85,9 +85,9 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
         )}
 
         {activeTab === 'details' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8">
             <div>
-              <h3 className="font-semibold text-lg mb-4 text-gray-900">Product Specifications</h3>
+              <h3 className="font-semibold text-base sm:text-lg mb-4 text-gray-900">Product Specifications</h3>
               <dl className="space-y-3">
                 <SpecRow label="Materials" value={product.materials} />
                 <SpecRow label="Dimensions" value={product.dimensions} />
@@ -96,7 +96,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
               </dl>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-4 text-gray-900">Care Instructions</h3>
+              <h3 className="font-semibold text-base sm:text-lg mb-4 text-gray-900">Care Instructions</h3>
               <ul className="space-y-2 text-gray-600">
                 {product.careInstructions?.map((instruction: string, index: number) => (
                   <li key={index} className="flex items-start">
@@ -112,11 +112,11 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
         {activeTab === 'reviews' && (
           <div>
             {/* Header */}
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-8">
               <div>
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">Customer Reviews</h3>
-                <div className="flex items-center">
-                  <div className="flex mr-3">
+                <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">Customer Reviews</h3>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                  <div className="flex mr-2 sm:mr-3">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
@@ -125,13 +125,13 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
                       />
                     ))}
                   </div>
-                  <span className="text-xl font-semibold text-gray-900">{averageRating.toFixed(1)}</span>
+                  <span className="text-lg sm:text-xl font-semibold text-gray-900">{averageRating.toFixed(1)}</span>
                   <span className="text-gray-500 ml-2">based on {total} reviews</span>
                 </div>
               </div>
               <button
                 onClick={() => setShowReviewForm(true)}
-                className="px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
+                className="w-full sm:w-auto px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
               >
                 Write a Review
               </button>

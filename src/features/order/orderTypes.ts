@@ -8,10 +8,9 @@ export interface OrderItem {
   productImage?: string;
   variantId?: string;
   variantName?: string;
-  quantity: number;
   unitPrice?: number;
   totalPrice?: number;
-  uploadedImageUrl?: string;
+  uploadedImageUrl?: string[];
 }
 
 export interface ShippingAddress {
@@ -67,8 +66,7 @@ export interface CreateOrderData {
   items: Array<{
     productId: string;
     variantId?: string;
-    quantity: number;
-    uploadedImageUrl: string;
+    uploadedImageUrl: string[];
   }>;
   shippingAddress: ShippingAddress;
   paymentMethod: 'razorpay' | 'cod';

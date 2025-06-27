@@ -15,16 +15,16 @@ const Footer = () => {
               Handcrafted art and decor that tells your story through beautiful personalized pieces.
             </p>
             <div className="flex space-x-4">
-              <a href="https://instagram.com" className="text-gray-500 hover:text-peach-500 transition-colors" aria-label="Instagram">
+              <a href="https://instagram.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Instagram">
                 <Instagram size={20} />
               </a>
-              <a href="https://facebook.com" className="text-gray-500 hover:text-peach-500 transition-colors" aria-label="Facebook">
+              <a href="https://facebook.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Facebook">
                 <Facebook size={20} />
               </a>
-              <a href="https://twitter.com" className="text-gray-500 hover:text-peach-500 transition-colors" aria-label="Twitter">
+              <a href="https://twitter.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Twitter">
                 <Twitter size={20} />
               </a>
-              <a href="https://youtube.com" className="text-gray-500 hover:text-peach-500 transition-colors" aria-label="YouTube">
+              <a href="https://youtube.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="YouTube">
                 <Youtube size={20} />
               </a>
             </div>
@@ -56,11 +56,11 @@ const Footer = () => {
             <h3 className="font-semibold text-gray-800 mb-4">Contact</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
-                <Mail size={18} className="mr-2 text-peach-500 mt-1" />
+                <Mail size={18} className="mr-2 text-terracotta-600 mt-1" />
                 <span className="text-gray-600">support@picloopz.com</span>
               </li>
               <li className="flex items-start">
-                <Phone size={18} className="mr-2 text-peach-500 mt-1" />
+                <Phone size={18} className="mr-2 text-terracotta-600 mt-1" />
                 <span className="text-gray-600">+1 (555) 123-4567</span>
               </li>
             </ul>

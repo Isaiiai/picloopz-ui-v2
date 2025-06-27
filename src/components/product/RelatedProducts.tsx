@@ -21,7 +21,6 @@ interface RelatedProductsProps {
 
 const RelatedProducts: React.FC<RelatedProductsProps> = ({ relatedProducts, categoryId }) => {
   if (!relatedProducts.length) return null;
-  console.log(relatedProducts)
 
   return (
     <motion.section
@@ -43,7 +42,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ relatedProducts, cate
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {relatedProducts.map((related, idx) => (
           <motion.div
             key={related.id}

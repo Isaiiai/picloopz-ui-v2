@@ -77,7 +77,7 @@ const OrderConfirmationPage = () => {
               <div key={index} className="p-6 flex">
                 <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden mr-4">
                   <img 
-                    src={item.uploadedImageUrl} 
+                    src={item.productImage} 
                     alt={item.name} 
                     className="w-full h-full object-cover"
                   />
@@ -94,8 +94,25 @@ const OrderConfirmationPage = () => {
                     
                     <div className="text-right">
                       <p className="font-medium">₹{(item.totalPrice ?? 0).toFixed(2)}</p>
-                      <p className="text-gray-500 text-sm">Qty: {item.quantity}</p>
                     </div>
+                  </div>
+                  <div>
+                    {item.uploadedImageUrl && item.uploadedImageUrl.length > 0 && (
+                      <div className="">
+                        <span className="text-sm text-gray-500 mr-2">Uploaded Images:</span>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          {item.uploadedImageUrl.map((image, idx) => (
+                            <div key={idx} className="w-10 h-10 rounded overflow-hidden border border-gray-200">
+                              <img 
+                                src={image} 
+                                alt={`Uploaded ${idx + 1}`} 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

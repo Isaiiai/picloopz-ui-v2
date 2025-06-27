@@ -10,8 +10,6 @@ interface ProductInfoProps {
   averageRating: number;
   selectedVariant: number;
   setSelectedVariant: (index: number) => void;
-  quantity: number;
-  setQuantity: (q: number) => void;
   getRootProps: (props?: DropzoneRootProps) => any;
   getInputProps: (props?: DropzoneInputProps) => any;
   isDragActive: boolean;
@@ -34,8 +32,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   averageRating,
   selectedVariant,
   setSelectedVariant,
-  quantity,
-  setQuantity,
   getRootProps,
   getInputProps,
   isDragActive,
@@ -59,7 +55,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="bg-white rounded-2xl p-8 shadow-lg h-fit"
+      className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg h-fit"
     >
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -74,7 +70,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {/* Title */}
-      <h1 className="text-3xl font-bold mb-4 font-playfair text-gray-900">{product.name}</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 font-playfair text-gray-900">{product.name}</h1>
 
       {/* Rating */}
       <div className="flex items-center mb-6">
@@ -102,7 +98,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       {/* Variant Selection */}
       <div className="mb-8">
         <h3 className="font-semibold mb-4 text-gray-900">Select Variant</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {product.variants.map((variant: any, index: number) => (
             <button
               key={index}
@@ -119,32 +115,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
               </div>
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Quantity */}
-      <div className="mb-8">
-        <h3 className="font-semibold mb-4 text-gray-900">Quantity</h3>
-        <div className="flex items-center w-fit border-2 border-cream-200 rounded-xl overflow-hidden">
-          <button
-            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="w-12 h-12 flex items-center justify-center hover:bg-cream-100 transition-colors"
-          >
-            -
-          </button>
-          <input
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-16 h-12 text-center font-medium focus:outline-none"
-          />
-          <button
-            onClick={() => setQuantity(quantity + 1)}
-            className="w-12 h-12 flex items-center justify-center hover:bg-cream-100 transition-colors"
-          >
-            +
-          </button>
         </div>
       </div>
 
@@ -182,11 +152,17 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
         {/* Progress Bar */}
         {loading.cartUploadLoading && (
-          <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
-            <div
-              className="bg-terracotta-600 h-2.5 rounded-full"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
+          <div className="mt-6 w-full">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium text-gray-700">Uploading...</span>
+              <span className="text-sm font-medium text-gray-700">{uploadProgress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div
+                className="bg-terracotta-600 h-3 rounded-full transition-all duration-500 ease-in-out"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
           </div>
         )}
 
@@ -264,7 +240,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {/* Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 sm:mb-8">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -304,7 +280,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {/* Guarantees */}
-      <div className="grid grid-cols-2 gap-4 pt-6 border-t border-cream-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-cream-200">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
             <Check size={16} className="text-green-600" />

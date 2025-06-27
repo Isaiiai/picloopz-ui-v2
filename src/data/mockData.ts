@@ -17,6 +17,11 @@ export interface ProductVariant {
   name: string;
   price: number;
   imageUrl: string;
+  shipping: {
+    insideTamilNadu: number;
+    allOverIndia: number;
+    international: number;
+  };
 }
 
 export interface Product {
@@ -223,25 +228,29 @@ export const mockProducts = [
         id: 1,
         name: 'Classic Wood',
         price: 29.99,
-        imageUrl: 'https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 2,
         name: 'Modern Black',
         price: 34.99,
-        imageUrl: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 3,
         name: 'Rustic Brown',
         price: 32.99,
-        imageUrl: 'https://images.unsplash.com/photo-1574705447210-76ae1ebcc442?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1574705447210-76ae1ebcc442?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 4,
         name: 'Gold Accent',
         price: 39.99,
-        imageUrl: 'https://images.unsplash.com/photo-1622673038835-1871440f6908?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1622673038835-1871440f6908?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       }
     ]
   },
@@ -265,25 +274,29 @@ export const mockProducts = [
         id: 5,
         name: 'Small (12" x 16")',
         price: 49.99,
-        imageUrl: 'https://images.unsplash.com/photo-1554907984-89b1604d35d1?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1554907984-89b1604d35d1?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 6,
         name: 'Medium (18" x 24")',
         price: 69.99,
-        imageUrl: 'https://images.unsplash.com/photo-1551913902-c92207136625?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1551913902-c92207136625?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 7,
         name: 'Large (24" x 36")',
         price: 89.99,
-        imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 8,
         name: 'Extra Large (36" x 48")',
         price: 129.99,
-        imageUrl: 'https://images.unsplash.com/photo-1577720580479-7d839d829c73?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1577720580479-7d839d829c73?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       }
     ]
   },
@@ -307,25 +320,29 @@ export const mockProducts = [
         id: 9,
         name: 'White Mug (11oz)',
         price: 14.99,
-        imageUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 10,
         name: 'White Mug (15oz)',
         price: 17.99,
-        imageUrl: 'https://images.unsplash.com/photo-1520032484190-318f90a6f945?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1520032484190-318f90a6f945?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 11,
         name: 'Black Magic Mug',
         price: 19.99,
-        imageUrl: 'https://images.unsplash.com/photo-1506806732259-39c2d0268443?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1506806732259-39c2d0268443?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 12,
         name: 'Travel Mug',
         price: 24.99,
-        imageUrl: 'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       }
     ]
   },
@@ -349,25 +366,29 @@ export const mockProducts = [
         id: 13,
         name: 'Fleece (Small)',
         price: 49.99,
-        imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 14,
         name: 'Fleece (Large)',
         price: 69.99,
-        imageUrl: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 15,
         name: 'Sherpa (Small)',
         price: 59.99,
-        imageUrl: 'https://images.unsplash.com/photo-1517423568366-8b83523034fd?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1517423568366-8b83523034fd?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 16,
         name: 'Sherpa (Large)',
         price: 79.99,
-        imageUrl: 'https://images.unsplash.com/photo-1515876305430-f06edab8282a?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1515876305430-f06edab8282a?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       }
     ]
   },
@@ -391,25 +412,29 @@ export const mockProducts = [
         id: 17,
         name: 'Triptych (3 panels)',
         price: 89.99,
-        imageUrl: 'https://images.unsplash.com/photo-1605513524006-063ed6ed31e7?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1605513524006-063ed6ed31e7?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 18,
         name: 'Grid (4 panels)',
         price: 109.99,
-        imageUrl: 'https://images.unsplash.com/photo-1585314062604-1a357de8b000?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1585314062604-1a357de8b000?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 19,
         name: 'Gallery Wall (5 panels)',
         price: 129.99,
-        imageUrl: 'https://images.unsplash.com/photo-1595834947781-82203d742a57?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1595834947781-82203d742a57?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 20,
         name: 'Statement Wall (7 panels)',
         price: 169.99,
-        imageUrl: 'https://images.unsplash.com/photo-1596896668093-80d5a0dd9b56?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1596896668093-80d5a0dd9b56?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       }
     ]
   },
@@ -433,25 +458,29 @@ export const mockProducts = [
         id: 21,
         name: 'Rectangle (Set of 4)',
         price: 12.99,
-        imageUrl: 'https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 22,
         name: 'Square (Set of 4)',
         price: 12.99,
-        imageUrl: 'https://images.unsplash.com/photo-1552504462-da991bcea876?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1552504462-da991bcea876?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 23,
         name: 'Heart Shaped (Set of 3)',
         price: 14.99,
-        imageUrl: 'https://images.unsplash.com/photo-1518449448429-87ac394165a9?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1518449448429-87ac394165a9?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       },
       {
         id: 24,
         name: 'Mixed Shapes (Set of 6)',
         price: 19.99,
-        imageUrl: 'https://images.unsplash.com/photo-1544365558-35aa4afcf11f?q=80&w=600&auto=format&fit=crop'
+        imageUrl: 'https://images.unsplash.com/photo-1544365558-35aa4afcf11f?q=80&w=600&auto=format&fit=crop',
+        shipping: { insideTamilNadu: 50, allOverIndia: 100, international: 500 }
       }
     ]
   }
