@@ -17,6 +17,7 @@ import {
   selectTopSellingProducts,
   selectTrendingProducts,
 } from '../features/product/productSelectors';
+import { useBanner } from '../features/banner/useBanner';
 
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -29,6 +30,8 @@ const HomePage = () => {
   const categoryError = useSelector(selectCategoryError);
   const topSellingProducts = useSelector(selectTopSellingProducts);
   const trendingProducts = useSelector(selectTrendingProducts);
+
+  const {banners} = useBanner();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,15 +70,6 @@ const HomePage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Get top selling products
-  // const topSellingProducts = mockProducts
-  //   .sort((a, b) => b.soldCount - a.soldCount)
-  //   .slice(0, 4);
-
-  // Get trending products
-  // const trendingProducts = mockProducts
-  //   .filter(product => product.trending)
-  //   .slice(0, 4);
 
   return (    <div className="pb-12">
       {/* Video Modal - Updated for proper Instagram sizing */}
@@ -168,7 +162,7 @@ const HomePage = () => {
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
                   <Link 
-                    to="/how-it-works" 
+                    to="/about" 
                     className="px-8 py-3 border-2 border-terracotta-300 text-terracotta-700 hover:bg-terracotta-50 font-medium rounded-lg transition-colors flex items-center"
                   >
                     Our Story
@@ -261,23 +255,32 @@ const HomePage = () => {
 
       {/* Advertisement Slider */}
       <section className="py-12 bg-cream-50 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-24 bg-white" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)' }}></div>
-        <div className="absolute bottom-0 right-0 w-full h-24 bg-white" style={{ clipPath: 'polygon(0 100%, 100% 0, 100% 100%, 0% 100%)' }}></div>
-        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl py-8">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="relative h-80 sm:h-[600px] rounded-2xl overflow-hidden shadow-xl"
-          >
-            {mockAdvertisements.map((ad, index) => (
+      <div
+        className="absolute top-0 left-0 w-full h-24 bg-white"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)' }}
+      ></div>
+      <div
+        className="absolute bottom-0 right-0 w-full h-24 bg-white"
+        style={{ clipPath: 'polygon(0 100%, 100% 0, 100% 100%, 0% 100%)' }}
+      ></div>
+
+      <div className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="relative h-80 sm:h-[600px] rounded-2xl overflow-hidden shadow-xl"
+        >
+          {banners.map((ad, index) => {
+            const isActive = index === currentSlide;
+            return (
               <motion.div
                 key={index}
                 initial={{ opacity: 0 }}
-                animate={{ 
-                  opacity: index === currentSlide ? 1 : 0,
-                  scale: index === currentSlide ? 1 : 0.9,
+                animate={{
+                  opacity: isActive ? 1 : 0,
+                  scale: isActive ? 1 : 0.9,
                 }}
                 transition={{ duration: 0.7 }}
                 className="absolute inset-0"
@@ -288,11 +291,11 @@ const HomePage = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-900/70 via-gray-900/40 to-transparent flex items-center">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, x: -20 }}
-                    animate={{ 
-                      opacity: index === currentSlide ? 1 : 0,
-                      x: index === currentSlide ? 0 : -20 
+                    animate={{
+                      opacity: isActive ? 1 : 0,
+                      x: isActive ? 0 : -20,
                     }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="text-white p-8 md:p-12 max-w-xl"
@@ -303,49 +306,61 @@ const HomePage = () => {
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 font-playfair">{ad.title}</h3>
                     <p className="text-white/90 mb-6 text-lg">{ad.description}</p>
                     <Link
-                      to={ad.link}
+                      to={ad.targetUrl}
                       className="inline-flex items-center bg-white text-terracotta-600 px-6 py-3 rounded-full text-sm font-medium hover:bg-terracotta-50 transition-colors shadow-md group"
                     >
-                      {ad.cta} 
+                      Go
                       <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </motion.div>
                 </div>
               </motion.div>
-            ))}
-            <div className="absolute inset-y-0 left-4 flex items-center">
-              <button
-                onClick={prevSlide}
-                className="bg-white/10 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/20 transition-colors border border-white/20"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft size={20} />
-              </button>
-            </div>
-            <div className="absolute inset-y-0 right-4 flex items-center">
-              <button
-                onClick={nextSlide}
-                className="bg-white/10 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/20 transition-colors border border-white/20"
-                aria-label="Next slide"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
+            );
+          })}
+
+          {/* Navigation Arrows */}
+          {banners.length > 1 && (
+            <>
+              <div className="absolute inset-y-0 left-4 flex items-center">
+                <button
+                  onClick={prevSlide}
+                  className="bg-white/10 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/20 transition-colors border border-white/20"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+              </div>
+              <div className="absolute inset-y-0 right-4 flex items-center">
+                <button
+                  onClick={nextSlide}
+                  className="bg-white/10 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/20 transition-colors border border-white/20"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Dot Indicators */}
+          {banners.length > 1 && (
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-10">
-              {mockAdvertisements.map((_, index) => (
+              {banners.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`w-12 h-1 rounded-full transition-all ${
-                    index === currentSlide ? 'bg-white w-16' : 'bg-white/40'
+                  className={`h-1 rounded-full transition-all ${
+                    index === currentSlide ? 'bg-white w-16' : 'bg-white/40 w-12'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>
-          </motion.div>
-        </div>
-      </section>
+          )}
+        </motion.div>
+      </div>
+    </section>
+
 
       {/* Top Selling Products */}
       <section className="py-12 md:py-20 bg-cream-50">

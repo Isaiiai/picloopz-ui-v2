@@ -40,7 +40,6 @@ const Header = () => {
   return (
     <header className={`sticky top-0 w-full z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm' : 'bg-white'}`}>
       <div className="container mx-auto px-4">
-        {/* Top Bar - Logo and Icons */}
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center">
@@ -54,7 +53,6 @@ const Header = () => {
               <Link to="/category/all" className="font-medium hover:text-terracotta-600 transition-colors">Shop</Link>
               <Link to="/gallery" className="font-medium hover:text-terracotta-600 transition-colors">Gallery</Link>
               <Link to="/about" className="font-medium hover:text-terracotta-600 transition-colors">About</Link>
-              <Link to="/how-it-works" className="font-medium hover:text-terracotta-600 transition-colors">How It Works</Link>
             </nav>
 
             {/* Desktop Search - Only visible on desktop */}
@@ -79,9 +77,9 @@ const Header = () => {
             </Link>
             <Link to="/cart" className="p-1 hover:text-terracotta-500 transition-colors relative">
               <ShoppingCart size={20} />
-              {cart.totalItems > 0 && (
+              {cart.itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  {cart.totalItems}
+                  {cart.itemCount}
                 </span>
               )}
             </Link>
@@ -127,9 +125,9 @@ const Header = () => {
             </Link>
             <Link to="/cart" className="p-1 relative">
               <ShoppingCart size={20} />
-              {cart.totalItems > 0 && (
+              {cart.itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                  {cart.totalItems}
+                  {cart.itemCount}
                 </span>
               )}
             </Link>

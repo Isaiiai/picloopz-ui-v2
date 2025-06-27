@@ -36,7 +36,6 @@ export const createNewOrder = createAsyncThunk<Order, CreateOrderData>(
   async (orderData, { rejectWithValue }) => {
     try {
       const { data } = await api.post('/orders/create', orderData);
-      console.log(data);
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create order');
@@ -49,7 +48,7 @@ export const verifyOrderPayment = createAsyncThunk<Order, PaymentVerificationDat
   async (paymentData, { rejectWithValue }) => {
     try {
       const { data } = await api.post('/orders/payment/verify', paymentData);
-      return data;
+      return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Payment verification failed');
     }

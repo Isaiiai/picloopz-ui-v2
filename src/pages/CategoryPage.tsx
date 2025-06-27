@@ -109,7 +109,6 @@ const CategoryPage = () => {
     if (categoryId === 'trending' || categoryId === 'top-selling') {
       setViewMode(categoryId);
     } else if (categoryId && categoryId !== 'all') {
-      console.log(categoryId)
       dispatch(fetchCategoryById(categoryId));
       setViewMode('category');
       setSelectedFilters(prev => ({ ...prev, categoryId }));
@@ -149,7 +148,6 @@ const CategoryPage = () => {
         dispatch(getTopSellingProducts());
         break;
       case 'category':
-        console.log(selectedFilters.categoryId)
         dispatch(getProductsByCategory({ categoryId: selectedFilters.categoryId, params }));
         break;
       default:

@@ -21,7 +21,6 @@ interface RelatedProductsProps {
 
 const RelatedProducts: React.FC<RelatedProductsProps> = ({ relatedProducts, categoryId }) => {
   if (!relatedProducts.length) return null;
-  console.log(relatedProducts)
 
   return (
     <motion.section
@@ -71,7 +70,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ relatedProducts, cate
                 </h3>
                 <div className="flex items-center justify-between">
                   <p className="text-terracotta-600 font-bold text-lg">
-                    ₹{(related.basePrice+related.variants[0].additionalPrice).toFixed(2)}
+                    ₹{(related.variants[0].price).toFixed(2)}
                   </p>
                   <div className="flex items-center">
                     <Star size={14} className="text-amber-400 fill-current mr-1" />

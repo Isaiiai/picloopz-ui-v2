@@ -97,7 +97,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         
         <div className="mt-1 flex justify-between items-center">
           <span className="text-terracotta-600 font-medium">
-            {formatPrice(product.basePrice + product.variants[0].additionalPrice)}
+            {formatPrice(product.variants[0].price)}
           </span>
           
           <div className="flex items-center">

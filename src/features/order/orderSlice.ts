@@ -38,7 +38,6 @@ const orderSlice = createSlice({
         state.loading = false;
         state.orders = action.payload.data.orders;
         state.pagination = action.payload.pagination;
-        console.log(state.orders);
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;

@@ -22,12 +22,9 @@ interface FormData {
 const CartPage = () => {
   const { 
     cart, 
-    updateCartItem, 
     removeCartItem, 
     emptyCart 
   } = useCart();
-
-  const { singleUpload, clear } = useUpload();
   
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -49,55 +46,55 @@ const CartPage = () => {
     }));
   };
   
-  const handleQuantityChange = (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) newQuantity = 1;
-    updateCartItem({ itemId, quantity: newQuantity });
-  };
-  
   const { createOrder } = useOrders();
   const navigate = useNavigate();
   
-  const handleCheckout = async () => {
-    // Validate form
+  const handleProceedToCheckout = async () => {
     const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
     const missingFields = requiredFields.filter(field => !formData[field]);
-    
+
     if (missingFields.length > 0) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    const orderData: CreateOrderData = {
-    items: cart.items.map(item => ({
-      productId: item.productId,
-      variantId: item.variantId,
-      quantity: item.quantity,
-      uploadedImageUrl: singleUpload?.url?.toString() ?? '',
-    })),
-    shippingAddress: {
-      fullName: formData.name,
-      phone: formData.phone,
-      addressLine1: formData.address,
-      city: formData.city,
-      state: formData.state,
-      postalCode: formData.zipCode,
-      country: formData.country,
-    },
-    paymentMethod: 'cod',
-    notes: formData.notes || '',
-  };
-    
-    // Create the order
     try {
-      const order = await createOrder(orderData);
-        emptyCart();
-        clear();
-      // Redirect to order confirmation page
-      navigate('/order-confirmation', { state: { order } });
-    } catch (error) {
-      toast.error('Failed to create order. Please try again.');
+      const orderData: CreateOrderData = {
+        items: cart.items.map(item => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: 1,
+          uploadedImageUrl: item.cartImages,
+        })),
+        shippingAddress: {
+          fullName: formData.name,
+          phone: formData.phone,
+          addressLine1: formData.address,
+          city: formData.city,
+          state: formData.state,
+          postalCode: formData.zipCode,
+          country: formData.country,
+        },
+        paymentMethod: 'razorpay',
+        notes: formData.notes || '',
+      };
+
+      const orderResponse = await createOrder(orderData).unwrap();
+      
+      // Navigate to Order Summary with the order data
+      navigate('/order-summary', { 
+        state: { 
+          orderData: orderResponse,
+          formData 
+        } 
+      });
+
+    } catch (err: any) {
+      toast.error(err?.message || 'Order creation failed');
     }
   };
+
+
   
   const isFormValid = () => {
     const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
@@ -129,7 +126,7 @@ const CartPage = () => {
                     <div className="w-full sm:w-24 h-32 sm:h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
                       {item && (
                         <img 
-                          src="https://res.cloudinary.com/datwhboeh/image/upload/v1749658112/picloopz/products/xfhz8vobsraq6fegfpiy.jpg"
+                          src={item.productImage}
                           alt={item.productName} 
                           className="w-full h-full object-cover"
                         />
@@ -156,52 +153,61 @@ const CartPage = () => {
                           <Trash2 size={16} />
                         </button>
                       </div>
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mt-2 gap-2">
-                        <div className="flex items-center border border-gray-300 rounded overflow-hidden w-full sm:w-24">
-                          <button 
-                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                            className="w-8 h-8 text-center focus:outline-none"
-                          />
-                          <button 
-                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <div className="text-right w-full sm:w-auto">
-                          <span className="font-medium">
-                            ₹{(item.unitPrice * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
+                      <div className="flex flex-wrap flex-row-reverse gap-2 mt-2">
+                        {item.cartImages.map((cartImage, idx) => (
+                          <div key={idx} className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
+                            <img
+                              src={cartImage}
+                              alt={`Custom image ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
                       </div>
+
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+              <div className="p-4 space-y-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Items Total</span>
+                  <span>₹{cart.totalAmount.toFixed(2)}</span>
+                </div>
+
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Taxes & Shipping</span>
+                  <span className="text-gray-400 italic">Calculated next</span>
+                </div>
+
+                <hr className="my-2 border-gray-200" />
+
+                <div className="flex justify-between font-semibold text-base text-gray-800">
+                  <span>Final Total</span>
+                  <span>₹{cart.totalAmount.toFixed(2)}</span>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-2">
+                  <span className="font-medium text-gray-700">Note:</span> Tax and shipping charges will be calculated at the payment step.
+                </p>
+              </div>
+            </div>
+
           </div>
           
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden lg:sticky lg:top-24">
               <div className="p-4 border-b border-gray-200">
-                <h2 className="font-semibold">Order Summary</h2>
+                <h2 className="font-semibold">Shipping Information</h2>
               </div>
               
               <div className="p-4 space-y-4">
-                <div className="flex justify-between pb-4 border-b border-gray-200">
+                {/* <div className="flex justify-between pb-4 border-b border-gray-200">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">₹{cart.totalAmount.toFixed(2)}</span>
+                  <span className="font-medium">₹{cart.totalAmount}</span>
                 </div>
                 
                 <div className="flex justify-between pb-4 border-b border-gray-200">
@@ -216,11 +222,11 @@ const CartPage = () => {
                   <span className="text-purple-600">
                     ₹{(cart.totalAmount + (cart.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
                   </span>
-                </div>
+                </div> */}
                 
                 {/* Shipping Information Form */}
                 <div className="pt-4">
-                  <h3 className="font-medium mb-3">Shipping Information</h3>
+                  {/* <h3 className="font-medium mb-3">Shipping Information</h3> */}
                   <div className="space-y-3">
                     <div>
                       <label htmlFor="name" className="block text-sm text-gray-600 mb-1">
@@ -348,6 +354,7 @@ const CartPage = () => {
                           <option value="Canada">Canada</option>
                           <option value="United Kingdom">United Kingdom</option>
                           <option value="Australia">Australia</option>
+                          <option value="India">India</option>
                         </select>
                       </div>
                     </div>
@@ -355,7 +362,7 @@ const CartPage = () => {
                 </div>
                 
                 <button
-                  onClick={handleCheckout}
+                  onClick={handleProceedToCheckout}
                   disabled={!isFormValid() || cart.loading}
                   className={`w-full py-3 rounded-full font-medium flex items-center justify-center ${
                     isFormValid() && !cart.loading

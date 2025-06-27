@@ -34,10 +34,10 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-gray-800 mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/" className="text-gray-600 hover:text-terracotta-600 transition-colors">Home</Link></li>
-              <li><Link to="/category/all" className="text-gray-600 hover:text-terracotta-600 transition-colors">Shop</Link></li>
-              <li><Link to="/gallery" className="text-gray-600 hover:text-terracotta-600 transition-colors">Gallery</Link></li>
-              <li><Link to="/how-it-works" className="text-gray-600 hover:text-terracotta-600 transition-colors">How It Works</Link></li>
+              <li><Link to="/" className="text-gray-600 hover:text-peach-500 transition-colors">Home</Link></li>
+              <li><Link to="/category/all" className="text-gray-600 hover:text-peach-500 transition-colors">Shop</Link></li>
+              <li><Link to="/gallery" className="text-gray-600 hover:text-peach-500 transition-colors">Gallery</Link></li>
+              <li><Link to="/about" className="text-gray-600 hover:text-peach-500 transition-colors">About Us</Link></li>
             </ul>
           </div>
 
@@ -45,9 +45,9 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-gray-800 mb-4">Customer Service</h3>
             <ul className="space-y-2">
-              <li><Link to="/contact" className="text-gray-600 hover:text-terracotta-600 transition-colors">Contact Us</Link></li>
-              <li><Link to="/faq" className="text-gray-600 hover:text-terracotta-600 transition-colors">FAQs</Link></li>
-              <li><Link to="/contact" className="text-gray-600 hover:text-terracotta-600 transition-colors">Shipping & Returns</Link></li>
+              <li><Link to="/contact" className="text-gray-600 hover:text-purple-600 transition-colors">Contact Us</Link></li>
+              <li><Link to="/faq" className="text-gray-600 hover:text-purple-600 transition-colors">FAQs</Link></li>
+              <li><Link to="/about" className="text-gray-600 hover:text-purple-600 transition-colors">Shipping Info</Link></li>
             </ul>
           </div>
 

@@ -3,9 +3,9 @@ export interface CartItem {
   productId: string;
   productName: string;
   productImage?: string;
+  cartImages: string[];
   variantId?: string;
   variantName?: string;
-  quantity: number;
   unitPrice: number;
   totalPrice: number;
   addedAt: string;
@@ -13,8 +13,9 @@ export interface CartItem {
 
 export interface CartState {
   items: CartItem[];
-  totalItems: number;
+  itemCount: number;
   totalAmount: number;
+  cartImages: string[];
   loading: boolean;
   error: string | null;
 }
@@ -22,7 +23,7 @@ export interface CartState {
 export interface AddToCartPayload {
   productId: string;
   variantId?: string;
-  quantity: number;
+  cartImages: string[];
 }
 
 export interface UpdateCartItemPayload {

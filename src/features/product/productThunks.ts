@@ -47,7 +47,6 @@ export const getProductsByCategory = createAsyncThunk(
   async ({ categoryId, params }: { categoryId: string; params?: Partial<ProductSearchParams> }, { rejectWithValue }) => {
     try {
       const response = await api.get(`/products/category/${categoryId}`, { params });
-      console.log(response.data)
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch category products');
