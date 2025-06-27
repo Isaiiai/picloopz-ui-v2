@@ -1,22 +1,19 @@
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Check, ChevronRight, Truck } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useOrders, Order } from '../contexts/OrderContext';
+import { useAuth } from '../features/auth/authHooks';
+import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
 
 const OrderConfirmationPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { orders } = useOrders();
-  
-  // Get order from state or find the most recent order
-  const order: Order = location.state?.order || orders[0];
-  
+  const { currentOrder } = useOrders();
+    
   useEffect(() => {
     // If no order is available, redirect to home
-    if (!order) {
+    if (!currentOrder) {
       toast.error('Order information not found');
       navigate('/');
     }
@@ -26,9 +23,9 @@ const OrderConfirmationPage = () => {
       toast.error('Please log in to view your order');
       navigate('/login', { state: { from: location.pathname } });
     }
-  }, [order, isAuthenticated, navigate, location.pathname]);
+  }, [currentOrder, isAuthenticated, navigate, location.pathname]);
   
-  if (!order) {
+  if (!currentOrder) {
     return null;
   }
   
@@ -62,25 +59,25 @@ const OrderConfirmationPage = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold font-playfair">Order Summary</h2>
               <span className="bg-terracotta-100 text-terracotta-800 text-sm px-3 py-1 rounded-full">
-                {order.status === 'pending' ? 'Pending' : 
-                 order.status === 'confirmed' ? 'Confirmed' : 
-                 order.status === 'ready' ? 'Ready' : 
-                 order.status === 'out_for_delivery' ? 'Out for Delivery' : 'Delivered'}
+                {currentOrder.status === 'Pending' ? 'Pending' : 
+                 currentOrder.status === 'Confirmed' ? 'Confirmed' : 
+                 currentOrder.status === 'Ready' ? 'Ready' : 
+                 currentOrder.status === 'Out for Delivery' ? 'Out for Delivery' : 'Delivered'}
               </span>
             </div>
             <div className="flex flex-wrap text-sm text-gray-500 mt-2">
-              <span className="mr-6">Order ID: <span className="text-gray-800 font-medium">{order.id}</span></span>
-              <span>Date: <span className="text-gray-800 font-medium">{formatDate(order.createdAt)}</span></span>
+              <span className="mr-6">Order ID: <span className="text-gray-800 font-medium">{currentOrder.id}</span></span>
+              <span>Date: <span className="text-gray-800 font-medium">{formatDate(currentOrder.createdAt)}</span></span>
             </div>
           </div>
           
           {/* Order Items */}
           <div className="divide-y divide-gray-200">
-            {order.items.map((item, index) => (
+            {currentOrder.items.map((item, index) => (
               <div key={index} className="p-6 flex">
                 <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden mr-4">
                   <img 
-                    src={item.imageUrl} 
+                    src={item.uploadedImageUrl} 
                     alt={item.name} 
                     className="w-full h-full object-cover"
                   />
@@ -89,14 +86,14 @@ const OrderConfirmationPage = () => {
                 <div className="flex-1">
                   <div className="flex justify-between">
                     <div>
-                      <h3 className="font-medium">{item.name}</h3>
+                      <h3 className="font-medium">{item.productName}</h3>
                       <p className="text-gray-500 text-sm">
-                        Variant: {item.variant}
+                        Variant: {item.variantName}
                       </p>
                     </div>
                     
                     <div className="text-right">
-                      <p className="font-medium">${item.price.toFixed(2)}</p>
+                      <p className="font-medium">₹{(item.totalPrice ?? 0).toFixed(2)}</p>
                       <p className="text-gray-500 text-sm">Qty: {item.quantity}</p>
                     </div>
                   </div>
@@ -109,18 +106,24 @@ const OrderConfirmationPage = () => {
           <div className="p-6 bg-gray-50">
             <div className="flex justify-between mb-2">
               <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
+              <span className="font-medium">₹{currentOrder.subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600">Tax</span>
+              <span className="font-medium">
+                ₹{currentOrder.tax.toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between mb-2">
               <span className="text-gray-600">Shipping</span>
               <span className="font-medium">
-                {order.totalAmount >= 50 ? 'Free' : '$5.00'}
+                ₹{currentOrder.shippingCost.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between pt-3 border-t border-gray-200 text-lg font-semibold">
               <span>Total</span>
               <span className="text-terracotta-700">
-                ${(order.totalAmount + (order.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
+                ₹{(currentOrder.totalAmount + (currentOrder.totalAmount >= 50 ? 0 : 5)).toFixed(2)}
               </span>
             </div>
           </div>
@@ -136,16 +139,16 @@ const OrderConfirmationPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Shipping Address</h3>
-                <p className="text-gray-800">{order.shippingAddress.name}</p>
-                <p className="text-gray-800">{order.shippingAddress.address}</p>
+                <p className="text-gray-800">{currentOrder.shippingAddress.fullName}</p>
+                <p className="text-gray-800">{currentOrder.shippingAddress.addressLine1}</p>
                 <p className="text-gray-800">
-                  {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+                  {currentOrder.shippingAddress.city}, {currentOrder.shippingAddress.state} {currentOrder.shippingAddress.postalCode}
                 </p>
-                <p className="text-gray-800">{order.shippingAddress.country}</p>
+                <p className="text-gray-800">{currentOrder.shippingAddress.country}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Delivery Estimate</h3>
-                <p className="text-gray-800">{order.estimatedDelivery ? formatDate(order.estimatedDelivery) : 'To be determined'}</p>
+                <p className="text-gray-800">{currentOrder.estimatedDelivery ? formatDate(currentOrder.estimatedDelivery) : 'To be determined'}</p>
                 
                 <div className="mt-4">
                   <h3 className="text-sm font-medium text-gray-500 mb-1">Next Steps</h3>
@@ -161,7 +164,7 @@ const OrderConfirmationPage = () => {
         {/* Actions */}
         <div className="flex flex-wrap gap-4 justify-center">
           <Link 
-            to={`/account/orders/${order.id}`} 
+            to={`/account/orders/${currentOrder.id}`} 
             className="px-6 py-3 bg-terracotta-600 text-white rounded-full font-medium hover:bg-terracotta-700 transition-colors flex items-center"
           >
             Track Order
