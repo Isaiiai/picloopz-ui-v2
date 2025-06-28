@@ -11,20 +11,24 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <h3 className="text-xl font-playfair font-semibold text-terracotta-700 mb-4">Picloopz</h3>
-            <p className="text-gray-600 mb-4">
-              Handcrafted art and decor that tells your story through beautiful personalized pieces.
+            <p className="text-gray-600 mb-4 text-sm sm:text-base leading-relaxed sm:leading-normal">
+              From Photo Collage Frames to Personal Gifts – We Craft Memories.<br className="hidden sm:block" />
+              Perfect for Birthdays, Anniversaries, and All Special Moments.<br className="hidden sm:block" />
+              <span className="block sm:inline">
+                World wide Delivery | Affordable Prices | Fast Packing
+              </span>
             </p>
             <div className="flex space-x-4">
-              <a href="https://instagram.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Instagram">
+              <a href="https://www.instagram.com/pic_loopz?igsh=MXQyZTJjN2VvMmI4dw%3D%3D" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Instagram">
                 <Instagram size={20} />
               </a>
-              <a href="https://facebook.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Facebook">
+              <a href="https://www.facebook.com/share/1CA7A3aeFo/" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Facebook">
                 <Facebook size={20} />
               </a>
               <a href="https://twitter.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="Twitter">
                 <Twitter size={20} />
               </a>
-              <a href="https://youtube.com" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="YouTube">
+              <a href="https://youtube.com/@picloopz?si=LI3M4Pw_FiQZo7PD" className="text-gray-500 hover:text-terracotta-600 transition-colors" aria-label="YouTube">
                 <Youtube size={20} />
               </a>
             </div>
@@ -57,11 +61,11 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <Mail size={18} className="mr-2 text-terracotta-600 mt-1" />
-                <span className="text-gray-600">support@picloopz.com</span>
+                <span className="text-gray-600">picloopz@gmail.com</span>
               </li>
               <li className="flex items-start">
                 <Phone size={18} className="mr-2 text-terracotta-600 mt-1" />
-                <span className="text-gray-600">+1 (555) 123-4567</span>
+                <span className="text-gray-600">+91 6369631356</span>
               </li>
             </ul>
           </div>

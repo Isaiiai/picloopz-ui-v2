@@ -41,7 +41,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center gap-2">
+            <img
+              src="https://res.cloudinary.com/dr6n03ecb/image/upload/v1751004201/pic_loopz_logo_copy_ic1bro.jpg"
+              alt="Picloopz Logo"
+              className="w-10 h-10 object-contain rounded-full"
+            />
             <span className="text-2xl font-playfair font-bold text-terracotta-700 tracking-wide">Picloopz</span>
           </Link>
 

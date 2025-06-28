@@ -2,10 +2,9 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { useEffect } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa'; // ✅ Added
 
 const Layout = () => {
-  // Show chat button after a delay
   useEffect(() => {
     const timer = setTimeout(() => {
       const chatButton = document.getElementById('chat-button');
@@ -14,7 +13,6 @@ const Layout = () => {
         chatButton.classList.add('opacity-100');
       }
     }, 2000);
-    
     return () => clearTimeout(timer);
   }, []);
 
@@ -25,15 +23,18 @@ const Layout = () => {
         <Outlet />
       </main>
       <Footer />
-      
-      {/* Chat Support Button */}
-      <button 
+
+      {/* ✅ WhatsApp Chat Button */}
+      <a
         id="chat-button"
-        className="fixed bottom-6 right-6 bg-terracotta-500 text-white p-4 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 hover:bg-terracotta-600 z-50"
-        aria-label="Chat Support"
+        href="https://wa.me/6369631356" 
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 hover:bg-green-600 z-50"
+        aria-label="Chat on WhatsApp"
       >
-        <MessageCircle size={24} />
-      </button>
+        <FaWhatsapp size={24} />
+      </a>
     </div>
   );
 };

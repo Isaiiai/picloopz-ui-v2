@@ -66,8 +66,8 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Email Us</h3>
-                    <p className="text-gray-600">support@picloopz.com</p>
-                    <p className="text-gray-600">sales@picloopz.com</p>
+                    <p className="text-gray-600">picloopz@gmail.com</p>
+                    {/* <p className="text-gray-600">picloopz@gmail.com</p> */}
                   </div>
                 </div>
 
@@ -77,8 +77,8 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Call Us</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-gray-600">+1 (555) 987-6543</p>
+                    <p className="text-gray-600">+91 6369631356</p>
+                    {/* <p className="text-gray-600">+91 6369631356</p> */}
                   </div>
                 </div>
 
@@ -88,8 +88,13 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Visit Us</h3>
-                    <p className="text-gray-600">123 Artisan Street</p>
-                    <p className="text-gray-600">Creative District, NY 10001</p>
+                    <address className="not-italic text-gray-600 text-sm sm:text-base leading-relaxed sm:leading-normal">
+                      Picloopz color lab and Customized gifts,<br className="hidden sm:block" />
+                      SML complex ground floor,<br className="hidden sm:block" />
+                      Income tax office opposite,<br className="hidden sm:block" />
+                      Arunachalam Chettyar Street<br className="hidden sm:block" />
+                      Karaikudi - 630001
+                    </address>
                   </div>
                 </div>
 
@@ -200,4 +205,4 @@ const ContactPage = () => {
   );
 };
 
-export default ContactPage; 
+export default ContactPage;
