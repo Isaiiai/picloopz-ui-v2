@@ -6,6 +6,7 @@ import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
 import { CreateOrderData } from '../features/order/orderTypes';
 import { useUpload } from '../features/upload/useUpload';
+import { reverseGeocode } from '../utils/geoCode';
 
 interface FormData {
   name: string;
@@ -94,7 +95,47 @@ const CartPage = () => {
     }
   };
 
+  const handleUseCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
 
+    toast.loading("Fetching your location...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+
+          const data = await reverseGeocode(latitude, longitude);
+
+          const address = data.address;
+          console.log(address)
+
+          setFormData(prev => ({
+            ...prev,
+            address: address.road + ", " + address.suburb || '',
+            city: address.city || address.town || address.village || '',
+            state: address.state || '',
+            zipCode: address.postcode || '',
+            country: address.country || 'United States',
+          }));
+
+          toast.dismiss();
+          toast.success("Location fetched successfully!");
+        } catch (err) {
+          toast.dismiss();
+          toast.error("Failed to fetch address.");
+          console.error(err);
+        }
+      },
+      (error) => {
+        toast.dismiss();
+        toast.error("Permission denied or failed to get location.");
+      }
+    );
+  };
   
   const isFormValid = () => {
     const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
@@ -358,6 +399,14 @@ const CartPage = () => {
                         </select>
                       </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={handleUseCurrentLocation}
+                      className="text-sm text-purple-600 hover:underline mt-2"
+                    >
+                      Use my current location
+                    </button>
+
                   </div>
                 </div>
                 

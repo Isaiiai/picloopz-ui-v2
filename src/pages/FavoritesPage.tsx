@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingCart, ShoppingCartIcon, Trash2 } from 'lucide-react';
+import { Heart, Trash2 } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
 
 const FavoritesPage = () => {

@@ -1,5 +1,7 @@
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Ready' | 'Out for Delivery' | 'Delivered' | 'Cancelled';
 
+export type PaymentStatus = 'Pending' | 'Paid' | 'Failed' | 'Refunded' | 'RefundPending' | 'RefundFailed';
+
 export interface OrderItem {
   id?: string;
   productId: string;
@@ -35,12 +37,17 @@ export interface Order {
   tax: number;
   totalAmount: number;
   status: OrderStatus;
-  paymentStatus: 'Pending' | 'Paid' | 'Failed';
+  paymentStatus: PaymentStatus;
   paymentMethod: 'razorpay' | 'cod';
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
+  refundId?: string; // New
+  refundAmount?: number; // New
   trackingNumber?: string;
   estimatedDelivery?: string;
+  cancellationReason?: string; // New 
+  cancelledAt?: string; // New 
+  cancelledBy?: string; // New
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -85,4 +92,9 @@ export interface OrderState {
   error: string | null;
   currentOrder: Order | null;
   pagination: PaginationInfo;
+}
+
+export interface CancelOrderData {
+  orderId: string;
+  reason?: string;
 }

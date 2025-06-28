@@ -4,6 +4,7 @@ import {
   fetchOrderById, 
   createNewOrder, 
   verifyOrderPayment,
+  cancelOrder,
 } from './orderThunks';
 import { CreateOrderData, PaymentVerificationData } from './orderTypes';
 import { clearCurrentOrder, resetOrderError } from './orderSlice';
@@ -38,12 +39,18 @@ export const useOrders = () => {
     dispatch(resetOrderError());
   }, [dispatch]);
 
+  const orderCancel = useCallback((orderId: string, reason?: string) => {
+    return dispatch(cancelOrder({ orderId, reason }));
+  }, [dispatch]);
+
   return {
     ...orderState,
     getOrders,
     getOrderById,
     createOrder,
+    orderCancel,
     verifyPayment,
+    cancelOrder,
     clearOrder,
     clearError,
   };
