@@ -63,37 +63,46 @@ const AboutUsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white relative overflow-hidden">
       {/* Hero Section */}
-      <section ref={targetRef} className="relative min-h-[400px] sm:min-h-[600px] md:h-screen overflow-hidden">
-        <motion.div style={{ y, opacity }} className="absolute inset-0">
-          <div className="absolute inset-0 bg-black/30 z-10" />
+      <section
+        ref={targetRef}
+        className="relative bg-gray-500 text-white min-h-[600px] md:h-screen flex items-center overflow-hidden"
+      >
+        {/* Background Image Panel (Right Side) */}
+        <div className="absolute inset-0 md:right-0 md:left-auto w-full md:w-1/2 h-full z-0 rounded">
           <img
             src="https://res.cloudinary.com/dr6n03ecb/image/upload/v1751004201/pic_loopz_logo_copy_ic1bro.jpg"
             alt="Picloopz Workshop"
-            className="w-full h-full object-cover"
-            style={{ minHeight: '400px' }} // fallback for very small screens
+            className="w-full h-full object-cover brightness-75 rounded-sm"
           />
-        </motion.div>
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
 
-        <div className="relative z-20 h-full flex items-center justify-center text-white text-center px-4">
+        {/* Content Area (Left Side) */}
+        <div className="relative z-10 w-full md:w-1/2 px-6 md:px-16 py-12 md:py-0">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-3xl"
+            className="max-w-2xl"
           >
-            <h1 className="text-5xl md:text-6xl font-bold font-playfair mb-6">
-              Welcome to the World of <span className="block mt-2 text-terracotta-200">Customized Gifts</span>
+            <h1 className="text-4xl sm:text-5xl font-extrabold font-playfair leading-tight mb-6">
+              Welcome to the World of{" "}
+              <span className="block text-terracotta-200 mt-2">Customized Gifts</span>
             </h1>
-            <p className="text-lg text-gray-100 mb-8 max-w-2xl mx-auto">
-              🎁 1000+ Unique Gifts & Frames – All in One Place! From Photo Collage Frames to Personal Gifts – We Craft Memories. Perfect for Birthdays, Anniversaries, and All Special Moments. 🌍 Worldwide Delivery | 💰 Affordable Prices | 🚚 Fast Packing.
+
+            <p className="text-base sm:text-lg text-white mb-5 leading-relaxed">
+              🎁 1000+ Unique Gifts & Frames – All in One Place! From Photo Collage
+              Frames to Personal Gifts – We Craft Memories.
             </p>
-            <p className="text-lg text-gray-100 mb-8 max-w-2xl mx-auto">
-              Pic Loopz is your go-to destination for online Photoshop edits, digital art, and custom picture frames. Our team of freelance Photoshop editors specializes in mosaic collages, digital painting, photo gifts, photo manipulation, old photo restoration, and more. We craft custom-size frames and deliver all over Tamil Nadu with 100% satisfaction and replacement guarantee.
+
+            <p className="text-base sm:text-lg text-white mb-8 leading-relaxed">
+              🌍 Worldwide Delivery | 💰 Affordable Prices | 🚚 Fast Packing. Pic Loopz is your one-stop shop for Photoshop edits, digital art, and custom frames — all with 100% satisfaction.
             </p>
+
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 to="/category/all"
-                className="inline-flex items-center px-8 py-4 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all group"
+                className="inline-flex items-center px-8 py-4 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all group text-lg font-medium"
               >
                 Explore Our Collection
                 <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
@@ -101,7 +110,6 @@ const AboutUsPage = () => {
             </motion.div>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-cream-50 to-transparent" />
       </section>
 
       {/* Values Section */}

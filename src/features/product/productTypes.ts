@@ -27,6 +27,7 @@ export interface Product {
   orderCount: number;
   rating?: number;
   reviewCount: number;
+  videos: string[];
   createdAt: string;
   updatedAt: string;
 }

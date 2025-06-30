@@ -73,6 +73,8 @@ const ProductDetailPage = () => {
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
 
   const [files, setFiles] = useState<File[]>([]);
   const [newReview, setNewReview] = useState({
@@ -171,6 +173,43 @@ const ProductDetailPage = () => {
     }
   };
 
+  const mainMedia = useMemo(() => {
+    const media: { type: 'image' | 'instagram'; url: string }[] = [];
+
+    // Add product image
+    if (product?.variants?.[selectedVariant]?.imageUrl) {
+      media.push({
+        type: 'image',
+        url: product.variants[selectedVariant].imageUrl,
+      });
+    }
+
+    // Add Instagram reel if exists
+    if (product?.videos?.length) {
+      product.videos.forEach((video) => {
+        if (video.url.includes('instagram.com')) {
+          const embedUrl = video.url.includes('/embed')
+            ? video.url
+            : video.url.replace(/\/reel\/([^/?]+)/, '/reel/$1/embed');
+          media.push({ type: 'instagram', url: embedUrl });
+        }
+
+        // Add support for YouTube links if needed
+        if (video.url.includes('youtube.com') || video.url.includes('youtu.be')) {
+          media.push({
+              type: 'youtube',
+              url: video.url,
+            });
+        }
+      });
+    }
+    console.log(media)
+
+
+    return media;
+  }, [product, selectedVariant]);
+
+
   const handleUploadCartImages = async () => {
     if (filesToUpload.length < requiredFilesCount) {
       toast.error(`Please upload ${requiredFilesCount} images`);
@@ -260,7 +299,13 @@ const ProductDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 mb-8 sm:mb-12 lg:mb-16">
           <ProductGallery
             productName={product.name}
-            variants={(product.variants || []).map(v => ({ name: v.name, imageUrl: v.imageUrl || '' }))}
+            mainMedia={mainMedia}
+            currentMediaIndex={currentMediaIndex}
+            setCurrentMediaIndex={setCurrentMediaIndex}
+            variants={(product.variants || []).map(v => ({
+              name: v.name,
+              imageUrl: v.imageUrl || '',
+            }))}
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
             reviewImages={flatReviewImages}
@@ -269,6 +314,7 @@ const ProductDetailPage = () => {
             showImageModal={showImageModal}
             setShowImageModal={setShowImageModal}
           />
+
 
           <ProductInfo
             product={product}

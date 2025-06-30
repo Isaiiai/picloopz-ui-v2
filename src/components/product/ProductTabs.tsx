@@ -129,12 +129,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
                   <span className="text-gray-500 ml-2">based on {total} reviews</span>
                 </div>
               </div>
-              <button
-                onClick={() => setShowReviewForm(true)}
-                className="w-full sm:w-auto px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
-              >
-                Write a Review
-              </button>
             </div>
 
             {/* Review Form Modal */}

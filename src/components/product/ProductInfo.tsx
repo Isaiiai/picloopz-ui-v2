@@ -109,8 +109,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
                   selectedVariant === index
                     ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-700'
                     : 'border-cream-200 text-gray-700 hover:border-terracotta-300 hover:bg-cream-50'
-                } ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isOutOfStock}
+                } `}
               >
                 <div className="font-medium">{variant.name}</div>
                 <div className="text-sm opacity-75">₹{variant.price.toFixed(2)}</div>
