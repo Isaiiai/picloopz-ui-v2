@@ -5,6 +5,7 @@ export interface ProductVariant {
   imageUrl?: string;
   attributeType: string;
   isActive: boolean;
+  inStock: boolean;
 }
 
 export interface Product {
@@ -21,6 +22,7 @@ export interface Product {
   isTopSelling: boolean;
   isFeatured: boolean;
   isActive: boolean;
+  maxUserImages: number;
   viewCount: number;
   orderCount: number;
   rating?: number;

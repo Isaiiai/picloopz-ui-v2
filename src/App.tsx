@@ -27,6 +27,8 @@ import DesignApprovalPage from './pages/DesignApprovalPage';
 import ThankYouPage from './pages/ThankYouPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import OrderSummaryPage from './pages/OrderSummaryPage';
+import { ReviewPage } from './pages/ReviewPage';
+import { ScrollToTop } from './components/UI/ScrollToTop';
 
 export function App() {
   const dispatch = useAppDispatch();
@@ -66,6 +68,7 @@ export function App() {
 
   return (
     <Router>
+      <ScrollToTop/>
       <div className="min-h-screen font-poppins text-gray-800">
         <Toaster position="top-center" />
         <Routes>
@@ -86,6 +89,7 @@ export function App() {
             <Route path="/design/approve/:token" element={<DesignApprovalPage />} />
             <Route path="/thank-you" element={<ThankYouPage />} />
             <Route path="order-summary" element={<OrderSummaryPage />} />
+            <Route path="/orders/:orderId/review" element={<ReviewPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

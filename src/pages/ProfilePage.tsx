@@ -259,7 +259,8 @@ const ProfilePage = () => {
                 order.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' :
                 order.status === 'Ready' ? 'bg-purple-100 text-purple-800' :
                 order.status === 'Out for Delivery' ? 'bg-indigo-100 text-indigo-800' :
-                'bg-green-100 text-green-800'
+                order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                'bg-red-100 text-red-800'
               }`}>
                 {order.status}
               </span>

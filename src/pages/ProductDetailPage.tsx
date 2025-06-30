@@ -64,7 +64,7 @@ const ProductDetailPage = () => {
   const loading = useSelector(selectProductLoading);
   const relatedProducts = useSelector(selectCategoryProducts);
 
-  const requiredFilesCount = 2;
+  const requiredFilesCount = product?.maxUserImages || 1;
 
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
