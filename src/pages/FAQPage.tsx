@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown, ChevronUp, Send, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 interface FAQItem {
   question: string;
@@ -17,11 +18,11 @@ const FAQPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['Ordering & Customization']);
   const [expandedQuestions, setExpandedQuestions] = useState<string[]>([]);
-  const [newQuestion, setNewQuestion] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
-    question: '',
-    category: ''
+    subject: '',
+    message: ''
   });
 
   const faqData: FAQCategory[] = [
@@ -103,21 +104,20 @@ const FAQPage = () => {
     );
   };
 
-  const handleNewQuestionSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the question to your backend
-    toast.success('Thank you! Your question has been submitted. We will review it and add it to our FAQ if relevant.');
-    setNewQuestion({
-      name: '',
-      email: '',
-      question: '',
-      category: ''
-    });
+    try {
+      await axios.post('/api/support/public', formData);
+      toast.success('Thank you! Your question has been submitted. Our support team will respond soon.');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      toast.error('Failed to submit your question. Please try again.');
+    }
   };
 
-  const handleNewQuestionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setNewQuestion(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const filteredFAQData = faqData.map(category => ({
@@ -270,7 +270,7 @@ const FAQPage = () => {
             Submit your question and we'll get back to you with an answer. Your question might even be added to our FAQ to help others!
           </p>
 
-          <form onSubmit={handleNewQuestionSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -280,14 +280,13 @@ const FAQPage = () => {
                   type="text"
                   id="name"
                   name="name"
-                  value={newQuestion.name}
-                  onChange={handleNewQuestionChange}
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors"
                   placeholder="John Doe"
                 />
               </div>
-
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
@@ -296,52 +295,44 @@ const FAQPage = () => {
                   type="email"
                   id="email"
                   name="email"
-                  value={newQuestion.email}
-                  onChange={handleNewQuestionChange}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors"
                   placeholder="john@example.com"
                 />
               </div>
             </div>
-
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                Question Category
+              <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                Subject
               </label>
-              <select
-                id="category"
-                name="category"
-                value={newQuestion.category}
-                onChange={handleNewQuestionChange}
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                value={formData.subject}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors"
-              >
-                <option value="">Select a category</option>
-                <option value="ordering">Ordering & Customization</option>
-                <option value="shipping">Shipping & Delivery</option>
-                <option value="product">Product & Quality</option>
-                <option value="payment">Payment & Pricing</option>
-                <option value="other">Other</option>
-              </select>
+                placeholder="How can we help you?"
+              />
             </div>
-
             <div>
-              <label htmlFor="question" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
                 Your Question
               </label>
               <textarea
-                id="question"
-                name="question"
-                value={newQuestion.question}
-                onChange={handleNewQuestionChange}
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
                 required
                 rows={4}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors resize-none"
                 placeholder="Type your question here..."
               />
             </div>
-
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

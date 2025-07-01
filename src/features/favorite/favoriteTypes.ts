@@ -13,6 +13,12 @@ export interface Favorite {
   productImage: string;
   productPrice: number;
   addedAt: string;
+  rating: number;
+  reviewCount: number;
+  orderCount: number;
+  description: string;
+  variants: any[];
+  category: string;
 }
 
 export interface FavoriteState {

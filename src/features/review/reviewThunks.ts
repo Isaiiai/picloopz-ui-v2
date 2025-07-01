@@ -28,13 +28,22 @@ export const fetchProductReviews = createAsyncThunk<
   ReviewListResponse,
   FetchProductReviewsParams
 >('reviews/fetchProductReviews', async (params, thunkAPI) => {
+  console.log('=== FETCH PRODUCT REVIEWS START ===');
+  console.log('Params:', params);
+  
   const { productId, page = 1, limit = 10, sort = 'createdAt', sortOrder = 'desc' } = params;
   try {
+    console.log('Making GET request to:', `/reviews/product/${productId}`);
     const response = await api.get(`/reviews/product/${productId}`, {
       params: { page, limit, sort, sortOrder },
     });
+    console.log('GET response:', response);
+    console.log('Response data:', response.data);
+    console.log('Reviews count in response:', response.data.data.reviews.length);
+    console.log('Review IDs in response:', response.data.data.reviews.map((r: any) => r.id));
     return response.data;
   } catch (error: any) {
+    console.error('Fetch product reviews error:', error);
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
   }
 });
@@ -90,10 +99,37 @@ export const deleteReview = createAsyncThunk<
   string, // review id param
   { rejectValue: string }
 >('reviews/deleteReview', async (reviewId, thunkAPI) => {
+  console.log('=== DELETE REVIEW THUNK START ===');
+  console.log('Review ID to delete:', reviewId);
+  
   try {
-    await api.delete(`/reviews/${reviewId}`);
-    return reviewId;
+    console.log('Making DELETE request to:', `/reviews/${reviewId}`);
+    const response = await api.delete(`/reviews/${reviewId}`);
+    console.log('DELETE response:', response);
+    console.log('Response data:', response.data);
+    console.log('Response data.data:', response.data.data);
+    console.log('deletedReviewId from response:', response.data.data.deletedReviewId);
+    
+    const deletedId = response.data.data.deletedReviewId;
+    console.log('Returning deleted ID:', deletedId);
+    
+    // Verify the review was actually deleted by trying to fetch it
+    try {
+      console.log('Verifying deletion by attempting to fetch the review...');
+      await api.get(`/reviews/${reviewId}`);
+      console.log('WARNING: Review still exists after deletion!');
+    } catch (verifyError: any) {
+      if (verifyError.response?.status === 404) {
+        console.log('✅ Review successfully deleted (404 not found)');
+      } else {
+        console.log('Review verification failed:', verifyError.response?.status);
+      }
+    }
+    
+    return deletedId;
   } catch (error: any) {
+    console.error('DELETE review error:', error);
+    console.error('Error response:', error.response?.data);
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
   }
 });

@@ -71,7 +71,7 @@ const HomePage = () => {
   }, []);
 
 
-  return (    <div className="pb-12">
+  return (    <div className="pb-12 pt-20 md:pt-24">
       {/* Video Modal - Updated for proper Instagram sizing */}
       <AnimatePresence>
         {videoUrl && (
@@ -363,14 +363,14 @@ const HomePage = () => {
 
 
       {/* Top Selling Products */}
-      <section className="py-12 md:py-20 bg-cream-50">
+      <section className="py-12 md:py-20 bg-cream-50 mt-16 md:mt-0">
         <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold font-playfair text-gray-800">Top Selling Products</h2>
             <p className="text-md text-gray-600 mt-2">Loved by our customers, crafted for you.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {topSellingProducts?.slice(0, 4).map((product) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+            {topSellingProducts?.slice(0, 10).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -384,8 +384,8 @@ const HomePage = () => {
             <h2 className="text-3xl md:text-4xl font-bold font-playfair text-gray-800">Trending Now</h2>
             <p className="text-md text-gray-600 mt-2">Discover the latest designs everyone is talking about.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {trendingProducts?.slice(0, 4).map((product) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+            {trendingProducts?.slice(0, 10).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

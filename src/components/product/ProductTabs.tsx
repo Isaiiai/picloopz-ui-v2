@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Star } from 'lucide-react';
+import { Star, Package, AlertCircle } from 'lucide-react';
 import ReviewFormModal from './ReviewFormModal';
 import ReviewItem from './ReviewItem';
 import { Review } from '../../features/review/reviewTypes';
+import { useAuth } from '../../features/auth/authHooks';
+import { useOrders } from '../../features/order/useOrder';
+import toast from 'react-hot-toast';
 
 interface ProductTabsProps {
   product: any;
@@ -23,7 +26,8 @@ interface ProductTabsProps {
   reviewLoading: boolean;
   onEditReview: (review: any) => void;
   onImageClick: (imageUrl: string, index: number) => void;
-  editingReview: Review
+  editingReview: Review;
+  onReviewDeleted?: () => void;
 }
 
 const ProductTabs: React.FC<ProductTabsProps> = ({
@@ -41,10 +45,64 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
   reviewLoading,
   onEditReview,
   onImageClick,
-  editingReview
+  editingReview,
+  onReviewDeleted
 }) => {
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'reviews'>('description');
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const { user } = useAuth();
+  const { orders, getOrders } = useOrders();
+
+  // Load user's orders when component mounts
+  useEffect(() => {
+    if (user) {
+      getOrders();
+    }
+  }, [user, getOrders]);
+
+  // Check if user has delivered orders containing this product
+  const hasDeliveredOrder = user ? orders.some(order => 
+    order.status === 'Delivered' && 
+    order.items.some(item => {
+      // Handle both ObjectId and string formats
+      const itemProductId = typeof item.productId === 'object' && item.productId._id 
+        ? item.productId._id.toString() 
+        : item.productId.toString();
+      const currentProductId = product.id || product._id?.toString();
+      
+      console.log('Product ID comparison:', {
+        itemProductId,
+        currentProductId,
+        matches: itemProductId === currentProductId,
+        orderStatus: order.status,
+        orderId: order._id
+      });
+      
+      return itemProductId === currentProductId;
+    })
+  ) : false;
+
+  console.log('Delivered order check:', {
+    userId: user?.id,
+    ordersCount: orders.length,
+    deliveredOrders: orders.filter(o => o.status === 'Delivered').length,
+    hasDeliveredOrder,
+    currentProductId: product.id || product._id?.toString()
+  });
+
+  const handleWriteReview = () => {
+    if (!user) {
+      toast.error('Please login to write a review');
+      return;
+    }
+    
+    if (!hasDeliveredOrder) {
+      toast.error('You can only review products from orders that have been delivered');
+      return;
+    }
+    
+    setShowReviewForm(true);
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-lg mb-16">
@@ -129,12 +187,26 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
                   <span className="text-gray-500 ml-2">based on {total} reviews</span>
                 </div>
               </div>
-              <button
-                onClick={() => setShowReviewForm(true)}
-                className="w-full sm:w-auto px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
-              >
-                Write a Review
-              </button>
+              
+              {/* Only show review button if user has delivered orders */}
+              {user && hasDeliveredOrder && (
+                <button
+                  onClick={handleWriteReview}
+                  className="w-full sm:w-auto px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
+                >
+                  Write a Review
+                </button>
+              )}
+              
+              {/* Show message for users without delivered orders */}
+              {user && !hasDeliveredOrder && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                  <Package className="text-amber-600" size={16} />
+                  <span className="text-sm text-amber-700">
+                    Review after delivery
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Review Form Modal */}
@@ -165,18 +237,37 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
                     onImageClick={onImageClick}
                     onEdit={onEditReview}
                     showReviewForm={setShowReviewForm}
+                    onReviewDeleted={onReviewDeleted}
                   />
                 ))}
               </div>
             ) : (
               <div className="text-center py-12">
                 <p className="text-gray-500 mb-6">No reviews yet. Be the first to review this product!</p>
-                <button
-                  onClick={() => setShowReviewForm(true)}
-                  className="px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
-                >
-                  Write a Review
-                </button>
+                {user && !hasDeliveredOrder ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                      <AlertCircle className="text-amber-600" size={16} />
+                      <span className="text-sm text-amber-700">
+                        You can review this product after your order is delivered
+                      </span>
+                    </div>
+                  </div>
+                ) : user && hasDeliveredOrder ? (
+                  <button
+                    onClick={handleWriteReview}
+                    className="px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
+                  >
+                    Write a Review
+                  </button>
+                ) : !user ? (
+                  <button
+                    onClick={handleWriteReview}
+                    className="px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
+                  >
+                    Write a Review
+                  </button>
+                ) : null}
               </div>
             )}
           </div>

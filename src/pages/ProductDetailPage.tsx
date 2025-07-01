@@ -234,6 +234,25 @@ const ProductDetailPage = () => {
     setShowImageModal(true);
   };
 
+  const handleReviewDeleted = useCallback(() => {
+    console.log('=== HANDLE REVIEW DELETED CALLBACK ===');
+    console.log('Product ID:', productId);
+    console.log('Current reviews count:', reviews.length);
+    console.log('Current review IDs:', reviews.map(r => r.id));
+    
+    if (productId) {
+      console.log('Calling loadProductReviews with params:', { productId, page: 1, limit: 10, sort: 'createdAt', sortOrder: 'desc' });
+      
+      // Add a small delay to ensure backend has processed the deletion
+      setTimeout(() => {
+        loadProductReviews({ productId, page: 1, limit: 10, sort: 'createdAt', sortOrder: 'desc' });
+        console.log('loadProductReviews called');
+      }, 500);
+    } else {
+      console.log('No productId available');
+    }
+  }, [productId, loadProductReviews, reviews]);
+
   if (loading || !product) {
     return (
       <div className="container mx-auto px-4 py-12">
@@ -244,7 +263,7 @@ const ProductDetailPage = () => {
 
   return (
     <div className="bg-cream-50 min-h-screen">
-      <div className="container mx-auto max-w-screen-xl px-2 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 overflow-x-hidden">
+      <div className="container mx-auto max-w-screen-xl px-2 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 overflow-x-hidden mt-16 md:mt-0">
         {/* Breadcrumbs */}
         <div className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 md:mb-8 px-1 sm:px-0">
           <a href="/" className="hover:text-terracotta-600">Home</a>
@@ -330,6 +349,7 @@ const ProductDetailPage = () => {
               updatedAt: ''
             }}
             onImageClick={handleImageClick}
+            onReviewDeleted={handleReviewDeleted}
           />
         </div>
 

@@ -79,7 +79,7 @@ const CartPage = () => {
         notes: formData.notes || '',
       };
 
-      const orderResponse = await createOrder(orderData).unwrap();
+      const orderResponse = (await createOrder(orderData).unwrap()) as any;
       
       // Navigate to Order Summary with the order data
       navigate('/order-summary', { 
@@ -102,7 +102,7 @@ const CartPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-8 overflow-x-hidden">
+    <div className="container mx-auto px-2 sm:px-4 py-8 overflow-x-hidden pt-36 md:pt-32">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6 font-playfair text-center sm:text-left">Shopping Cart</h1>
       
       {cart.items.length > 0 ? (
