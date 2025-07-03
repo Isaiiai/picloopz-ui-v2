@@ -4,9 +4,13 @@ import {
   verifyToken,
   clearAuthState,
   changePassword,
-  verifyOTP
+  verifyOTP,
+  updateUser
 } from './authSlice';
 import { useAppDispatch, useAppSelector } from '../../utils/hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { useEffect } from 'react';
 
 import {
   selectCurrentUser,
@@ -21,7 +25,13 @@ export const useAuth = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const status = useAppSelector(selectAuthStatus);
   const error = useAppSelector(selectAuthError);
+  const profile = useSelector((state: RootState) => state.profile.profile);
 
+  useEffect(() => {
+    if (profile && profile.profileImage && user && profile.profileImage !== user.avatar) {
+      dispatch(updateUser({ avatar: profile.profileImage }));
+    }
+  }, [profile?.profileImage]);
 
   return {
     user,

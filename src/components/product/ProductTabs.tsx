@@ -111,7 +111,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
         <div className="flex space-x-0 overflow-x-auto scrollbar-thin scrollbar-thumb-cream-200">
           {[
             { id: 'description', label: 'Description' },
-            { id: 'details', label: 'Details' },
             { id: 'reviews', label: `Reviews (${total})` }
           ].map(tab => (
             <button
@@ -142,72 +141,40 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
           </div>
         )}
 
-        {activeTab === 'details' && (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8">
-            <div>
-              <h3 className="font-semibold text-base sm:text-lg mb-4 text-gray-900">Product Specifications</h3>
-              <dl className="space-y-3">
-                <SpecRow label="Materials" value={product.materials} />
-                <SpecRow label="Dimensions" value={product.dimensions} />
-                <SpecRow label="Processing Time" value={product.processingTime} />
-                <SpecRow label="Shipping" value={product.shippingInfo} />
-              </dl>
-            </div>
-            <div>
-              <h3 className="font-semibold text-base sm:text-lg mb-4 text-gray-900">Care Instructions</h3>
-              <ul className="space-y-2 text-gray-600">
-                {product.careInstructions?.map((instruction: string, index: number) => (
-                  <li key={index} className="flex items-start">
-                    <span className="w-2 h-2 bg-terracotta-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    {instruction}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
+        
 
         {activeTab === 'reviews' && (
           <div>
             {/* Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-8">
-              <div>
-                <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">Customer Reviews</h3>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                  <div className="flex mr-2 sm:mr-3">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={20}
-                        className={i < Math.floor(averageRating) ? 'text-amber-400 fill-current' : 'text-gray-300'}
-                      />
-                    ))}
+            {(reviews.length > 0 || (user && hasDeliveredOrder)) && (
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-8">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">Customer Reviews</h3>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                    <div className="flex mr-2 sm:mr-3">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          size={20}
+                          className={i < Math.floor(averageRating) ? 'text-amber-400 fill-current' : 'text-gray-300'}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-lg sm:text-xl font-semibold text-gray-900">{averageRating.toFixed(1)}</span>
+                    <span className="text-gray-500 ml-2">based on {total} reviews</span>
                   </div>
-                  <span className="text-lg sm:text-xl font-semibold text-gray-900">{averageRating.toFixed(1)}</span>
-                  <span className="text-gray-500 ml-2">based on {total} reviews</span>
                 </div>
+                {/* Only show review button if user has delivered orders */}
+                {user && hasDeliveredOrder && (
+                  <button
+                    onClick={handleWriteReview}
+                    className="w-full sm:w-auto px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
+                  >
+                    Write a Review
+                  </button>
+                )}
               </div>
-              
-              {/* Only show review button if user has delivered orders */}
-              {user && hasDeliveredOrder && (
-                <button
-                  onClick={handleWriteReview}
-                  className="w-full sm:w-auto px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
-                >
-                  Write a Review
-                </button>
-              )}
-              
-              {/* Show message for users without delivered orders */}
-              {user && !hasDeliveredOrder && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-                  <Package className="text-amber-600" size={16} />
-                  <span className="text-sm text-amber-700">
-                    Review after delivery
-                  </span>
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Review Form Modal */}
             <ReviewFormModal
@@ -227,7 +194,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
               isEditOn={editingReview}
             />
 
-            {/* Reviews List */}
+            {/* Reviews List or No Reviews Message */}
             {reviews.length > 0 ? (
               <div className="space-y-6">
                 {reviews.map((review) => (
@@ -242,33 +209,7 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500 mb-6">No reviews yet. Be the first to review this product!</p>
-                {user && !hasDeliveredOrder ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-                      <AlertCircle className="text-amber-600" size={16} />
-                      <span className="text-sm text-amber-700">
-                        You can review this product after your order is delivered
-                      </span>
-                    </div>
-                  </div>
-                ) : user && hasDeliveredOrder ? (
-                  <button
-                    onClick={handleWriteReview}
-                    className="px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
-                  >
-                    Write a Review
-                  </button>
-                ) : !user ? (
-                  <button
-                    onClick={handleWriteReview}
-                    className="px-6 py-3 bg-terracotta-600 text-white rounded-xl hover:bg-terracotta-700 transition-colors font-medium"
-                  >
-                    Write a Review
-                  </button>
-                ) : null}
-              </div>
+              <div className="text-center py-12 text-gray-500">No reviews yet.</div>
             )}
           </div>
         )}

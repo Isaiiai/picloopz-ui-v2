@@ -1,442 +1,211 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Filter, Heart, MessageCircle, Share2, X } from 'lucide-react';
-
-// Mock gallery data
-const galleryItems = [
-  {
-    id: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1574705447210-76ae1ebcc442?q=80&w=600&auto=format&fit=crop',
-    title: 'Vintage Family Portrait',
-    author: 'Sarah Johnson',
-    authorAvatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-    likes: 124,
-    comments: 23,
-    tags: ['vintage', 'family', 'portrait'],
-    productType: 'frame',
-    isLiked: false
-  },
-  {
-    id: 2,
-    imageUrl: 'https://images.unsplash.com/photo-1605513524006-063ed6ed31e7?q=80&w=600&auto=format&fit=crop',
-    title: 'Mountain Adventure Canvas',
-    author: 'Michael Torres',
-    authorAvatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    likes: 97,
-    comments: 15,
-    tags: ['nature', 'adventure', 'mountain'],
-    productType: 'canvas',
-    isLiked: false
-  },
-  {
-    id: 3,
-    imageUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=600&auto=format&fit=crop',
-    title: 'Custom Pet Mug',
-    author: 'Emily Chen',
-    authorAvatar: 'https://randomuser.me/api/portraits/women/63.jpg',
-    likes: 156,
-    comments: 32,
-    tags: ['pet', 'dog', 'custom'],
-    productType: 'mug',
-    isLiked: false
-  },
-  {
-    id: 4,
-    imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=600&auto=format&fit=crop',
-    title: 'Anniversary Gift Blanket',
-    author: 'James Wilson',
-    authorAvatar: 'https://randomuser.me/api/portraits/men/52.jpg',
-    likes: 205,
-    comments: 48,
-    tags: ['anniversary', 'gift', 'custom'],
-    productType: 'blanket',
-    isLiked: false
-  },
-  {
-    id: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1554907984-89b1604d35d1?q=80&w=600&auto=format&fit=crop',
-    title: 'Modern Art Collection',
-    author: 'Lisa Parker',
-    authorAvatar: 'https://randomuser.me/api/portraits/women/26.jpg',
-    likes: 87,
-    comments: 12,
-    tags: ['modern', 'art', 'abstract'],
-    productType: 'wall-art',
-    isLiked: false
-  },
-  {
-    id: 6,
-    imageUrl: 'https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?q=80&w=600&auto=format&fit=crop',
-    title: 'Family Vacation Magnets',
-    author: 'Robert Chen',
-    authorAvatar: 'https://randomuser.me/api/portraits/men/64.jpg',
-    likes: 62,
-    comments: 8,
-    tags: ['family', 'vacation', 'beach'],
-    productType: 'magnet',
-    isLiked: false
-  },
-  {
-    id: 7,
-    imageUrl: 'https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?q=80&w=600&auto=format&fit=crop',
-    title: 'Wedding Memories Frame',
-    author: 'Jennifer Lopez',
-    authorAvatar: 'https://randomuser.me/api/portraits/women/37.jpg',
-    likes: 183,
-    comments: 42,
-    tags: ['wedding', 'love', 'memories'],
-    productType: 'frame',
-    isLiked: false
-  },
-  {
-    id: 8,
-    imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=600&auto=format&fit=crop',
-    title: 'Minimalist Wall Art',
-    author: 'David Kim',
-    authorAvatar: 'https://randomuser.me/api/portraits/men/78.jpg',
-    likes: 134,
-    comments: 19,
-    tags: ['minimalist', 'modern', 'decor'],
-    productType: 'wall-art',
-    isLiked: false
-  }
-];
-
-// Categories for filtering
-const categories = [
-  { id: 'all', name: 'All' },
-  { id: 'frame', name: 'Frames' },
-  { id: 'canvas', name: 'Canvas' },
-  { id: 'mug', name: 'Mugs' },
-  { id: 'blanket', name: 'Blankets' },
-  { id: 'wall-art', name: 'Wall Art' },
-  { id: 'magnet', name: 'Magnets' }
-];
+import { useEffect, useState } from 'react';
+import { X, Filter, AlertTriangle } from 'lucide-react';
+import { useGallery } from '../features/gallery/useGallery';
 
 const GalleryPage = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [items, setItems] = useState(galleryItems);
-  
-  // Filter items based on category and search query
-  const filteredItems = items.filter(item => {
-    const matchesCategory = activeCategory === 'all' || item.productType === activeCategory;
-    const matchesSearch = searchQuery === '' || 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    return matchesCategory && matchesSearch;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const { reels, loading, error, pagination, loadReels } = useGallery();
+
+  useEffect(() => {
+    loadReels({ page: currentPage, limit: 8 });
+  }, [loadReels, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getInstagramEmbedUrl = (url: string) => {
+    try {
+      const match = url.match(/instagram\.com\/reel\/([^/?]+)/);
+      if (match && match[1]) {
+        return `https://www.instagram.com/reel/${match[1]}/embed/?utm_source=ig_embed&cr=1`;
+      }
+    } catch (e) {
+      console.error('Invalid Instagram URL:', url);
+    }
+    return '';
+  };
+
+  const filteredItems = reels.filter((item: any) => {
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch =
+      item.description?.toLowerCase().includes(searchLower) ||
+      item.tags?.some((tag: string) => tag.toLowerCase().includes(searchLower));
+
+    const matchesTag = !selectedTag || item.tags?.includes(selectedTag);
+
+    return matchesSearch && matchesTag;
   });
 
-  // Handle like functionality
-  const handleLike = (itemId: number) => {
-    setItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId 
-          ? { 
-              ...item, 
-              isLiked: !item.isLiked,
-              likes: item.isLiked ? item.likes - 1 : item.likes + 1
-            }
-          : item
-      )
-    );
-  };
+  const uniqueTags = [...new Set(reels.flatMap((r: any) => r.tags || []))];
 
-  // Handle share functionality
-  const handleShare = async (item: any) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: item.title,
-          text: `Check out this amazing creation: ${item.title}`,
-          url: window.location.href,
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-      }
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      const shareUrl = `${window.location.href}?item=${item.id}`;
-      navigator.clipboard.writeText(shareUrl);
-      alert('Link copied to clipboard!');
-    }
-  };
-  
   return (
-    <div className="min-h-screen bg-cream-50">
-      {/* Desktop spacer for fixed header */}
-      <div className="hidden md:block h-[80px]"></div>
-      
-      {/* Mobile spacer for fixed header */}
-      <div className="md:hidden h-[64px]"></div>
-      
-      {/* Fixed Mobile Search and Actions Bar */}
-      <div className="md:hidden fixed top-16 left-0 right-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="px-4 py-3">
-          {/* Enhanced Mobile Search */}
-          <div className="relative mb-3">
-            <input
-              type="text"
-              placeholder="🔍 Search gallery..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 pl-12 border-0 rounded-2xl bg-gray-50 focus:ring-2 focus:ring-terracotta-300 focus:outline-none text-base shadow-sm"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-              >
-                <X size={18} />
-              </button>
-            )}
-          </div>
-          
-          {/* Mobile Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-sm font-medium shadow-sm hover:shadow-md transition-all"
-            >
-              <Filter size={16} />
-              Filter
-            </button>
-            
-            <Link
-              to="/gallery/submit"
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-terracotta-600 to-terracotta-700 text-white rounded-xl hover:from-terracotta-700 hover:to-terracotta-800 transition-all shadow-sm hover:shadow-md text-sm font-medium text-center"
-            >
-              ✨ Submit
-            </Link>
-          </div>
-        </div>
+    <div className="relative min-h-screen px-0 sm:px-4 pt-24 sm:pt-24 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+      {/* Animated 3D shapes/accent background */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
+        <div className="absolute right-[8%] top-[20%] w-16 h-16 rounded-full bg-gradient-to-tr from-terracotta-200 to-amber-100 opacity-30 blur-xl animate-floatY" />
+        <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-40 h-16 bg-gradient-to-br from-amber-100 via-cream-100 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
       </div>
-      
-      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
-        {/* Mobile Header Section */}
-        <div className="md:hidden mb-6">
-          <div className="text-center mb-4">
-            <h1 className="text-3xl font-bold font-playfair text-gray-900 mb-2">Community Gallery</h1>
-            <p className="text-gray-600 text-sm">Discover amazing creations from our community</p>
+
+      <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3 relative z-10">
+          <div>
+            <h1 className="text-4xl font-extrabold font-playfair text-gray-900 mb-1 bg-gradient-to-r from-terracotta-500 to-amber-400 bg-clip-text text-transparent animate-gradient-move">Gallery</h1>
+            <div className="w-20 h-1 bg-gradient-to-r from-terracotta-400 to-amber-400 rounded-full mb-2 animate-fade-in" />
+            <p className="text-gray-600 text-base">Explore our creations</p>
           </div>
         </div>
 
-        {/* Desktop Header Section */}
-        <div className="hidden md:block">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-3 sm:gap-4">
-            <div className="w-full md:w-auto">
-              <h1 className="text-2xl sm:text-3xl font-bold font-playfair">Community Gallery</h1>
-              <p className="text-gray-600 text-sm sm:text-base">Explore creations from our community</p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
-              <div className="relative flex-grow">
-                <input
-                  type="text"
-                  placeholder="Search gallery..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-terracotta-300 focus:border-terracotta-400 outline-none text-sm sm:text-base"
-                />
-                {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-              
-              <Link
-                to="/gallery/submit"
-                className="px-4 py-2 bg-terracotta-600 text-white rounded-lg hover:bg-terracotta-700 transition-colors whitespace-nowrap text-sm sm:text-base text-center"
-              >
-                Submit Your Creation
-              </Link>
-            </div>
-          </div>
-          
-          {/* Category Tabs - Desktop */}
-          <div className="hidden md:flex space-x-4 mb-8 overflow-x-auto pb-2">
-            {categories.map(category => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeCategory === category.id 
-                    ? 'bg-terracotta-100 text-terracotta-800' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
+        {/* Tag Filters */}
+        <div className="flex flex-wrap gap-2 mb-6 relative z-10">
+          <button
+            onClick={() => setSelectedTag(null)}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold shadow transition-all duration-200 border-2 ${
+              !selectedTag
+                ? 'bg-gradient-to-r from-terracotta-500 to-amber-400 text-white border-amber-300 scale-105'
+                : 'bg-white text-gray-700 border-cream-200 hover:bg-cream-100'
+            }`}
+          >
+            All
+          </button>
+          {(uniqueTags as string[]).map((tag: string) => (
+            <button
+              key={tag}
+              onClick={() => setSelectedTag(tag)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold shadow transition-all duration-200 border-2 ${
+                selectedTag === tag
+                  ? 'bg-gradient-to-r from-terracotta-500 to-amber-400 text-white border-amber-300 scale-105'
+                  : 'bg-white text-gray-700 border-cream-200 hover:bg-cream-100'
+              }`}
+            >
+              #{tag}
+            </button>
+          ))}
         </div>
-        
-        {/* Mobile Filter Drawer */}
-        {isFilterOpen && (
-          <div className="fixed inset-0 bg-black/50 z-50 md:hidden">
-            <div className="absolute right-0 top-0 h-full w-4/5 max-w-xs bg-white p-6 overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-lg">Filters</h3>
-                <button onClick={() => setIsFilterOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <div className="mb-6">
-                <h4 className="font-semibold mb-4 text-base">Categories</h4>
-                <div className="space-y-2">
-                  {categories.map(category => (
-                    <button
-                      key={category.id}
-                      onClick={() => {
-                        setActiveCategory(category.id);
-                        setIsFilterOpen(false);
-                      }}
-                      className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                        activeCategory === category.id 
-                          ? 'bg-terracotta-100 text-terracotta-800 border-2 border-terracotta-300' 
-                          : 'text-gray-700 hover:bg-gray-100 border-2 border-transparent'
-                      }`}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              <button 
-                onClick={() => setIsFilterOpen(false)}
-                className="w-full py-3 bg-gradient-to-r from-terracotta-600 to-terracotta-700 text-white rounded-xl font-medium text-base shadow-lg hover:shadow-xl transition-all"
-              >
-                Apply Filters
-              </button>
+
+        {/* Error state */}
+        {error && (
+          <div className="text-center text-red-600 py-10">
+            <div className="flex flex-col items-center justify-center">
+              <AlertTriangle size={40} className="mb-2" />
+              <p className="text-sm">Something went wrong loading the gallery.</p>
             </div>
           </div>
         )}
-        
+
         {/* Gallery Grid */}
-        {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6 mt-8">
-            {filteredItems.map(item => (
-              <div key={item.id} className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 max-w-sm w-full mx-auto">
-                {/* Enhanced Image Container */}
-                <div className="aspect-[4/3] sm:aspect-square bg-gray-100 relative overflow-hidden">
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
-                  {/* Enhanced Action Buttons */}
-                  <div className="absolute top-3 right-3 flex space-x-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 transform translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0">
-                    <button 
-                      onClick={() => handleLike(item.id)}
-                      className="bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition-all shadow-lg hover:shadow-xl"
-                    >
-                      <Heart size={16} className={item.isLiked ? 'text-red-500 fill-red-500' : 'text-gray-500'} />
-                    </button>
-                    <button 
-                      onClick={() => handleShare(item)}
-                      className="bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition-all shadow-lg hover:shadow-xl"
-                    >
-                      <Share2 size={16} className="text-gray-500" />
-                    </button>
-                  </div>
-                  
-                  {/* Category Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-terracotta-700 rounded-full text-xs font-medium shadow-lg">
-                      {item.productType}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Enhanced Content */}
-                <div className="p-4 sm:p-5">
-                  <h3 className="font-bold text-lg sm:text-xl mb-2 text-gray-900 line-clamp-2">{item.title}</h3>
-                  
-                  {/* Author Section */}
-                  <div className="flex items-center mb-3">
-                    <div className="relative">
-                      <img 
-                        src={item.authorAvatar} 
-                        alt={item.author} 
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white shadow-md"
-                      />
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">{item.author}</p>
-                      <p className="text-xs text-gray-500">Creator</p>
-                    </div>
-                  </div>
-                  
-                  {/* Stats Section */}
-                  <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center">
-                        <Heart size={14} className="mr-1 text-red-500" />
-                        <span className="font-medium">{item.likes}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <MessageCircle size={14} className="mr-1 text-blue-500" />
-                        <span className="font-medium">{item.comments}</span>
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {Math.floor(Math.random() * 30) + 1}d ago
-                    </div>
-                  </div>
-                  
-                  {/* Enhanced Tags */}
-                  <div className="flex flex-wrap gap-2">
-                    {item.tags.slice(0, 3).map((tag, index) => (
-                      <span 
-                        key={index} 
-                        className="px-3 py-1 bg-gradient-to-r from-cream-100 to-cream-200 text-terracotta-700 rounded-full text-xs font-medium border border-cream-300"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                    {item.tags.length > 3 && (
-                      <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                        +{item.tags.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="animate-pulse bg-gray-100 h-[500px] rounded-lg"
+              />
             ))}
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+        ) : filteredItems.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 relative z-10">
+              {filteredItems.map((item: any) => (
+                <div
+                  key={item._id}
+                  className="bg-white/90 border border-cream-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:scale-[1.025] transition-all duration-300 w-full mx-auto backdrop-blur-sm"
+                >
+                  <div className="aspect-[9/17] bg-gray-100 relative overflow-hidden">
+                    <iframe
+                      src={getInstagramEmbedUrl(item.instagramUrl)}
+                      title={item.description || 'Instagram Reel'}
+                      className="w-full h-full border-none overflow-hidden"
+                      allow="autoplay; encrypted-media"
+                      loading="lazy"
+                      allowFullScreen
+                      sandbox="allow-scripts allow-same-origin allow-popups"
+                    />
+                  </div>
+                  {/* Details section: hidden on mobile, visible on sm+ */}
+                  <div className="hidden sm:block p-4">
+                    <h3 className="font-medium text-base line-clamp-2">
+                      {item.description || 'Untitled Reel'}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {item.createdAt
+                        ? new Date(item.createdAt).toLocaleDateString()
+                        : ''}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {item.tags?.map((tag: string, i: number) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedTag(tag)}
+                          className={`px-2 py-0.5 rounded text-xs ${
+                            selectedTag === tag
+                              ? 'bg-terracotta-600 text-white'
+                              : 'bg-cream-100 text-terracotta-700 hover:bg-cream-200'
+                          }`}
+                        >
+                          #{tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold mb-3 text-gray-900">No results found</h3>
-            <p className="text-gray-600 mb-8 text-base max-w-md mx-auto">Try adjusting your search or filter criteria to discover amazing creations</p>
-            <button 
+
+            {/* Pagination */}
+            {pagination && pagination.totalPages > 1 && (
+              <div className="flex justify-center mt-10 space-x-2">
+                {Array.from({ length: pagination.totalPages }).map((_, i) => {
+                  const page = i + 1;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-4 py-2 rounded-full text-sm border ${
+                        page === currentPage
+                          ? 'bg-terracotta-600 text-white'
+                          : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No reels found for your filters/search.</p>
+            <button
               onClick={() => {
-                setActiveCategory('all');
+                setSelectedTag(null);
                 setSearchQuery('');
               }}
-              className="inline-block px-8 py-3 bg-gradient-to-r from-terracotta-600 to-terracotta-700 text-white rounded-xl font-medium text-base shadow-lg hover:shadow-xl transition-all"
+              className="mt-4 px-5 py-2 bg-terracotta-600 text-white rounded-full"
             >
               Clear Filters
             </button>
           </div>
         )}
       </div>
+
+      {/* Animated accent keyframes */}
+      <style>{`
+        .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite alternate; }
+        @keyframes pulse-slow { 0% { opacity: 0.3; } 100% { opacity: 0.6; } }
+        .animate-floatY { animation: floatY 8s ease-in-out infinite alternate; }
+        .animate-floatX { animation: floatX 10s ease-in-out infinite alternate; }
+        @keyframes floatY { 0% { transform: translateY(0); } 100% { transform: translateY(-18px); } }
+        @keyframes floatX { 0% { transform: translateX(0); } 100% { transform: translateX(18px); } }
+      `}</style>
     </div>
   );
 };

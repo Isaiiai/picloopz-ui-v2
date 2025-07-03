@@ -129,11 +129,13 @@ const FAQPage = () => {
   })).filter(category => category.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white py-20 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 left-0 w-full h-40 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(236,201,186,0.15)_0%,rgba(255,255,255,0)_100%)]"></div>
-      <div className="absolute -left-24 top-1/3 w-48 h-48 rounded-full border border-terracotta-200 opacity-30"></div>
-      <div className="absolute -right-32 bottom-1/4 w-64 h-64 rounded-full border-2 border-terracotta-100 opacity-40"></div>
+    <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+      {/* Animated 3D shapes/accent background */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
+        <div className="absolute right-[8%] top-[20%] w-16 h-16 rounded-full bg-gradient-to-tr from-terracotta-200 to-amber-100 opacity-30 blur-xl animate-floatY" />
+        <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-40 h-16 bg-gradient-to-br from-amber-100 via-cream-100 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
+      </div>
 
       <div className="container mx-auto px-4">
         {/* Header Section */}

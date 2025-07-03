@@ -59,7 +59,7 @@ export const fetchUserReviews = createAsyncThunk<
     const response = await api.get(`/reviews/my-reviews`, {
       params: { page, limit, sort, sortOrder },
     });
-    return response.data;
+    return response.data.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
   }
@@ -73,6 +73,7 @@ export const createReview = createAsyncThunk<
 >('reviews/createReview', async (payload, thunkAPI) => {
   try {
     const response = await api.post('/reviews', payload);
+    console.log(response);
     return response.data.data;
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);

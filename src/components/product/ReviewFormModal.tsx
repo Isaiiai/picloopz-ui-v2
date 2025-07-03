@@ -59,7 +59,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
     },
   });
 
-  console.log(isEditOn)
   const handleSubmit = async () => {
     if (initialReview.rating === 0 || !initialReview.comment.trim()) {
       toast.error('Please provide a rating and comment before submitting.');

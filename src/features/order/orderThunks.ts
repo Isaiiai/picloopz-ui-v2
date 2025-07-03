@@ -4,6 +4,7 @@ import {
   CreateOrderData,
   PaymentVerificationData,
   OrderResponse,
+  CancelOrderData,
 } from './orderTypes';
 import api from '../../config/axiosConfig';
 
@@ -51,6 +52,18 @@ export const verifyOrderPayment = createAsyncThunk<Order, PaymentVerificationDat
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Payment verification failed');
+    }
+  }
+);
+
+export const cancelOrder = createAsyncThunk<Order, CancelOrderData>(
+  'order/cancelOrder',
+  async ({ orderId, reason }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.put(`/orders/cancel/${orderId}`, { reason });
+      return data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to cancel order');
     }
   }
 );

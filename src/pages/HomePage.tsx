@@ -71,7 +71,14 @@ const HomePage = () => {
   }, []);
 
 
-  return (    <div className="pb-12 pt-20 md:pt-24">
+  return (
+    <div className="relative min-h-screen pb-12 pt-24 md:pt-28 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+      {/* Animated 3D shapes/accent background */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute left-[10%] top-[12%] w-32 h-32 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
+        <div className="absolute right-[8%] top-[20%] w-20 h-20 rounded-full bg-gradient-to-tr from-terracotta-200 to-amber-100 opacity-30 blur-xl animate-floatY" />
+        <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-56 h-20 bg-gradient-to-br from-amber-100 via-cream-100 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
+      </div>
       {/* Video Modal - Updated for proper Instagram sizing */}
       <AnimatePresence>
         {videoUrl && (
@@ -369,9 +376,11 @@ const HomePage = () => {
             <h2 className="text-3xl md:text-4xl font-bold font-playfair text-gray-800">Top Selling Products</h2>
             <p className="text-md text-gray-600 mt-2">Loved by our customers, crafted for you.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {topSellingProducts?.slice(0, 10).map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id} className="h-full p-1 sm:p-0">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </div>
@@ -384,9 +393,11 @@ const HomePage = () => {
             <h2 className="text-3xl md:text-4xl font-bold font-playfair text-gray-800">Trending Now</h2>
             <p className="text-md text-gray-600 mt-2">Discover the latest designs everyone is talking about.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {trendingProducts?.slice(0, 10).map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id} className="h-full p-1 sm:p-0">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </div>
@@ -549,179 +560,112 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Gallery Showcase */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-24 bg-cream-50" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 0)' }}></div>
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-terracotta-50 rounded-full translate-y-1/2 translate-x-1/2 opacity-50"></div>
-        <div className="absolute top-1/4 left-0 w-24 h-24 bg-cream-100 rounded-full -translate-x-1/2 opacity-60"></div>
-        <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="inline-block px-4 py-1 bg-terracotta-50 text-terracotta-700 rounded-full text-sm font-medium mb-4">
-              Inspiration Gallery
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 font-playfair mb-6">
-              Our Creative Portfolio
-            </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Explore our stunning collection of custom designs, client creations, and artistic inspirations
-              across various styles and formats.
-            </p>
+      {/* Gallery Showcase - Next-level animated, professional design */}
+      <section className="relative py-32 px-2 md:px-0 overflow-visible">
+        {/* Animated gradient background with floating SVGs */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute w-full h-full bg-gradient-to-br from-amber-100 via-terracotta-100 to-amber-200 animate-gradient-move opacity-90"></div>
+          {/* Floating SVG shapes */}
+          <svg className="absolute top-10 left-10 w-32 h-32 opacity-30 animate-float-slow" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#fbbf24" /></svg>
+          <svg className="absolute bottom-10 right-20 w-24 h-24 opacity-20 animate-float-medium" viewBox="0 0 100 100"><rect width="100" height="100" rx="30" fill="#eab308" /></svg>
+          <svg className="absolute top-1/2 left-1/3 w-20 h-20 opacity-20 animate-float-fast" viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" fill="#f87171" /></svg>
+          {/* Sparkles/particles */}
+          <div className="absolute inset-0 pointer-events-none z-10">
+            {[...Array(18)].map((_,i)=>(<span key={i} className={`absolute w-1.5 h-1.5 bg-white rounded-full opacity-60 animate-sparkle sparkle-${i}`} />))}
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {/* 16:9 landscape item (2-column span) */}
-            <div className="col-span-2 relative group">
-              <div 
-                className="relative overflow-hidden rounded-xl shadow-md aspect-video cursor-pointer"
-                onClick={() => setVideoUrl("https://www.youtube.com/embed/9Ri3aggGkFY?autoplay=1")}
-              >
-                <img 
-                  src="https://img.youtube.com/vi/9Ri3aggGkFY/maxresdefault.jpg" 
-                  alt="Family portrait" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white font-medium">Family Portrait Collection</span>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                    <div className="w-14 h-14 bg-terracotta-500 rounded-full flex items-center justify-center text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7" style={{ marginLeft: '2px' }}>
-                        <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-                      </svg>
-                    </div>
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto">
+          {/* Glassmorphism panel */}
+          <div className="backdrop-blur-2xl bg-white/60 rounded-3xl shadow-2xl border border-white/30 p-8 md:p-16 relative overflow-visible">
+            {/* Animated Section Header */}
+            <div className="text-center mb-16">
+              <span className="inline-block px-5 py-2 bg-terracotta-200/60 text-terracotta-700 rounded-full text-base font-semibold mb-4 animate-fade-in">Inspiration Gallery</span>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 font-playfair mb-4 relative inline-block animate-slide-in">
+                Our Creative Portfolio
+                <svg className="absolute left-1/2 -translate-x-1/2 bottom-[-18px] w-40 h-6" viewBox="0 0 160 24" fill="none"><path d="M10 20 Q80 0 150 20" stroke="#f87171" strokeWidth="4" strokeLinecap="round" fill="none"><animate attributeName="stroke-dashoffset" from="160" to="0" dur="1.2s" fill="freeze" /></path></svg>
+              </h2>
+              <p className="text-gray-700 text-lg max-w-2xl mx-auto animate-fade-in">Explore our stunning collection of custom designs, client creations, and artistic inspirations across various styles and formats.</p>
+            </div>
+            {/* Masonry grid with framer-motion staggered animation */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8 overflow-hidden">
+              {[
+                {src: "https://img.youtube.com/vi/9Ri3aggGkFY/maxresdefault.jpg", alt: "Family portrait", label: "Family Portrait Collection", url: "https://www.youtube.com/embed/9Ri3aggGkFY?autoplay=1"},
+                {src: "https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050407/WhatsApp_Image_2025-06-16_at_10.27.11_1c808b88_owjkng.jpg", alt: "Elegant Framing", label: "Elegant Framing", url: "https://www.instagram.com/reel/DK69g8IyZRk/embed?autoplay=1"},
+                {src: "https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050407/WhatsApp_Image_2025-06-16_at_10.27.11_1c808b88_owjkng.jpg", alt: "Creation Process", label: "Creation Process", url: "https://www.instagram.com/reel/DK69g8IyZRk/embed?autoplay=1"},
+                {src: "https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050683/WhatsApp_Image_2025-06-16_at_10.41.05_5818210c_u0ny4b.jpg", alt: "Watercolor Art", label: "Watercolor Art", url: "https://www.instagram.com/reel/DK69g8IyZRk/embed?autoplay=1"},
+                {src: "https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050407/WhatsApp_Image_2025-06-16_at_10.27.11_1c808b88_owjkng.jpg", alt: "Client Showcase", label: "Client Showcase", url: "https://www.instagram.com/reel/DK69g8IyZRk/embed?autoplay=1"},
+                {src: "https://img.youtube.com/vi/9Ri3aggGkFY/maxresdefault.jpg", alt: "Home Decor Inspiration", label: "Home Decor Inspiration", url: "https://www.youtube.com/embed/9Ri3aggGkFY?autoplay=1"}
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 60, scale: 0.92, rotate: -2 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 120, damping: 18, delay: idx * 0.13 }}
+                  viewport={{ once: true }}
+                  className="relative group rounded-3xl overflow-hidden shadow-xl bg-white/80 aspect-video cursor-pointer hover:scale-[1.07] hover:shadow-3xl hover:z-30 transition-all duration-500 border-2 border-transparent hover:border-gradient-to-r hover:from-amber-400 hover:to-terracotta-500"
+                  tabIndex={0}
+                  aria-label={item.label}
+                  onClick={() => setVideoUrl(item.url)}
+                  onKeyDown={e => { if (e.key === 'Enter') setVideoUrl(item.url); }}
+                  style={{ perspective: '1200px' }}
+                  onMouseMove={e => {
+                    const el = e.currentTarget;
+                    const rect = el.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    el.style.transform = `rotateY(${(x/rect.width-0.5)*10}deg) rotateX(${-(y/rect.height-0.5)*10}deg) scale(1.07)`;
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = '';
+                  }}
+                >
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    className="w-full h-full object-cover transition-all duration-500 group-hover:brightness-85 group-hover:scale-105"
+                  />
+                  {/* Animated overlay and play button */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <motion.div
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 12 }}
+                      className="bg-white/40 backdrop-blur-lg rounded-full flex items-center justify-center shadow-2xl border-4 border-gradient-to-r from-amber-400 to-terracotta-500 group-hover:scale-110 group-hover:shadow-amber-400/40 transition-transform duration-500 w-1/4 h-1/4 max-w-[60px] max-h-[60px] min-w-[40px] min-h-[40px]"
+                    >
+                      <motion.div
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        transition={{ repeat: Infinity, repeatType: 'reverse', duration: 1.2, ease: 'easeInOut' }}
+                        className="bg-terracotta-500 rounded-full flex items-center justify-center text-white shadow-lg animate-pulse w-full h-full"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-2/3 h-2/3" style={{ marginLeft: '2px' }}>
+                          <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
+                        </svg>
+                      </motion.div>
+                    </motion.div>
                   </div>
-                </div>
-              </div>
+                  {/* Animated label */}
+                  <motion.div
+                    initial={{ y: 40, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 + idx * 0.1, duration: 0.6, type: 'spring', stiffness: 120 }}
+                    className="absolute bottom-0 left-0 w-full p-5 bg-gradient-to-t from-black/70 to-transparent"
+                  >
+                    <span className="text-white font-bold text-xl drop-shadow-lg tracking-wide animate-typewriter">{item.label}</span>
+                  </motion.div>
+                </motion.div>
+              ))}
             </div>
-
-            {/* 9:16 portrait item */}
-             <div className="relative group">
-              <div 
-                className="relative overflow-hidden rounded-xl shadow-md aspect-[9/16] cursor-pointer"
-                onClick={() => setVideoUrl("https://www.instagram.com/reel/DK69g8IyZRk/embed?autoplay=1")}
+            <div className="text-center mt-16 animate-fade-in">
+              <Link 
+                to="/gallery" 
+                className="inline-flex items-center px-10 py-4 border-2 border-terracotta-400 text-terracotta-600 hover:bg-terracotta-50 rounded-xl transition-colors group font-bold shadow-lg hover:shadow-amber-200/40 text-lg tracking-wide"
               >
-                <img 
-                  src="https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050407/WhatsApp_Image_2025-06-16_at_10.27.11_1c808b88_owjkng.jpg"
-                  alt="Video thumbnail" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white font-medium">Elegant Framing</span>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                    <div className="w-12 h-12 bg-terracotta-500 rounded-full flex items-center justify-center text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6" style={{ marginLeft: '2px' }}>
-                        <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                View Full Gallery
+                <ArrowRight size={20} className="ml-3 transition-transform group-hover:translate-x-2" />
+              </Link>
             </div>
-
-            {/* 9:16 portrait item with video */}
-            <div className="relative group">
-              <div 
-                className="relative overflow-hidden rounded-xl shadow-md aspect-[9/16] cursor-pointer"
-                onClick={() => setVideoUrl("https://www.instagram.com/reel/DK69g8IyZRk/embed?autoplay=1")}
-              >
-                <img 
-                  src="https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050407/WhatsApp_Image_2025-06-16_at_10.27.11_1c808b88_owjkng.jpg"
-                  alt="Video thumbnail" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white font-medium">Creation Process</span>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                    <div className="w-12 h-12 bg-terracotta-500 rounded-full flex items-center justify-center text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6" style={{ marginLeft: '2px' }}>
-                        <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 1:1 square item */}
-            <div className="relative group">
-              <div className="relative overflow-hidden rounded-xl shadow-md aspect-square">
-                <img 
-                  src="https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050683/WhatsApp_Image_2025-06-16_at_10.41.05_5818210c_u0ny4b.jpg" 
-                  alt="Custom artwork" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white font-medium">Watercolor Art</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 1:1 square item with video */}
-            <div className="relative group">
-              <div 
-                className="relative overflow-hidden rounded-xl shadow-md aspect-square cursor-pointer"
-                onClick={() => setVideoUrl("https://www.instagram.com/reel/DK69g8IyZRk/embed?autoplay=1")}
-              >
-                <img 
-                  src="https://res.cloudinary.com/dr6n03ecb/image/upload/v1750050407/WhatsApp_Image_2025-06-16_at_10.27.11_1c808b88_owjkng.jpg"
-                  alt="Video thumbnail" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white font-medium">Client Showcase</span>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                    <div className="w-12 h-12 bg-terracotta-500 rounded-full flex items-center justify-center text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6" style={{ marginLeft: '2px' }}>
-                        <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 16:9 landscape item (2-column span) with video */}
-            <div className="col-span-2 relative group">
-              <div 
-                className="relative overflow-hidden rounded-xl shadow-md aspect-video cursor-pointer"
-                onClick={() => setVideoUrl("https://www.youtube.com/embed/9Ri3aggGkFY?autoplay=1")}
-              >
-                <img 
-                  src="https://img.youtube.com/vi/9Ri3aggGkFY/maxresdefault.jpg"
-                  alt="Video thumbnail" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white font-medium">Home Decor Inspiration</span>
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                    <div className="w-14 h-14 bg-terracotta-500 rounded-full flex items-center justify-center text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7" style={{ marginLeft: '2px' }}>
-                        <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <Link 
-              to="/gallery" 
-              className="inline-flex items-center px-8 py-3 border-2 border-terracotta-400 text-terracotta-600 hover:bg-terracotta-50 rounded-lg transition-colors group font-medium"
-            >
-              View Full Gallery
-              <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
-            </Link>
           </div>
         </div>
       </section>

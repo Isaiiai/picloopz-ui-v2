@@ -2,17 +2,19 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Star } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
+import { useAuth } from '../features/auth/authHooks';
+import toast from 'react-hot-toast';
 
 export interface Product {
   id: string | number;
   name: string;
-  basePrice: number;
   description: string;
   variants: Array<{
     additionalPrice: number;
     name: string;
     price: number;
     imageUrl: string;
+    inStock: boolean;
   }>;
   category?: string;
   categoryId?: string;
@@ -28,91 +30,94 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorite();
-  
+  const { isAuthenticated } = useAuth();
+  const variant = product.variants[0];
+  const isAvailable = product.variants.some(v => v.inStock);
+  const outOfStock = !isAvailable;
+
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+    if (!isAuthenticated) {
+      if (toast) {
+        toast('Please log in to add favorites', { icon: '🔒' });
+      } else {
+        alert('Please log in to add favorites');
+      }
+      return;
+    }
     if (isInFavorites(String(product.id))) {
       removeFromFavorites(String(product.id));
     } else {
       addToFavorites(String(product.id));
     }
   };
-  
-  const formatPrice = (price: number) => {
-    return `₹${price.toFixed(2)}`;
-  };
-  
+
+  const formatPrice = (price: number) => `₹${price.toFixed(2)}`;
+
   return (
-    <div 
-      className="group relative"
+    <div
+      className={`w-full group relative bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden flex flex-col transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 ${
+        outOfStock ? 'opacity-60 cursor-not-allowed' : ''
+      }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link to={`/product/${product.id}`}>
-        <div className="relative overflow-hidden rounded-lg aspect-[4/3] md:aspect-[5/4] lg:aspect-[6/5] xl:aspect-[7/6] bg-gray-100 mb-2">
-          <img 
-            src={product.variants[0]?.imageUrl} 
-            alt={product.name} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          
-          {/* Quick action buttons */}
-          <div 
-            className={`absolute top-2 right-2 z-10 transition-opacity duration-200 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
+      <Link to={`/product/${String(product.id)}`} className="flex flex-col h-full">
+        <div className="relative w-full h-48 bg-gray-50 flex-shrink-0 flex items-center justify-center overflow-hidden">
+          <img
+            src={variant.imageUrl}
+            alt={product.name}
+            className={`max-h-full max-w-full object-contain transition-transform duration-300 ${
+              isHovered && !outOfStock ? 'scale-105' : ''
             }`}
-          >
+          />
+          {outOfStock && (
+            <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded shadow">
+              Out of Stock
+            </div>
+          )}
+          {isHovered && (
             <button
               onClick={toggleFavorite}
-              className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center ${
-                isInFavorites(String(product.id)) 
-                  ? 'bg-red-50 text-red-500' 
-                  : 'bg-white text-gray-600 hover:text-terracotta-500'
-              } shadow-sm transition-colors`}
-              aria-label={isInFavorites(String(product.id)) ? 'Remove from favorites' : 'Add to favorites'}
+              className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-600 z-10 ${
+                isInFavorites(String(product.id))
+                  ? 'bg-red-100 text-red-600'
+                  : 'bg-white text-gray-400 hover:text-red-600 hover:bg-red-100'
+              }`}
+              aria-label={
+                isInFavorites(String(product.id))
+                  ? 'Remove from favorites'
+                  : 'Add to favorites'
+              }
             >
-              <Heart 
-                size={14} 
-                className={`${isInFavorites(String(product.id)) ? 'fill-current' : ''} md:w-4 md:h-4`} 
+              <Heart
+                size={20}
+                className={isInFavorites(String(product.id)) ? 'fill-current' : ''}
               />
             </button>
-          </div>
-          
-          {/* View button on hover */}
-          <div 
-            className={`absolute inset-0 bg-black/10 flex items-center justify-center transition-opacity duration-300 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium hover:bg-white transition-colors">
-              View Product
-            </span>
-          </div>
-        </div>
-        
-        <h3 className="font-medium text-gray-800 group-hover:text-terracotta-600 transition-colors text-sm md:text-base line-clamp-2">
-          {product.name}
-        </h3>
-        
-        <div className="mt-2 flex items-center flex-wrap gap-x-2 gap-y-1 text-xs md:text-sm text-gray-500">
-            <div className="flex items-center">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 mr-1" />
-                <span className="font-semibold text-gray-700">{product.rating.toFixed(1)}</span>
-            </div>
-            <span className="text-gray-300 hidden sm:inline">•</span>
-            <span>{product.reviewCount} reviews</span>
-            <span className="text-gray-300 hidden sm:inline">•</span>
-            <span className={ (product.orderCount || 0) > 0 ? 'text-green-600 font-medium' : 'text-gray-500'}>
-                {product.orderCount || 0} sold
-            </span>
+          )}
         </div>
 
-        <div className="mt-1">
-            <span className="text-terracotta-600 font-bold text-base md:text-lg">
-                {formatPrice(product.variants[0].price)}
-            </span>
+        <div className="flex flex-col flex-1 p-2 pb-0 min-h-[110px]">
+          <h3 className="font-semibold text-base text-gray-900 mb-1 line-clamp-2 min-h-[36px]">
+            {product.name}
+          </h3>
+          {product.description && (
+            <p className="text-gray-600 text-sm mb-1 truncate">{product.description}</p>
+          )}
+          <div className="flex-1" />
+        </div>
+
+        <div className="w-full px-3 py-2 bg-white border-t border-gray-100 flex items-center justify-between gap-2 min-h-[44px]">
+          <span className="text-terracotta-600 font-bold text-base md:text-lg">
+            {formatPrice(variant.price)}
+          </span>
+          <span className="flex items-center gap-1 text-xs text-yellow-500 font-medium">
+            <Star size={14} className="inline-block" />
+            {product.rating.toFixed(1)}
+            <span className="text-gray-400 ml-1">({product.reviewCount})</span>
+          </span>
         </div>
       </Link>
     </div>
