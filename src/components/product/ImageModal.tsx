@@ -16,6 +16,7 @@ const ImageModal: React.FC<ImageModalProps> = ({ isOpen, onClose, imageUrl }) =>
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={onClose}
+          
         >
           <button
             className="absolute top-4 right-4 text-white hover:text-terracotta-300 transition-colors"
