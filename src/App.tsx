@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+
 import { useEffect, useRef } from 'react';
 import Layout from './components/Layout';
+
 import HomePage from './pages/HomePage';
 import CategoryPage from './pages/CategoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
