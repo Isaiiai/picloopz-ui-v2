@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { encrypt, decrypt } from '../utils/encryption';
 
 type TokenGetter = () => string | null;
 type LogoutAction = () => void;
@@ -12,44 +13,68 @@ export const configureApi = (tokenGetter: TokenGetter, logoutHandler: LogoutActi
 };
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api', // Make sure this matches your backend URL
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-api.interceptors.request.use((config) => {
+// Encrypt & reroute requests to /gateway (except upload & public)
+api.interceptors.request.use(async (config) => {
   const token = getToken?.();
-  
-  // Skip auth header for public endpoints like registration and OTP verification
-  const isPublicEndpoint = 
-    config.url?.includes('/auth/register') || 
-    config.url?.includes('/auth/login') || 
-    config.url?.includes('/auth/verify-otp') || 
-    config.url?.includes('/auth/resend-otp') ||
-    config.url?.includes('/auth/forgot-password') ||
-    config.url?.includes('/auth/reset-password') ||
-    config.headers?.['X-Public-Request'];
 
-  // Only add Authorization header if token exists and endpoint requires auth
-  if (token && !isPublicEndpoint) {
+  const isUploadRequest = config.url?.startsWith('/upload');
+  const isPublic = config.headers?.['X-Public-Request'] || isUploadRequest;
+
+  if (config.data && !isPublic) {
+    const { route, payload } = config.data;
+
+    if (!route || payload === undefined) {
+      throw new Error('[Gateway Error] Payload must include both `route` and `payload`');
+    }
+
+    try {
+      config.url = '/gateway';
+      config.data = {
+        data: await encrypt({ route, payload })
+      };
+    } catch (err) {
+      console.error('[Encryption Error]', err);
+      throw err;
+    }
+  }
+
+  if (token && !isPublic) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  
+
   return config;
 });
 
+// Decrypt encrypted response payloads (if applicable)
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Only logout on auth errors for protected routes
-    if (error.response?.status === 401 && 
-        !error.config.url?.includes('/auth/login') &&
-        !error.config.url?.includes('/auth/register') &&
-        !error.config.url?.includes('/auth/verify-otp') &&
-        !error.config.url?.includes('/auth/resend-otp')) {
-      onLogout?.();
+  async (response) => {
+    const isEncrypted = response.data?.data && typeof response.data.data === 'string';
+
+    if (isEncrypted) {
+      try {
+        // Await the result of decryption
+        const decrypted = await decrypt(response.data.data);
+        response.data = decrypted;
+      } catch (e) {
+        console.error('[Decryption Error]', e);
+        return Promise.reject({
+          message: 'Decryption failed',
+          original: e,
+          code: 'DECRYPTION_ERROR'
+        });
+      }
     }
+
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) onLogout?.();
     return Promise.reject(error);
   }
 );

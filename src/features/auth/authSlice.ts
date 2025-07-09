@@ -43,8 +43,10 @@ export const registerUser = createAsyncThunk<AuthResponse, { name: string; email
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
-      const { data } = await api.post<AuthResponse>('/auth/register', userData);
-      console.log(data);
+      const { data } = await api.post<AuthResponse>('/api/gateway', {
+        route: "register",
+        payload: userData
+      });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');
@@ -57,16 +59,18 @@ export const loginUser = createAsyncThunk<AuthResponse, { email: string; passwor
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const { data } = await api.post<{ data: AuthResponse }>('/auth/login', credentials);
-      return data.data;
+      const response = await api.post<{ data: AuthResponse }>('/auth/gateway', {
+        route: "login",
+        payload: credentials,
+      });
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
   }
 );
 
-
-// Verify Token
+// Verify token
 export const verifyToken = createAsyncThunk<
   VerifyResponse,
   void,
@@ -76,16 +80,14 @@ export const verifyToken = createAsyncThunk<
   async (_, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      console.log(getState())
 
       if (!token) {
         return rejectWithValue('No token found');
       }
 
-      const { data } = await api.get<VerifyResponse>('/auth/verify-token', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const { data } = await api.post('/api/gateway', {
+        route: 'verifyToken',
+        payload: {},
       });
 
       return data;
@@ -98,12 +100,16 @@ export const verifyToken = createAsyncThunk<
   }
 );
 
+
 // Change Password
 export const changePassword = createAsyncThunk(
   'auth/changePassword',
   async (credentials: { currentPassword: string; newPassword: string }, { rejectWithValue }) => {
     try {
-      const response = await api.post('/auth/change-password', credentials);
+      const response = await api.post('/api/gateway', {
+        route: "changePassword",
+        payload: credentials
+      });
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to change password');
@@ -116,7 +122,10 @@ export const verifyOTP = createAsyncThunk<AuthResponse, { email: string, otp: st
   'auth/verifyOTP',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await api.post<{ data: AuthResponse }>('/auth/verify-otp', userData);
+      const response = await api.post<{ data: AuthResponse }>('/api/gateway', {
+        route: "verifyOTP",
+        payload: userData
+      });
       // Make sure we're returning the correct data structure
       return response.data.data;
     } catch (error: any) {

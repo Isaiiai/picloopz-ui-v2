@@ -1,16 +1,14 @@
 import { AppThunk } from '../../store/store';
 import { setLoading, setError, setCart, clearCart } from './cartSlice';
-import { AddToCartPayload, UpdateCartItemPayload } from './cartTypes';
+import { AddToCartPayload } from './cartTypes';
 import api from '../../config/axiosConfig';
 
-export const fetchCart = (): AppThunk => async (dispatch, getState) => {
+export const fetchCart = (): AppThunk => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const token = getState().auth.token;
-    const response = await api.get('/cart',{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await api.post('/api/gateway',{
+      route: "getCart",
+      payload: {}
     });
     dispatch(setCart({
       items: response.data.data.items,
@@ -22,14 +20,12 @@ export const fetchCart = (): AppThunk => async (dispatch, getState) => {
   }
 };
 
-export const addToCart = (payload: AddToCartPayload): AppThunk => async (dispatch, getState) => {
+export const addToCart = (payload: AddToCartPayload): AppThunk => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const token = getState().auth.token;
-    const response = await api.post('/cart/add', payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await api.post('/api/gateway', {
+      route: "addToCart",
+      payload: payload
     });
     console.log('Add to cart response:', response);
     dispatch(setCart({
@@ -43,35 +39,12 @@ export const addToCart = (payload: AddToCartPayload): AppThunk => async (dispatc
 };
 
 
-export const updateCartItem = (payload: UpdateCartItemPayload): AppThunk => async (dispatch, getState) => {
-  try {
-    dispatch(setLoading(true));
-    const token = getState().auth.token;
-    const response = await api.put(`/cart/update/${payload.itemId}`, {
-      quantity: payload.quantity,
-    }, { 
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    dispatch(setCart({
-      items: response.data.data.items,
-      totalItems: response.data.data.totalItems,
-      totalAmount: response.data.data.totalAmount,
-    }));
-  } catch (error) {
-    dispatch(setError(error.message));
-  }
-};
-
 export const removeCartItem = (itemId: string): AppThunk => async (dispatch, getState) => {
   try {
     dispatch(setLoading(true));
-    const token = getState().auth.token;
-    const response = await api.delete(`/cart/remove/${itemId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await api.post(`/api/gateway`, {
+      route: "removeCartItem",
+      payload: { params: { itemId } }
     });
     dispatch(setCart({
       items: response.data.data.items,
@@ -83,14 +56,12 @@ export const removeCartItem = (itemId: string): AppThunk => async (dispatch, get
   }
 };
 
-export const emptyCart = (): AppThunk => async (dispatch, getState) => {
+export const emptyCart = (): AppThunk => async (dispatch, ) => {
   try {
     dispatch(setLoading(true));
-    const token = getState().auth.token;
-    await api.delete('/cart/clear', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    await api.post('/api/gateway',{
+      route: "clearCart",
+      payload: {}
     });
     dispatch(clearCart());
   } catch (error) {
@@ -98,14 +69,12 @@ export const emptyCart = (): AppThunk => async (dispatch, getState) => {
   }
 };
 
-export const getCartSummary = (): AppThunk => async (dispatch, getState) => {
+export const getCartSummary = (): AppThunk => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    const token = getState().auth.token;
-    const response = await api.get('/cart/summary',{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await api.post('/api/gateway',{
+      route: "getCartSummary",
+      payload: {}
     });
     return response.data;
   } catch (error) {

@@ -12,7 +12,10 @@ export const fetchOrders = createAsyncThunk<OrderResponse, void>(
   'order/fetchOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await api.get('/orders');
+      const { data } = await api.post('/api/gateway', {
+        route: "getOrders",
+        payload: {}
+      });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch orders');
@@ -24,7 +27,10 @@ export const fetchOrderById = createAsyncThunk<Order, string>(
   'order/fetchOrderById',
   async (orderId, { rejectWithValue }) => {
     try {
-      const { data } = await api.get(`/orders/${orderId}`);
+      const { data } = await api.post(`/api/gateway`, {
+        route: "getOrderById",
+        payload: {params: {id: orderId}}
+      });
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch order');
@@ -36,7 +42,10 @@ export const createNewOrder = createAsyncThunk<Order, CreateOrderData>(
   'order/createNewOrder',
   async (orderData, { rejectWithValue }) => {
     try {
-      const { data } = await api.post('/orders/create', orderData);
+      const { data } = await api.post('/api/gateway', {
+        route: "createOrder",
+        payload: {orderData}
+      });
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create order');
@@ -48,7 +57,10 @@ export const verifyOrderPayment = createAsyncThunk<Order, PaymentVerificationDat
   'order/verifyOrderPayment',
   async (paymentData, { rejectWithValue }) => {
     try {
-      const { data } = await api.post('/orders/payment/verify', paymentData);
+      const { data } = await api.post('/api/gateway', {
+        route: "verifyPayment",
+        payload: paymentData
+      });
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Payment verification failed');
@@ -60,7 +72,13 @@ export const cancelOrder = createAsyncThunk<Order, CancelOrderData>(
   'order/cancelOrder',
   async ({ orderId, reason }, { rejectWithValue }) => {
     try {
-      const { data } = await api.put(`/orders/cancel/${orderId}`, { reason });
+      const { data } = await api.post(`/api/gateway`, { 
+        route: "cancelOrder",
+        payload: {
+          params: {id: orderId},
+          reason: {reason},
+        }
+       });
       return data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to cancel order');
