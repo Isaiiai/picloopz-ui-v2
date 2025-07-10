@@ -8,6 +8,7 @@ import { useCart } from '../features/cart/useCart';
 import { useFavorite } from '../features/favorite/useFavorite';
 import { useUpload } from '../features/upload/useUpload';
 import { useReview } from '../features/review/useReview';
+import { useAuth } from '../features/auth/authHooks';
 
 import {
   getProductById,
@@ -59,12 +60,13 @@ const ProductDetailPage = () => {
     error: reviewError,
     loading: reviewLoading,
   } = useReview();
+  const { isAuthenticated } = useAuth();
 
   const product = useSelector(selectCurrentProduct);
   const loading = useSelector(selectProductLoading);
   const relatedProducts = useSelector(selectCategoryProducts);
 
-  const requiredFilesCount = 2;
+  const requiredFilesCount = product?.maxUserImages || 1;
 
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -73,6 +75,8 @@ const ProductDetailPage = () => {
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
 
   const [files, setFiles] = useState<File[]>([]);
   const [newReview, setNewReview] = useState({
@@ -149,6 +153,10 @@ const ProductDetailPage = () => {
   }, [previewUrls]);
 
   const handleAddToCart = async() => {
+    if (!isAuthenticated) {
+      toast('Please log in to add products to cart', { icon: '🔒' });
+      return;
+    }
     if (!product) return;
     const imageUrls = cartImagesUpload?.uploads.map(upload => upload.url) || [];
     await addToCart({
@@ -161,6 +169,10 @@ const ProductDetailPage = () => {
   };
 
   const toggleFavorite = () => {
+    if (!isAuthenticated) {
+      toast('Please log in to add favorites', { icon: '🔒' });
+      return;
+    }
     if (!product) return;
     if (isInFavorites(product.id)) {
       removeFromFavorites(product.id);
@@ -171,42 +183,81 @@ const ProductDetailPage = () => {
     }
   };
 
+  const mainMedia = useMemo(() => {
+    const media: { type: 'image' | 'instagram'; url: string }[] = [];
+
+    // Add product image
+    if (product?.variants?.[selectedVariant]?.imageUrl) {
+      media.push({
+        type: 'image',
+        url: product.variants[selectedVariant].imageUrl,
+      });
+    }
+
+    // Add Instagram reel if exists
+    if (product?.videos?.length) {
+      product.videos.forEach((video) => {
+        if (video.url.includes('instagram.com')) {
+          const embedUrl = video.url.includes('/embed')
+            ? video.url
+            : video.url.replace(/\/reel\/([^/?]+)/, '/reel/$1/embed');
+          media.push({ type: 'instagram', url: embedUrl });
+        }
+
+        // Add support for YouTube links if needed
+        if (video.url.includes('youtube.com') || video.url.includes('youtu.be')) {
+          media.push({
+              type: 'youtube',
+              url: video.url,
+            });
+        }
+      });
+    }
+    console.log(media)
+
+
+    return media;
+  }, [product, selectedVariant]);
+
+
   const handleUploadCartImages = async () => {
+    if (!isAuthenticated) {
+      toast('Please log in to upload images', { icon: '🔒' });
+      return;
+    }
     if (filesToUpload.length < requiredFilesCount) {
       toast.error(`Please upload ${requiredFilesCount} images`);
       return;
     }
     const formData = new FormData();
     filesToUpload.forEach((file) => formData.append('images', file));
-    formData.append('productId', productId || '');
-    try {
-      await uploadMultiple({
-        formData,
-        purpose: 'cart',
-        onUploadProgress: (e: ProgressEvent) => {
-          const progress = Math.round((e.loaded * 100) / (e.total || 1));
-          setUploadProgress(progress);
-        },
-      });
-      setFilesToUpload([]);
-      setPreviewUrls([]);
-      setUploadProgress(0);
-      toast.success('Images uploaded successfully!');
-    } catch {
-      toast.error('Failed to upload images');
-    }
+    await uploadMultiple({
+      formData,
+      purpose: 'cart',
+      onUploadProgress: (e: ProgressEvent) => {
+        const progress = Math.round((e.loaded * 100) / e.total);
+        setUploadProgress(progress);
+      },
+    });
+    setFilesToUpload([]);
+    setUploadProgress(0);
+    toast.success('Images uploaded successfully!');
   };
 
   const handleUploadReviewImages = async () => {
-    if (!files.length) return;
+    if (!isAuthenticated) {
+      toast('Please log in to upload images', { icon: '🔒' });
+      return;
+    }
+    if (files.length === 0) {
+      toast.error('Please select images to upload');
+      return;
+    }
     const formData = new FormData();
     files.forEach((file) => formData.append('images', file));
-    formData.append('productId', productId || '');
-    try {
-      await uploadMultiple({ formData, purpose: 'review' });
-    } catch {
-      toast.error('Failed to upload images');
-    }
+    await uploadMultiple({ formData, purpose: 'review' });
+    setFiles([]);
+    toast.success('Images uploaded!');
   };
 
   const handleSubmitReview = async () => {
@@ -234,6 +285,25 @@ const ProductDetailPage = () => {
     setShowImageModal(true);
   };
 
+  const handleReviewDeleted = useCallback(() => {
+    console.log('=== HANDLE REVIEW DELETED CALLBACK ===');
+    console.log('Product ID:', productId);
+    console.log('Current reviews count:', reviews.length);
+    console.log('Current review IDs:', reviews.map(r => r.id));
+    
+    if (productId) {
+      console.log('Calling loadProductReviews with params:', { productId, page: 1, limit: 10, sort: 'createdAt', sortOrder: 'desc' });
+      
+      // Add a small delay to ensure backend has processed the deletion
+      setTimeout(() => {
+        loadProductReviews({ productId, page: 1, limit: 10, sort: 'createdAt', sortOrder: 'desc' });
+        console.log('loadProductReviews called');
+      }, 500);
+    } else {
+      console.log('No productId available');
+    }
+  }, [productId, loadProductReviews, reviews]);
+
   if (loading || !product) {
     return (
       <div className="container mx-auto px-4 py-12">
@@ -243,8 +313,15 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="bg-cream-50 min-h-screen">
-      <div className="container mx-auto max-w-screen-xl px-2 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 overflow-x-hidden">
+    <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+      {/* Animated 3D shapes/accent background */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
+        <div className="absolute right-[8%] top-[20%] w-16 h-16 rounded-full bg-gradient-to-tr from-terracotta-200 to-amber-100 opacity-30 blur-xl animate-floatY" />
+        <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-40 h-16 bg-gradient-to-br from-amber-100 via-cream-100 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
+      </div>
+
+      <div className="container mx-auto max-w-screen-xl px-2 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 overflow-x-hidden mt-16 md:mt-0">
         {/* Breadcrumbs */}
         <div className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 md:mb-8 px-1 sm:px-0">
           <a href="/" className="hover:text-terracotta-600">Home</a>
@@ -260,7 +337,13 @@ const ProductDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 mb-8 sm:mb-12 lg:mb-16">
           <ProductGallery
             productName={product.name}
-            variants={(product.variants || []).map(v => ({ name: v.name, imageUrl: v.imageUrl || '' }))}
+            mainMedia={mainMedia}
+            currentMediaIndex={currentMediaIndex}
+            setCurrentMediaIndex={setCurrentMediaIndex}
+            variants={(product.variants || []).map(v => ({
+              name: v.name,
+              imageUrl: v.imageUrl || '',
+            }))}
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
             reviewImages={flatReviewImages}
@@ -269,6 +352,7 @@ const ProductDetailPage = () => {
             showImageModal={showImageModal}
             setShowImageModal={setShowImageModal}
           />
+
 
           <ProductInfo
             product={product}
@@ -330,6 +414,7 @@ const ProductDetailPage = () => {
               updatedAt: ''
             }}
             onImageClick={handleImageClick}
+            onReviewDeleted={handleReviewDeleted}
           />
         </div>
 

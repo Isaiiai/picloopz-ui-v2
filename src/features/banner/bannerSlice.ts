@@ -19,18 +19,23 @@ const initialState: BannerState = {
   error: null,
 };
 
-// Async thunk to fetch active banners
 export const fetchActiveBanners = createAsyncThunk<
   { banners: Banner[] },
   { type?: string; categoryId?: string } | undefined
 >('banner/fetchActiveBanners', async (params, thunkAPI) => {
   try {
-    const response = await api.get('/banners/active', { params });
+    const response = await api.post('/api/gateway', {
+      route: "getActiveBanners",
+      payload: { params }
+    });
     return response.data.data;
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch banners');
+    return thunkAPI.rejectWithValue(
+      error.response?.data?.message || 'Failed to fetch banners'
+    );
   }
 });
+
 
 const bannerSlice = createSlice({
   name: 'banner',

@@ -22,8 +22,9 @@ export const fetchCategories = createAsyncThunk(
         isActive,
       } = params;
 
-      const response = await api.get<CategoryListResponse>('/categories', {
-        params: { page, limit, sort, sortOrder, isActive },
+      const response = await api.post<CategoryListResponse>('/api/gateway', {
+        route: "getCategories",
+        payload: {params: { page, limit, sort, sortOrder, isActive },}
       });
 
       return response.data;
@@ -41,7 +42,10 @@ export const fetchCategoryById = createAsyncThunk(
   'category/fetchCategoryById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await api.get<Category>(`/categories/${id}`);
+      const response = await api.post<Category>(`/api/gateway`, {
+        route: "getCategoryById",
+        payload: {id: id}
+      });
       return response.data;
     } catch (error: any) {
       const message =

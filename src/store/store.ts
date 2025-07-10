@@ -11,6 +11,7 @@ import uploadReducer from '../features/upload/uploadSlice';
 import reviewReducer from '../features/review/reviewSlice';
 import bannerReducer from '../features/banner/bannerSlice';
 import profileReducer from '../features/profile/profileSlice';
+import galleryReducer from '../features/gallery/gallerySlice';
 import { configureApi } from '../config/axiosConfig';
 import { ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   reviews: reviewReducer,
   banner: bannerReducer,
   profile: profileReducer,
+  gallery: galleryReducer,
 });
 
 const persistConfig = {

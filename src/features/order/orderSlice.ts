@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Order, OrderResponse, OrderState } from './orderTypes';
-import { fetchOrders, fetchOrderById, createNewOrder, verifyOrderPayment } from './orderThunks';
+import { fetchOrders, fetchOrderById, createNewOrder, verifyOrderPayment, cancelOrder } from './orderThunks';
 
 const initialState: OrderState = {
   orders: [],
@@ -88,6 +88,25 @@ const orderSlice = createSlice({
         }
       })
       .addCase(verifyOrderPayment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    builder
+      .addCase(cancelOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(cancelOrder.fulfilled, (state, action: PayloadAction<Order>) => {
+        state.loading = false;
+        state.orders = state.orders.map(order =>
+          order.id === action.payload.id ? action.payload : order
+        );
+        if (state.currentOrder?.id === action.payload.id) {
+          state.currentOrder = action.payload;
+        }
+      })
+      .addCase(cancelOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

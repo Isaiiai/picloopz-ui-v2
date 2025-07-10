@@ -7,7 +7,10 @@ export const getProducts = createAsyncThunk(
   'products/getProducts',
   async (params: ProductSearchParams, { rejectWithValue }) => {
     try {
-      const response = await api.get('/products', { params });
+      const response = await api.post('/api/gateway', { 
+        route: "getProducts",
+        payload: params 
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch products');
@@ -20,7 +23,10 @@ export const getTrendingProducts = createAsyncThunk(
   'products/getTrendingProducts',
   async (limit: number = 10, { rejectWithValue }) => {
     try {
-      const response = await api.get('/products/trending', { params: { limit } });
+      const response = await api.post('/api/gateway', { 
+        route: "getTrendingProducts",
+        payload: {params: { limit }}
+      });
       return response.data.data.products;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch trending products');
@@ -33,7 +39,10 @@ export const getTopSellingProducts = createAsyncThunk(
   'products/getTopSellingProducts',
   async (limit: number = 10, { rejectWithValue }) => {
     try {
-      const response = await api.get('/products/top-selling', { params: { limit } });
+      const response = await api.post('/api/gateway', { 
+        route: "getTopSellingProducts",
+        payload: {params: { limit }}
+      });
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch top-selling products');
@@ -46,7 +55,13 @@ export const getProductsByCategory = createAsyncThunk(
   'products/getProductsByCategory',
   async ({ categoryId, params }: { categoryId: string; params?: Partial<ProductSearchParams> }, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/products/category/${categoryId}`, { params });
+      const response = await api.post(`/api/gateway/`, {
+        route: "getProductsByCategory",
+        payload: {
+          id: categoryId,
+          body: params
+        }
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch category products');
@@ -59,7 +74,10 @@ export const getProductById = createAsyncThunk(
   'products/getProductById',
   async (productId: string, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/products/${productId}`);
+      const response = await api.post(`/api/gateway`, {
+        route: "getProductById",
+        payload: {id: productId}
+      });
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch product');

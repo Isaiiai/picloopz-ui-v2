@@ -3,7 +3,6 @@ import { RootState } from '../../store/store';
 import {
   fetchCart,
   addToCart,
-  updateCartItem,
   removeCartItem,
   emptyCart,
   getCartSummary,
@@ -17,7 +16,6 @@ export const useCart = () => {
     cart,
     fetchCart: () => dispatch(fetchCart()),
     addToCart: (payload: AddToCartPayload) => dispatch(addToCart(payload)),
-    updateCartItem: (payload: UpdateCartItemPayload) => dispatch(updateCartItem(payload)),
     removeCartItem: (itemId: string) => dispatch(removeCartItem(itemId)),
     emptyCart: () => dispatch(emptyCart()),
     getCartSummary: () => dispatch(getCartSummary()),

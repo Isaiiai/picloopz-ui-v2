@@ -31,7 +31,7 @@ import {
 import { fetchCategories, fetchCategoryById } from '../features/category/categoryThunks';
 import { clearCategoryProducts } from '../features/product/productSlice';
 import type { AppDispatch } from '../store/store';
-import { Filter } from 'lucide-react';
+import { Filter, ArrowUpDown } from 'lucide-react';
 import { useDebounceEffect } from '../utils/useDebounceEffect';
 
 type ViewMode = 'all' | 'category' | 'trending' | 'top-selling';
@@ -198,6 +198,47 @@ const CategoryPage = () => {
 
   return (
     <div className="bg-cream-50 min-h-screen">
+      {/* Mobile spacer for fixed header, search bar, and sort bar */}
+      <div className="md:hidden h-[160px]"></div>
+      
+      {/* Fixed Sort Bar for Mobile */}
+      <div className="md:hidden fixed top-[130px] left-0 right-0  z-20 bg-white">
+        <div className="px-4 py-3 ">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <ArrowUpDown size={16} className="text-gray-400" />
+              </div>
+              <select
+                className="w-full appearance-none bg-cream-50 border border-cream-200 rounded-lg py-2.5 pl-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:border-transparent text-sm"
+                value={`${sortParams.sort}-${sortParams.sortOrder}`}
+                onChange={(e) => {
+                  const [sort, sortOrder] = e.target.value.split('-');
+                  setSortParams({ sort, sortOrder });
+                  fetchProducts(1);
+                }}
+              >
+                <option value="createdAt-desc">Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+                <option value="rating-desc">Highest Rated</option>
+                <option value="createdAt-desc">Newest First</option>
+                <option value="createdAt-asc">Oldest First</option>
+              </select>
+            </div>
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-terracotta-600 text-white rounded-lg text-sm font-medium hover:bg-terracotta-700 transition-colors"
+            >
+              <Filter size={16} />
+              Filters
+            </button>
+          </div>
+        </div>
+      </div>
+      
       <div className="container mx-auto px-4 py-8">
         <BreadcrumbBanner currentCategory={combinedCategoryInfo} categories={categories} />
 
@@ -210,15 +251,6 @@ const CategoryPage = () => {
             categories={displayCategories}
             onCategoryChange={handleCategoryChange}
           />
-
-          <div className="md:hidden mb-6">
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              className="w-full py-3 px-4 bg-white rounded-xl flex items-center justify-center gap-2 text-gray-700 shadow-md border border-gray-200"
-            >
-              <Filter size={18} /> Filter Products
-            </button>
-          </div>
 
           <MobileFilter
             isOpen={isFilterOpen}

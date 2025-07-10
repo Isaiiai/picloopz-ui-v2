@@ -9,8 +9,7 @@ interface ProductShareMenuProps {
     id: string;
     name: string;
     description?: string;
-    basePrice: number;
-    variants?: { additionalPrice: number }[];
+    variants?: { price: number }[];
   };
 }
 
@@ -23,12 +22,9 @@ const generateShareText = (
   const link = getShareURL(product.id);
   const name = product.name || 'Amazing Product';
   const description = product.description?.slice(0, 100) || '';
-  const price = (
-    product.basePrice +
-    (product.variants?.[0]?.additionalPrice || 0)
-  ).toFixed(2);
+  const price = product.variants?.[0]?.price || 0;
 
-  const message = `Check this out on Picloopz: ${name} - ₹${price} ${description ? `- ${description}` : ''} ${link}`;
+  const message = `Check this out on Picloopz: ${name} - ₹${price.toFixed(2)} ${description ? `- ${description}` : ''} ${link}`;
 
   return platform === 'generic' ? message : encodeURIComponent(message);
 };

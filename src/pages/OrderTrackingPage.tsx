@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Clock, CircleHelp, MessageCircle, Package, Phone, Truck } from 'lucide-react';
 import { useAuth } from '../features/auth/authHooks';
 import { Order } from '../features/order/orderTypes';
@@ -9,22 +9,37 @@ import toast from 'react-hot-toast';
 const OrderTrackingPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
   const { isAuthenticated } = useAuth();
-  const { getOrderById, currentOrder } = useOrders();
+  const { getOrderById, currentOrder, orderCancel } = useOrders();
   const [order, setOrder] = useState<Order | undefined>();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState<{ sender: 'user' | 'support', text: string, timestamp: Date }[]>([]);
-  
-   useEffect(() => {
+  const [chatMessages, setChatMessages] = useState<{ sender: 'user' | 'support'; text: string; timestamp: Date }[]>([]);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const cancellationReasons = [
+    "Changed my mind",
+    "Found better price elsewhere",
+    "Shipping takes too long",
+    "Ordered by mistake",
+    "Product not needed anymore",
+    "Other reason",
+  ];
+
+  useEffect(() => {
     if (!isAuthenticated) {
       toast.error('Please log in to view your order');
       navigate('/login', { state: { from: `/account/orders/${orderId}` } });
       return;
     }
 
-    if (orderId) {
+    if (orderId && !hasFetched.current) {
       getOrderById(orderId);
+      hasFetched.current = true;
     }
   }, [orderId, isAuthenticated, navigate, getOrderById]);
 
@@ -33,51 +48,78 @@ const OrderTrackingPage = () => {
       setOrder(currentOrder);
     }
   }, [currentOrder]);
-  
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
-    
-    // Add user message
+
     const userMessage = {
       sender: 'user' as const,
       text: message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    setChatMessages(prev => [...prev, userMessage]);
+    setChatMessages((prev) => [...prev, userMessage]);
     setMessage('');
-    
-    // Simulate response after a delay
+
     setTimeout(() => {
       const supportMessage = {
         sender: 'support' as const,
         text: 'Thank you for your message. Our team will get back to you shortly.',
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setChatMessages(prev => [...prev, supportMessage]);
+      setChatMessages((prev) => [...prev, supportMessage]);
     }, 1000);
   };
-  
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+
+  const handleCancelClick = () => {
+    setShowCancelModal(true);
+    setCancellationReason(cancellationReasons[0]);
+    setCustomReason('');
   };
-  
-  const getStatusStep = (status: string) => {
-    switch(status) {
-      case 'Pending': return 1;
-      case 'Confirmed': return 2;
-      case 'Ready': return 3;
-      case 'Out for Delivery': return 4;
-      case 'Delivered': return 5;
-      default: return 1;
+
+  const handleCancelOrder = async () => {
+    if (!orderId) return;
+
+    const reasonToSend =
+      cancellationReason === 'Other reason' ? customReason.trim() : cancellationReason;
+
+    if (!reasonToSend) {
+      toast.error('Please provide a reason for cancellation');
+      return;
+    }
+
+    setIsCancelling(true);
+    try {
+      await orderCancel(orderId, reasonToSend);
+      toast.success('Order cancelled successfully');
+      getOrderById(orderId);
+      setShowCancelModal(false);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to cancel order');
+    } finally {
+      setIsCancelling(false);
     }
   };
-  
+
+  const formatDate = (dateString: string) => {
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(new Date(dateString));
+  };
+
+  const statusSteps: Record<string, number> = {
+    Pending: 1,
+    Confirmed: 2,
+    Ready: 3,
+    'Out for Delivery': 4,
+    Delivered: 5,
+  };
+
+  const getStatusStep = (status: string) => statusSteps[status] ?? 1;
+
   if (!order) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -90,8 +132,72 @@ const OrderTrackingPage = () => {
     );
   }
 
+  if (order.status === 'Cancelled') {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 font-playfair">Order Tracking</h1>
+        <p className="text-xl text-red-600 font-semibold">This order has been cancelled.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Cancel Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-4">Cancel Order</h3>
+              <p className="mb-4">Please tell us why you're canceling this order:</p>
+
+              <select
+                value={cancellationReason}
+                onChange={(e) => {
+                  setCancellationReason(e.target.value);
+                  if (e.target.value !== 'Other reason') setCustomReason('');
+                }}
+                className="w-full p-3 border border-gray-300 rounded-md mb-4"
+              >
+                {cancellationReasons.map((reason) => (
+                  <option key={reason} value={reason}>
+                    {reason}
+                  </option>
+                ))}
+              </select>
+
+              {cancellationReason === 'Other reason' && (
+                <textarea
+                  placeholder="Please specify your reason"
+                  className="w-full p-3 border border-gray-300 rounded-md mb-4 min-h-[100px]"
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                />
+              )}
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  disabled={isCancelling}
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={handleCancelOrder}
+                  className={`px-4 py-2 rounded-md text-white ${
+                    isCancelling ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                  }`}
+                  disabled={isCancelling}
+                >
+                  {isCancelling ? 'Cancelling...' : 'Confirm Cancellation'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
         <button 
@@ -105,7 +211,7 @@ const OrderTrackingPage = () => {
         <h1 className="text-2xl md:text-3xl font-bold mb-6 font-playfair">Order Tracking</h1>
         
         {/* Order Info */}
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-8 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-wrap justify-between items-center">
               <div>
@@ -124,10 +230,7 @@ const OrderTrackingPage = () => {
                     order.status === 'Out for Delivery' ? 'bg-indigo-100 text-indigo-800' :
                     'bg-green-100 text-green-800'}`}
                 >
-                  {order.status === 'Pending' ? 'Pending' : 
-                   order.status === 'Confirmed' ? 'Confirmed' : 
-                   order.status === 'Ready' ? 'Ready' : 
-                   order.status === 'Out for Delivery' ? 'Out for Delivery' : 'Delivered'}
+                  {order.status}
                 </span>
               </div>
             </div>
@@ -247,47 +350,16 @@ const OrderTrackingPage = () => {
             </div>
           </div>
         </div>
-        
-        {/* Order Preview (if available) */}
-        {order.previewImage && (
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-8 shadow-sm">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold">Design Preview</h2>
-              <p className="text-gray-500 text-sm">
-                {order.isPendingApproval 
-                  ? 'Please review and approve your design before we proceed with production.' 
-                  : 'Your approved design preview.'}
-              </p>
-            </div>
-            <div className="p-6">
-              <div className="bg-gray-100 rounded-lg overflow-hidden max-h-96">
-                <img 
-                  src={order.previewImage} 
-                  alt="Design Preview" 
-                  className="w-full h-auto object-contain"
-                />
-              </div>
-              
-              {order.isPendingApproval && (
-                <div className="mt-6 flex flex-wrap gap-4">
-                  <button 
-                    onClick={() => {
-                      toast.success('Design approved! Your order will now proceed to production.');
-                      // In a real app, this would call the approveOrderDesign function
-                    }}
-                    className="px-6 py-3 bg-green-600 text-white rounded-full font-medium hover:bg-green-700 transition-colors"
-                  >
-                    Approve Design
-                  </button>
-                  <button 
-                    onClick={() => setIsChatOpen(true)}
-                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-full font-medium hover:bg-gray-50 transition-colors"
-                  >
-                    Request Changes
-                  </button>
-                </div>
-              )}
-            </div>
+
+        {/* Cancel Order Button (only show for cancellable statuses) */}
+        {['Pending', 'Confirmed', 'Ready'].includes(order.status) && (
+          <div className='my-4'>
+            <button 
+              className="p-4 w-full rounded-md text-white text-lg bg-terracotta-600 hover:bg-terracotta-700"
+              onClick={handleCancelClick}
+            >
+              Cancel Order
+            </button>
           </div>
         )}
         

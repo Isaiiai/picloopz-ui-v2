@@ -99,27 +99,36 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       <div className="mb-8">
         <h3 className="font-semibold mb-4 text-gray-900">Select Variant</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {product.variants.map((variant: any, index: number) => (
-            <button
-              key={index}
-              onClick={() => setSelectedVariant(index)}
-              className={`p-4 border-2 rounded-xl text-left transition-all ${
-                selectedVariant === index
-                  ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-700'
-                  : 'border-cream-200 text-gray-700 hover:border-terracotta-300 hover:bg-cream-50'
-              }`}
-            >
-              <div className="font-medium">{variant.name}</div>
-              <div className="text-sm opacity-75">
-                ₹{(variant.price).toFixed(2)}
-              </div>
-            </button>
-          ))}
+          {product.variants.map((variant: any, index: number) => {
+            const isOutOfStock = !variant.inStock;
+            return (
+              <button
+                key={index}
+                onClick={() => setSelectedVariant(index)}
+                className={`p-4 border-2 rounded-xl text-left transition-all relative ${
+                  selectedVariant === index
+                    ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-700'
+                    : 'border-cream-200 text-gray-700 hover:border-terracotta-300 hover:bg-cream-50'
+                } `}
+              >
+                <div className="font-medium">{variant.name}</div>
+                <div className="text-sm opacity-75">₹{variant.price.toFixed(2)}</div>
+                {isOutOfStock && (
+                  <div className="absolute bottom-2 right-2 text-xs font-medium text-red-900 bg-red-100 px-2 py-0.5 rounded-full">
+                    Out of Stock
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Upload Image */}
-      <div className="mb-8">
+      {product.variants[selectedVariant].inStock ?
+      (
+        <div>
+        <div className="mb-8">
         <h3 className="font-semibold mb-2 text-gray-900">
           Upload Your Photos ({requiredFilesCount} required)
         </h3>
@@ -278,6 +287,19 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
         </div>
       </div>
+      </div>
+      ) : (
+        <div className="mb-8 p-6 bg-cream-50 border border-cream-200 rounded-lg flex items-center gap-4">
+          <div className="bg-red-100 text-red-600 rounded-full p-2">
+            <ShoppingCart size={20} />
+          </div>
+          <div>
+            <p className="font-semibold text-gray-800">Currently Out of Stock</p>
+            <p className="text-sm text-gray-600">This variant is not available at the moment. Please check back later or choose another option.</p>
+          </div>
+        </div>
+      )}
+
 
       {/* Guarantees */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-cream-200">

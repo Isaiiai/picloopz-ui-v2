@@ -6,7 +6,10 @@ export const fetchFavorites = createAsyncThunk<Favorite[]>(
   'favorites/fetchFavorites',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/favorites');
+      const res = await api.post('/api/gateway',{
+        route: "getFavorites",
+        payload: {},
+      });
       return res.data.data.favorites;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -18,7 +21,10 @@ export const addFavorite = createAsyncThunk<Favorite, string>(
   'favorites/addFavorite',
   async (productId, { rejectWithValue }) => {
     try {
-      const res = await api.post('/favorites/add', { productId });
+      const res = await api.post('/api/gateway', {
+        route: "addToFavorites",
+        payload: {productId}
+      });
       return res.data.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -30,7 +36,10 @@ export const removeFavorite = createAsyncThunk<string, string>(
   'favorites/removeFavorite',
   async (productId, { rejectWithValue }) => {
     try {
-      await api.delete(`/favorites/remove/${productId}`);
+      await api.post(`/api/gateway`,{
+        route: "removeFromFavorites",
+        payload: {id: productId}
+      });
       return productId;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -42,7 +51,10 @@ export const fetchFavoriteCount = createAsyncThunk<number>(
   'favorites/fetchCount',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/favorites/count');
+      const res = await api.post('/api/gateway',{
+        route: "getFavoritesCount",
+        payload: {}
+      });
       return res.data.count;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -54,7 +66,10 @@ export const checkIfFavorite = createAsyncThunk<boolean, string>(
   'favorites/checkIfFavorite',
   async (productId, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/favorites/check/${productId}`);
+      const res = await api.post(`/api/gateway`, {
+        route: "checkFavoriteStatus",
+        payload: { id: productId }
+      });
       return res.data.isFavorite;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -66,7 +81,10 @@ export const clearAllFavorites = createAsyncThunk(
   'favorites/clearAllFavorites',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.delete('/favorites/clear-all');
+      const res = await api.post('/api/gateway', {
+        route: "clearAllFavorites",
+        payload: {}
+      });
       return res.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);

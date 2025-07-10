@@ -1,23 +1,26 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, Star } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
+import { useAuth } from '../features/auth/authHooks';
+import toast from 'react-hot-toast';
 
-interface Product {
+export interface Product {
   id: string | number;
   name: string;
-  basePrice: number;
   description: string;
   variants: Array<{
     additionalPrice: number;
     name: string;
     price: number;
     imageUrl: string;
+    inStock: boolean;
   }>;
   category?: string;
   categoryId?: string;
   rating: number;
   reviewCount: number;
+  orderCount?: number;
 }
 
 interface ProductCardProps {
@@ -27,93 +30,94 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addToFavorites, removeFromFavorites, isInFavorites } = useFavorite();
-  
+  const { isAuthenticated } = useAuth();
+  const variant = product.variants[0];
+  const isAvailable = product.variants.some(v => v.inStock);
+  const outOfStock = !isAvailable;
+
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (isInFavorites(product.id)) {
-      removeFromFavorites(product.id);
+    if (!isAuthenticated) {
+      if (toast) {
+        toast('Please log in to add favorites', { icon: '🔒' });
+      } else {
+        alert('Please log in to add favorites');
+      }
+      return;
+    }
+    if (isInFavorites(String(product.id))) {
+      removeFromFavorites(String(product.id));
     } else {
-      addToFavorites(product.id);
+      addToFavorites(String(product.id));
     }
   };
-  
-  const formatPrice = (price: number) => {
-    return `₹${price.toFixed(2)}`;
-  };
-  
+
+  const formatPrice = (price: number) => `₹${price.toFixed(2)}`;
+
   return (
-    <div 
-      className="group relative"
+    <div
+      className={`w-full group relative bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden flex flex-col transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 ${
+        outOfStock ? 'opacity-60 cursor-not-allowed' : ''
+      }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link to={`/product/${product.id}`}>
-        <div className="relative overflow-hidden rounded-lg aspect-square bg-gray-100 mb-3">
-          <img 
-            src={product.variants[0]?.imageUrl} 
-            alt={product.name} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          
-          {/* Quick action buttons */}
-          <div 
-            className={`absolute top-3 right-3 z-10 transition-opacity duration-200 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
+      <Link to={`/product/${String(product.id)}`} className="flex flex-col h-full">
+        <div className="relative w-full h-48 bg-gray-50 flex-shrink-0 flex items-center justify-center overflow-hidden">
+          <img
+            src={variant.imageUrl}
+            alt={product.name}
+            className={`max-h-full max-w-full object-contain transition-transform duration-300 ${
+              isHovered && !outOfStock ? 'scale-105' : ''
             }`}
-          >
+          />
+          {outOfStock && (
+            <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded shadow">
+              Out of Stock
+            </div>
+          )}
+          {isHovered && (
             <button
               onClick={toggleFavorite}
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                isInFavorites(product.id) 
-                  ? 'bg-red-50 text-red-500' 
-                  : 'bg-white text-gray-600 hover:text-terracotta-500'
-              } shadow-sm transition-colors`}
-              aria-label={isInFavorites(product.id) ? 'Remove from favorites' : 'Add to favorites'}
+              className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-600 z-10 ${
+                isInFavorites(String(product.id))
+                  ? 'bg-red-100 text-red-600'
+                  : 'bg-white text-gray-400 hover:text-red-600 hover:bg-red-100'
+              }`}
+              aria-label={
+                isInFavorites(String(product.id))
+                  ? 'Remove from favorites'
+                  : 'Add to favorites'
+              }
             >
-              <Heart 
-                size={16} 
-                className={isInFavorites(product.id) ? 'fill-current' : ''} 
+              <Heart
+                size={20}
+                className={isInFavorites(String(product.id)) ? 'fill-current' : ''}
               />
             </button>
-          </div>
-          
-          {/* View button on hover */}
-          <div 
-            className={`absolute inset-0 bg-black/10 flex items-center justify-center transition-opacity duration-300 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <span className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full text-sm font-medium hover:bg-white transition-colors">
-              View Product
-            </span>
-          </div>
+          )}
         </div>
-        
-        <h3 className="font-medium text-gray-800 group-hover:text-terracotta-600 transition-colors">
-          {product.name}
-        </h3>
-        
-        <div className="mt-1 flex justify-between items-center">
-          <span className="text-terracotta-600 font-medium">
-            {formatPrice(product.variants[0].price)}
+
+        <div className="flex flex-col flex-1 p-2 pb-0 min-h-[110px]">
+          <h3 className="font-semibold text-base text-gray-900 mb-1 line-clamp-2 min-h-[36px]">
+            {product.name}
+          </h3>
+          {product.description && (
+            <p className="text-gray-600 text-sm mb-1 truncate">{product.description}</p>
+          )}
+          <div className="flex-1" />
+        </div>
+
+        <div className="w-full px-3 py-2 bg-white border-t border-gray-100 flex items-center justify-between gap-2 min-h-[44px]">
+          <span className="text-terracotta-600 font-bold text-base md:text-lg">
+            {formatPrice(variant.price)}
           </span>
-          
-          <div className="flex items-center">
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <svg 
-                  key={i} 
-                  className={`w-3 h-3 ${i < Math.floor(product.rating) ? 'fill-current' : 'text-gray-300'}`} 
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              ))}
-            </div>
-            <span className="text-xs text-gray-500 ml-1">({product.reviewCount})</span>
-          </div>
+          <span className="flex items-center gap-1 text-xs text-yellow-500 font-medium">
+            <Star size={14} className="inline-block" />
+            {product.rating.toFixed(1)}
+            <span className="text-gray-400 ml-1">({product.reviewCount})</span>
+          </span>
         </div>
       </Link>
     </div>

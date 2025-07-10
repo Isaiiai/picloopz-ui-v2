@@ -27,6 +27,7 @@ const OrderSummaryPage = () => {
 
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      
       amount: currentOrder.totalAmount * 100,
       currency: 'INR',
       name: 'Picloopz',
