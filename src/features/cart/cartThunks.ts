@@ -44,7 +44,7 @@ export const removeCartItem = (itemId: string): AppThunk => async (dispatch, get
     dispatch(setLoading(true));
     const response = await api.post(`/api/gateway`, {
       route: "removeCartItem",
-      payload: { params: { itemId } }
+      payload: { id:  itemId }
     });
     dispatch(setCart({
       items: response.data.data.items,

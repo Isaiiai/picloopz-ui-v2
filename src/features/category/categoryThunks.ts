@@ -44,7 +44,7 @@ export const fetchCategoryById = createAsyncThunk(
     try {
       const response = await api.post<Category>(`/api/gateway`, {
         route: "getCategoryById",
-        payload: {params: {id}}
+        payload: {id: id}
       });
       return response.data;
     } catch (error: any) {

@@ -58,8 +58,8 @@ export const getProductsByCategory = createAsyncThunk(
       const response = await api.post(`/api/gateway/`, {
         route: "getProductsByCategory",
         payload: {
-          params: {categoryId},
-          body: {params}
+          id: categoryId,
+          body: params
         }
       });
       return response.data;
@@ -76,7 +76,7 @@ export const getProductById = createAsyncThunk(
     try {
       const response = await api.post(`/api/gateway`, {
         route: "getProductById",
-        payload: {params: {id: productId}}
+        payload: {id: productId}
       });
       return response.data.data;
     } catch (error: any) {

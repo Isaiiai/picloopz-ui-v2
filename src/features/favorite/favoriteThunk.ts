@@ -38,7 +38,7 @@ export const removeFavorite = createAsyncThunk<string, string>(
     try {
       await api.post(`/api/gateway`,{
         route: "removeFromFavorites",
-        payload: {params: {productId}}
+        payload: {id: productId}
       });
       return productId;
     } catch (err: any) {
@@ -68,7 +68,7 @@ export const checkIfFavorite = createAsyncThunk<boolean, string>(
     try {
       const res = await api.post(`/api/gateway`, {
         route: "checkFavoriteStatus",
-        payload: { params: {productId} }
+        payload: { id: productId }
       });
       return res.data.isFavorite;
     } catch (err: any) {

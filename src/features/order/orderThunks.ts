@@ -29,7 +29,7 @@ export const fetchOrderById = createAsyncThunk<Order, string>(
     try {
       const { data } = await api.post(`/api/gateway`, {
         route: "getOrderById",
-        payload: {params: {id: orderId}}
+        payload: {id: orderId}
       });
       return data.data;
     } catch (error: any) {
@@ -44,7 +44,7 @@ export const createNewOrder = createAsyncThunk<Order, CreateOrderData>(
     try {
       const { data } = await api.post('/api/gateway', {
         route: "createOrder",
-        payload: {orderData}
+        payload: orderData
       });
       return data.data;
     } catch (error: any) {
@@ -75,8 +75,8 @@ export const cancelOrder = createAsyncThunk<Order, CancelOrderData>(
       const { data } = await api.post(`/api/gateway`, { 
         route: "cancelOrder",
         payload: {
-          params: {id: orderId},
-          reason: {reason},
+          id: {orderId},
+          body: {reason},
         }
        });
       return data.data;
