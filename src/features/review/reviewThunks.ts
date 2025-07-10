@@ -28,6 +28,9 @@ export const fetchProductReviews = createAsyncThunk<
   ReviewListResponse,
   FetchProductReviewsParams
 >('reviews/fetchProductReviews', async (params, thunkAPI) => {
+  console.log('=== FETCH PRODUCT REVIEWS START ===');
+  console.log('Params:', params);
+  
   const { productId, page = 1, limit = 10, sort = 'createdAt', sortOrder = 'desc' } = params;
   try {
     const response = await api.post(`/api/gateway`, {
@@ -37,8 +40,13 @@ export const fetchProductReviews = createAsyncThunk<
         body: { page, limit, sort, sortOrder },
       },
     });
+    console.log('GET response:', response);
+    console.log('Response data:', response.data);
+    console.log('Reviews count in response:', response.data.data.reviews.length);
+    console.log('Review IDs in response:', response.data.data.reviews.map((r: any) => r.id));
     return response.data;
   } catch (error: any) {
+    console.error('Fetch product reviews error:', error);
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
   }
 });
@@ -115,6 +123,8 @@ export const deleteReview = createAsyncThunk<
     });
     return reviewId;
   } catch (error: any) {
+    console.error('DELETE review error:', error);
+    console.error('Error response:', error.response?.data);
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
   }
 });

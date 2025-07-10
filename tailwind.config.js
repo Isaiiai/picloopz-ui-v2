@@ -57,6 +57,40 @@ export default {
       borderRadius: {
         xl: '1rem',
       },
+      keyframes: {
+        'gradient-move': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        'float-slow': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-24px)' },
+        },
+        'float-medium': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-16px)' },
+        },
+        'float-fast': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        sparkle: {
+          '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.5)' },
+        },
+        typewriter: {
+          '0%': { width: '0' },
+          '100%': { width: '100%' },
+        },
+      },
+      animation: {
+        'gradient-move': 'gradient-move 8s ease-in-out infinite',
+        'float-slow': 'float-slow 7s ease-in-out infinite',
+        'float-medium': 'float-medium 5s ease-in-out infinite',
+        'float-fast': 'float-fast 3s ease-in-out infinite',
+        'sparkle': 'sparkle 2.5s ease-in-out infinite',
+        'typewriter': 'typewriter 2.2s steps(40, end) 1 normal both',
+      },
     },
   },
   plugins: [],

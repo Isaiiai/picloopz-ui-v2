@@ -7,6 +7,7 @@ import {
   updateReview,
   deleteReview,
 } from './reviewThunks';
+import { removeReviewFromState } from './reviewSlice';
 
 // Typed hooks 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
@@ -48,6 +49,8 @@ export function useReview() {
 
   const removeReview = (reviewId: string) => dispatch(deleteReview(reviewId));
 
+  const removeReviewImmediately = (reviewId: string) => dispatch(removeReviewFromState(reviewId));
+
   return {
     loading,
     error,
@@ -62,5 +65,6 @@ export function useReview() {
     submitReview,
     editReview,
     removeReview,
+    removeReviewImmediately,
   };
 }

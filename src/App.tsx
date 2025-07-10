@@ -17,6 +17,8 @@ import NotFoundPage from './pages/NotFoundPage';
 import AboutUsPage from './pages/AboutUsPage';
 import ContactPage from './pages/ContactPage';
 import FAQPage from './pages/FAQPage';
+import TestimonialsPage from './pages/TestimonialsPage';
+import HowItWorksPage from './pages/HowItWorksPage';
 import { verifyToken } from './features/auth/authSlice';
 import './index.css';
 import { selectAuthStatus } from './features/auth/authSelectors';
@@ -88,6 +90,8 @@ export function App() {
             <Route path="contact" element={<ContactPage />} />
             <Route path="faq" element={<FAQPage />} />
             <Route path="gallery" element={<GalleryPage />} />
+            <Route path="testimonials" element={<TestimonialsPage />} />
+            <Route path="how-it-works" element={<HowItWorksPage />} />
             <Route path="/design/approve/:token" element={<DesignApprovalPage />} />
             <Route path="/thank-you" element={<ThankYouPage />} />
             <Route path="order-summary" element={<OrderSummaryPage />} />

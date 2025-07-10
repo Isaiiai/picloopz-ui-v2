@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown, ChevronUp, Send, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 interface FAQItem {
   question: string;
@@ -17,11 +18,11 @@ const FAQPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['Ordering & Customization']);
   const [expandedQuestions, setExpandedQuestions] = useState<string[]>([]);
-  const [newQuestion, setNewQuestion] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
-    question: '',
-    category: ''
+    subject: '',
+    message: ''
   });
 
   const faqData: FAQCategory[] = [
@@ -103,21 +104,20 @@ const FAQPage = () => {
     );
   };
 
-  const handleNewQuestionSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the question to your backend
-    toast.success('Thank you! Your question has been submitted. We will review it and add it to our FAQ if relevant.');
-    setNewQuestion({
-      name: '',
-      email: '',
-      question: '',
-      category: ''
-    });
+    try {
+      await axios.post('/api/support/public', formData);
+      toast.success('Thank you! Your question has been submitted. Our support team will respond soon.');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      toast.error('Failed to submit your question. Please try again.');
+    }
   };
 
-  const handleNewQuestionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setNewQuestion(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const filteredFAQData = faqData.map(category => ({
@@ -129,11 +129,13 @@ const FAQPage = () => {
   })).filter(category => category.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white py-20 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 left-0 w-full h-40 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(236,201,186,0.15)_0%,rgba(255,255,255,0)_100%)]"></div>
-      <div className="absolute -left-24 top-1/3 w-48 h-48 rounded-full border border-terracotta-200 opacity-30"></div>
-      <div className="absolute -right-32 bottom-1/4 w-64 h-64 rounded-full border-2 border-terracotta-100 opacity-40"></div>
+    <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+      {/* Animated 3D shapes/accent background */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
+        <div className="absolute right-[8%] top-[20%] w-16 h-16 rounded-full bg-gradient-to-tr from-terracotta-200 to-amber-100 opacity-30 blur-xl animate-floatY" />
+        <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-40 h-16 bg-gradient-to-br from-amber-100 via-cream-100 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
+      </div>
 
       <div className="container mx-auto px-4">
         {/* Header Section */}
@@ -270,7 +272,7 @@ const FAQPage = () => {
             Submit your question and we'll get back to you with an answer. Your question might even be added to our FAQ to help others!
           </p>
 
-          <form onSubmit={handleNewQuestionSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -280,14 +282,13 @@ const FAQPage = () => {
                   type="text"
                   id="name"
                   name="name"
-                  value={newQuestion.name}
-                  onChange={handleNewQuestionChange}
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors"
                   placeholder="John Doe"
                 />
               </div>
-
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
@@ -296,52 +297,44 @@ const FAQPage = () => {
                   type="email"
                   id="email"
                   name="email"
-                  value={newQuestion.email}
-                  onChange={handleNewQuestionChange}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors"
                   placeholder="john@example.com"
                 />
               </div>
             </div>
-
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                Question Category
+              <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                Subject
               </label>
-              <select
-                id="category"
-                name="category"
-                value={newQuestion.category}
-                onChange={handleNewQuestionChange}
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                value={formData.subject}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors"
-              >
-                <option value="">Select a category</option>
-                <option value="ordering">Ordering & Customization</option>
-                <option value="shipping">Shipping & Delivery</option>
-                <option value="product">Product & Quality</option>
-                <option value="payment">Payment & Pricing</option>
-                <option value="other">Other</option>
-              </select>
+                placeholder="How can we help you?"
+              />
             </div>
-
             <div>
-              <label htmlFor="question" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
                 Your Question
               </label>
               <textarea
-                id="question"
-                name="question"
-                value={newQuestion.question}
-                onChange={handleNewQuestionChange}
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
                 required
                 rows={4}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-terracotta-200 focus:border-terracotta-400 transition-colors resize-none"
                 placeholder="Type your question here..."
               />
             </div>
-
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
