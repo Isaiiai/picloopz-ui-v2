@@ -75,7 +75,7 @@ export const cancelOrder = createAsyncThunk<Order, CancelOrderData>(
       const { data } = await api.post(`/api/gateway`, { 
         route: "cancelOrder",
         payload: {
-          id: {orderId},
+          id: orderId,
           body: {reason},
         }
        });

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import api from '../config/axiosConfig';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,10 @@ const ContactPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/api/contactus', formData);
+      await api.post('/api/gateway', {
+        route: "submitContactus",
+        payload: formData
+      });
       toast.success('Message sent successfully! We will get back to you soon.');
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {

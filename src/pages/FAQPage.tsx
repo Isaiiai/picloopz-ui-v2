@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown, ChevronUp, Send, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import api from '../config/axiosConfig';
 
 interface FAQItem {
   question: string;
@@ -107,7 +108,10 @@ const FAQPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/api/support/public', formData);
+      await api.post('/api/gateway', {
+        route: "createPublicQuery",
+        payload: formData
+      });
       toast.success('Thank you! Your question has been submitted. Our support team will respond soon.');
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
