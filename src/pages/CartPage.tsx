@@ -4,8 +4,7 @@ import { ChevronRight, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '../features/cart/useCart';
 import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
-import { CreateOrderData, Order } from '../features/order/orderTypes';
-import { useUpload } from '../features/upload/useUpload';
+import { CreateOrderData } from '../features/order/orderTypes';
 import { reverseGeocode } from '../utils/geocode';
 
 interface FormData {
@@ -132,7 +131,7 @@ const CartPage = () => {
       },
       (error) => {
         toast.dismiss();
-        toast.error("Permission denied or failed to get location.");
+        toast.error(error?.message || "Permission denied or failed to get location.");
       }
     );
   };

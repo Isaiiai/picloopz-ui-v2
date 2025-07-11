@@ -44,7 +44,13 @@ export const fetchProductReviews = createAsyncThunk<
     console.log('Response data:', response.data);
     console.log('Reviews count in response:', response.data.data.reviews.length);
     console.log('Review IDs in response:', response.data.data.reviews.map((r: any) => r.id));
-    return response.data;
+    return {
+      reviews: response.data.data.reviews,
+      total: response.data.data.total,
+      averageRating: response.data.data.averageRating,
+      ratingDistribution: response.data.data.ratingDistribution,
+      pagination: response.data.pagination
+    };
   } catch (error: any) {
     console.error('Fetch product reviews error:', error);
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);

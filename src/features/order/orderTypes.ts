@@ -4,7 +4,7 @@ export type PaymentStatus = 'Pending' | 'Paid' | 'Failed' | 'Refunded' | 'Refund
 
 export interface OrderItem {
   id?: string;
-  productId: string;
+  productId: {_id: string; name: string};
   productName: String;
   name: string;
   productImage?: string;

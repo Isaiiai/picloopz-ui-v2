@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Star, Package, AlertCircle } from 'lucide-react';
+import { Star } from 'lucide-react';
 import ReviewFormModal from './ReviewFormModal';
 import ReviewItem from './ReviewItem';
 import { Review } from '../../features/review/reviewTypes';
@@ -19,13 +19,12 @@ interface ProductTabsProps {
   };
   setNewReview: (state: any) => void;
   files: File[];
-  setFiles: (f: File[]) => void;
+  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
   handleSubmitReview: () => Promise<void>;
   handleUploadReviewImages: () => Promise<void>;
-  uploadLoading: boolean;
   reviewLoading: boolean;
   onEditReview: (review: any) => void;
-  onImageClick: (imageUrl: string, index: number) => void;
+  onImageClick: (index: number) => void;
   editingReview: Review;
   onReviewDeleted?: () => void;
 }
@@ -41,7 +40,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
   setFiles,
   handleSubmitReview,
   handleUploadReviewImages,
-  uploadLoading,
   reviewLoading,
   onEditReview,
   onImageClick,
@@ -69,14 +67,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
         ? item.productId._id.toString() 
         : item.productId.toString();
       const currentProductId = product.id || product._id?.toString();
-      
-      console.log('Product ID comparison:', {
-        itemProductId,
-        currentProductId,
-        matches: itemProductId === currentProductId,
-        orderStatus: order.status,
-        orderId: order._id
-      });
       
       return itemProductId === currentProductId;
     })
@@ -187,7 +177,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
               files={files}
               setFiles={setFiles}
               handleUploadReviewImages={handleUploadReviewImages}
-              uploadLoading={uploadLoading}
               isSubmitting={reviewLoading}
               initialReview={newReview}
               setReview={setNewReview}
@@ -217,13 +206,6 @@ const ProductTabs: React.FC<ProductTabsProps> = ({
     </div>
   );
 };
-
-const SpecRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex justify-between py-2 border-b border-cream-100">
-    <dt className="font-medium text-gray-700">{label}:</dt>
-    <dd className="text-gray-600">{value}</dd>
-  </div>
-);
 
 const FeatureCard = ({ title, desc }: { title: string; desc: string }) => (
   <div className="bg-cream-50 p-4 rounded-lg">

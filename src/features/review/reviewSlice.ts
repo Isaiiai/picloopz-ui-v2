@@ -58,16 +58,12 @@ const reviewSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchProductReviews.fulfilled, (state, action: PayloadAction<ReviewListResponse>) => {
-        console.log('=== FETCH PRODUCT REVIEWS FULFILLED ===');
-        console.log('Action payload:', action.payload);
-        console.log('Reviews in payload:', action.payload.data.reviews.length);
-        console.log('Review IDs in payload:', action.payload.data.reviews.map(r => r.id));
         
         state.loading = false;
-        state.reviews = action.payload.data.reviews;
-        state.total = action.payload.data.total;
-        state.averageRating = action.payload.data.averageRating;
-        state.ratingDistribution = action.payload.data.ratingDistribution;
+        state.reviews = action.payload.reviews;
+        state.total = action.payload.total;
+        state.averageRating = action.payload.averageRating;
+        state.ratingDistribution = action.payload.ratingDistribution;
         state.pagination.page = 1; 
         state.pagination.limit = 10;
         
@@ -99,7 +95,7 @@ const reviewSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createReview.fulfilled, (state, action: PayloadAction<Review>) => {
+      .addCase(createReview.fulfilled, (state) => {
         state.loading = false;
         // Don't add the review to frontend state immediately
         // Reviews should only be displayed after admin approval

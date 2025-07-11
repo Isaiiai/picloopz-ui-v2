@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Heart, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
-import ProductCard from '../components/ProductCard';
 import FavoriteProductCard from '../components/FavoriteProductCard';
 
 const FavoritesPage = () => {
@@ -11,11 +10,9 @@ const FavoritesPage = () => {
   const mapFavoriteToProduct = (fav: any) => ({
     id: fav.productId,
     name: fav.productName,
-    basePrice: fav.productPrice,
     description: fav.description || '',
     variants: fav.variants || [
       {
-        additionalPrice: 0,
         name: '',
         price: fav.productPrice,
         imageUrl: fav.productImage,
@@ -27,7 +24,6 @@ const FavoritesPage = () => {
     reviewCount: fav.reviewCount || 0,
     orderCount: fav.orderCount || 0,
   });
-
   return (
     <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
@@ -68,7 +64,7 @@ const FavoritesPage = () => {
               {/* Desktop: Grid View */}
               <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 {favorites.map(fav => (
-                  <ProductCard
+                  <FavoriteProductCard
                     key={fav.productId}
                     product={mapFavoriteToProduct(fav)}
                   />

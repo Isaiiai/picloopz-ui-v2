@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Mail, Phone, Twitter, Youtube, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, Twitter, Youtube, MapPin, Shield } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -9,7 +9,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 pt-12 pb-6 border-t border-terracotta-100">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-y-10 gap-x-8 mb-8">
           {/* Company Info */}
           <div className="flex flex-col gap-4">
             <h3 className="text-xl font-playfair font-semibold text-terracotta-700">Picloopz</h3>
@@ -57,12 +57,24 @@ const Footer = () => {
               <li><Link to="/category/all" className="text-gray-600 hover:text-terracotta-600 transition-colors">Shop</Link></li>
               <li><Link to="/gallery" className="text-gray-600 hover:text-terracotta-600 transition-colors">Gallery</Link></li>
               <li><Link to="/about" className="text-gray-600 hover:text-terracotta-600 transition-colors">About Us</Link></li>
+              <li><Link to="/contact" className="text-gray-600 hover:text-terracotta-600 transition-colors">Contact</Link></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div className="flex flex-col gap-4">
+            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <Shield size={18} className="text-terracotta-600" /> Legal
+            </h3>
+            <ul className="space-y-2">
+              <li><Link to="/terms" className="text-gray-600 hover:text-terracotta-600 transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/privacy-policy" className="text-gray-600 hover:text-terracotta-600 transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div className="flex flex-col gap-4">
-            <h3 className="font-semibold text-gray-800">Contact</h3>
+            <h3 className="font-semibold text-gray-800">Support</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <Mail size={18} className="mr-2 text-terracotta-600 mt-1" />

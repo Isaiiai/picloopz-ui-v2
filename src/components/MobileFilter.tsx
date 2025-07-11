@@ -10,17 +10,9 @@ interface MobileFilterProps {
   setActiveTab: (tab: string | null) => void;
   priceRange: [number, number];
   setPriceRange: (range: [number, number]) => void;
-  selectedFilters: {
-    variants: string[];
-    materials: string[];
-    categoryId: string;
-  };
-  toggleFilter: (type: 'variants' | 'materials', value: string) => void;
   clearFilters: () => void;
-  variantOptions: string[];
-  materialOptions: string[];
   categoryId?: string;
-  categories: Category[];
+  categories: Array<Pick<Category, 'id' | 'name' > & Partial<Category>>;
   onCategoryChange: (categoryId: string) => void;
 }
 
@@ -31,11 +23,7 @@ const MobileFilter: FC<MobileFilterProps> = ({
   setActiveTab,
   priceRange,
   setPriceRange,
-  selectedFilters,
-  toggleFilter,
   clearFilters,
-  variantOptions,
-  materialOptions,
   categories,
   categoryId,
   onCategoryChange,

@@ -13,10 +13,6 @@ interface ProductGridProps {
   sortParams: { sort: string; sortOrder: string };
   setSortParams: (sort: { sort: string; sortOrder: string }) => void;
   fetchProducts: (page?: number) => void;
-  buildSearchParams: (page?: number) => any;
-  categoryId?: string;
-  currentCategoryName?: string;
-  viewMode?: string;
 }
 
 const ProductGrid: FC<ProductGridProps> = ({
@@ -28,10 +24,6 @@ const ProductGrid: FC<ProductGridProps> = ({
   sortParams,
   setSortParams,
   fetchProducts,
-  buildSearchParams,
-  categoryId,
-  currentCategoryName,
-  viewMode,
 }) => {
   const handleSortChange = (value: string) => {
     const [sort, sortOrder] = value.split('-');

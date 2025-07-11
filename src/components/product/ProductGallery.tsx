@@ -1,18 +1,16 @@
 import { motion } from 'framer-motion';
-import { Camera, ChevronLeft, ChevronRight, Play, Video } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 
 interface ProductGalleryProps {
   productName: string;
-  mainMedia: { type: 'image' | 'instagram'; url: string }[];
+  mainMedia: { type: 'image' | 'instagram' | 'youtube'; url: string }[];
   currentMediaIndex: number;
-  setCurrentMediaIndex: (index: number) => void;
+  setCurrentMediaIndex: React.Dispatch<React.SetStateAction<number>>;
   variants: { imageUrl: string; name: string }[];
   selectedVariant: number;
   setSelectedVariant: (index: number) => void;
   reviewImages: string[];
-  selectedImageIndex: number;
   setSelectedImageIndex: (index: number) => void;
-  showImageModal: boolean;
   setShowImageModal: (state: boolean) => void;
 }
 
@@ -25,9 +23,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
   selectedVariant,
   setSelectedVariant,
   reviewImages,
-  selectedImageIndex,
   setSelectedImageIndex,
-  showImageModal,
   setShowImageModal,
 }) => {
   const current = mainMedia[currentMediaIndex];

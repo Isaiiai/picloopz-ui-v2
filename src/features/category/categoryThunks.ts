@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../config/axiosConfig';
-import { Category, CategoryListResponse } from './categoryTypes';
+import { Category } from './categoryTypes';
 
 interface FetchCategoriesParams {
   page?: number;
@@ -22,12 +22,15 @@ export const fetchCategories = createAsyncThunk(
         isActive,
       } = params;
 
-      const response = await api.post<CategoryListResponse>('/api/gateway', {
+      const response = await api.post('/api/gateway', {
         route: "getCategories",
         payload: {params: { page, limit, sort, sortOrder, isActive },}
       });
 
-      return response.data;
+      return {
+        categories: response.data.data.categories,
+        pagination: response.data.pagination
+      };
     } catch (error: any) {
       const message =
         error?.response?.data?.message ??
