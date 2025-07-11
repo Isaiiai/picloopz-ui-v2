@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { selectProducts } from "../features/product/productSelectors";
 import { Search, X } from "lucide-react";

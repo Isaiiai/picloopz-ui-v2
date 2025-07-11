@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { mockTestimonials } from '../data/mockData';
 import { Link } from 'react-router-dom';
 import { Star, Quote, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
