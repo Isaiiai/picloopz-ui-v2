@@ -45,20 +45,20 @@ const GalleryPage = () => {
   const uniqueTags = [...new Set(reels.flatMap((r: any) => r.tags || []))];
 
   return (
-    <div className="relative min-h-screen px-0 sm:px-4 pt-24 sm:pt-24 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+    <div className="relative min-h-screen px-0 sm:px-4 pt-24 sm:pt-24 pb-8 bg-gradient-to-br from-cream-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
-        <div className="absolute right-[8%] top-[20%] w-16 h-16 rounded-full bg-gradient-to-tr from-terracotta-200 to-amber-100 opacity-30 blur-xl animate-floatY" />
-        <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-40 h-16 bg-gradient-to-br from-amber-100 via-cream-100 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
+        <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-terracotta-200 via-terracotta-100 to-cream-100 opacity-40 blur-2xl animate-pulse-slow" />
+        <div className="absolute right-[8%] top-[20%] w-16 h-16 rounded-full bg-gradient-to-tr from-terracotta-200 to-cream-100 opacity-30 blur-xl animate-floatY" />
+        <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-40 h-16 bg-gradient-to-br from-cream-100 via-cream-200 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
       </div>
 
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3 relative z-10">
           <div>
-            <h1 className="text-4xl font-extrabold font-playfair text-gray-900 mb-1 bg-gradient-to-r from-terracotta-500 to-amber-400 bg-clip-text text-transparent animate-gradient-move">Gallery</h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-terracotta-400 to-amber-400 rounded-full mb-2 animate-fade-in" />
+            <h1 className="text-4xl font-extrabold font-playfair text-gray-900 mb-1 bg-gradient-to-r from-terracotta-500 to-terracotta-600 bg-clip-text text-transparent animate-gradient-move">Gallery</h1>
+            <div className="w-20 h-1 bg-gradient-to-r from-terracotta-400 to-terracotta-500 rounded-full mb-2 animate-fade-in" />
             <p className="text-gray-600 text-base">Explore our creations</p>
           </div>
         </div>
@@ -69,7 +69,7 @@ const GalleryPage = () => {
             onClick={() => setSelectedTag(null)}
             className={`px-4 py-1.5 rounded-full text-sm font-semibold shadow transition-all duration-200 border-2 ${
               !selectedTag
-                ? 'bg-gradient-to-r from-terracotta-500 to-amber-400 text-white border-amber-300 scale-105'
+                ? 'bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white border-terracotta-300 scale-105'
                 : 'bg-white text-gray-700 border-cream-200 hover:bg-cream-100'
             }`}
           >
@@ -81,7 +81,7 @@ const GalleryPage = () => {
               onClick={() => setSelectedTag(tag)}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold shadow transition-all duration-200 border-2 ${
                 selectedTag === tag
-                  ? 'bg-gradient-to-r from-terracotta-500 to-amber-400 text-white border-amber-300 scale-105'
+                  ? 'bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white border-terracotta-300 scale-105'
                   : 'bg-white text-gray-700 border-cream-200 hover:bg-cream-100'
               }`}
             >
