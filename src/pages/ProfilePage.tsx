@@ -11,8 +11,8 @@ import { useUpload } from '../features/upload/useUpload';
 import { useProfile } from '../features/profile/useProfile';
 import { UpdateProfile } from '../features/profile/profileTypes';
 import toast from 'react-hot-toast';
-import ProductCard from '../components/ProductCard';
 import OrderCard from '../components/OrderCard';
+import FavoriteProductCard from '../components/FavoriteProductCard';
 
 // Define a type for navigation items
 type NavItem = {
@@ -32,7 +32,6 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
@@ -57,11 +56,9 @@ const ProfilePage = () => {
   const mapFavoriteToProduct = (fav: any) => ({
     id: fav.productId,
     name: fav.productName,
-    basePrice: fav.productPrice,
     description: fav.description || '',
     variants: fav.variants || [
       {
-        additionalPrice: 0,
         name: '',
         price: fav.productPrice,
         imageUrl: fav.productImage,
@@ -230,7 +227,6 @@ const ProfilePage = () => {
         confirmPassword: '',
       });
       
-      setIsChangingPassword(false);
       toast.success('Password updated successfully');
     } catch (error: any) {
       console.error('Password update error:', error);
@@ -289,7 +285,7 @@ const ProfilePage = () => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start p-2">
         {favorites.map((fav) => (
-          <ProductCard
+          <FavoriteProductCard
             key={fav.productId}
             product={mapFavoriteToProduct(fav)}
           />

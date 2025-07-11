@@ -17,7 +17,7 @@ interface Review {
 
 interface ReviewItemProps {
   review: Review;
-  onImageClick?: (imageUrl: string, index: number) => void;
+  onImageClick?: (index: number) => void;
   onEdit?: (review: Review) => void;
   showReviewForm: (v :boolean) => void;
   onReviewDeleted?: () => void;
@@ -202,7 +202,7 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review, onImageClick, onEdit, s
                 src={image}
                 alt={`Review image ${index + 1}`}
                 className="w-16 h-16 sm:w-24 sm:h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-cream-200 shadow-sm"
-                onClick={() => onImageClick?.(image, index)}
+                onClick={() => onImageClick?.(index)}
               />
             ))}
           </div>

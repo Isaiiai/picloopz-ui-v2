@@ -117,8 +117,11 @@ const CategoryPage = () => {
       setSelectedFilters(prev => ({ ...prev, categoryId: '' }));
     }
 
-    return () => dispatch(clearCategoryProducts());
+    return () => {
+      dispatch(clearCategoryProducts());
+    };
   }, [categoryId, dispatch]);
+
 
   const buildSearchParams = useCallback((page = 1) => {
     const params: Record<string, any> = {
@@ -142,10 +145,10 @@ const CategoryPage = () => {
 
     switch (viewMode) {
       case 'trending':
-        dispatch(getTrendingProducts());
+        dispatch(getTrendingProducts(10));
         break;
       case 'top-selling':
-        dispatch(getTopSellingProducts());
+        dispatch(getTopSellingProducts(10));
         break;
       case 'category':
         dispatch(getProductsByCategory({ categoryId: selectedFilters.categoryId, params }));
@@ -156,15 +159,6 @@ const CategoryPage = () => {
   }, [buildSearchParams, viewMode, selectedFilters.categoryId, dispatch]);
 
   useDebounceEffect(() => fetchProducts(1), [priceRange, selectedFilters, sortParams, viewMode], 400);
-
-  const toggleFilter = (type: 'variants' | 'materials', value: string) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [type]: prev[type].includes(value)
-        ? prev[type].filter(item => item !== value)
-        : [...prev[type], value],
-    }));
-  };
 
   const clearFilters = () => {
     setPriceRange(DEFAULT_PRICE_RANGE);
@@ -240,7 +234,9 @@ const CategoryPage = () => {
       </div>
       
       <div className="container mx-auto px-4 py-8">
-        <BreadcrumbBanner currentCategory={combinedCategoryInfo} categories={categories} />
+        {combinedCategoryInfo && (
+          <BreadcrumbBanner currentCategory={combinedCategoryInfo} />
+        )}
 
         <div className="flex flex-col md:flex-row gap-8">
           <FilterSidebar
@@ -259,13 +255,8 @@ const CategoryPage = () => {
             setActiveTab={setActiveFilterTab}
             priceRange={priceRange}
             setPriceRange={setPriceRange}
-            selectedFilters={selectedFilters}
-            toggleFilter={toggleFilter}
             clearFilters={clearFilters}
-            variantOptions={[]}
-            materialOptions={[]}
             categoryId={categoryId}
-            navigate={navigate}
             categories={displayCategories}
             onCategoryChange={handleCategoryChange}
           />
@@ -279,9 +270,6 @@ const CategoryPage = () => {
             sortParams={sortParams}
             setSortParams={setSortParams}
             fetchProducts={fetchProducts}
-            buildSearchParams={buildSearchParams}
-            currentCategoryName={combinedCategoryInfo?.name || 'Products'}
-            viewMode={viewMode}
           />
         </div>
       </div>

@@ -1,7 +1,22 @@
 import { Link } from 'react-router-dom';
 import { Star, Trash2 } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
-import { Product } from './ProductCard';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  variants: Array<{
+    name: string;
+    price: number;
+    imageUrl: string;
+  }>;
+  category: string;
+  categoryId: string;
+  rating: number;
+  reviewCount: number;
+  orderCount: number;
+}
 
 interface FavoriteProductCardProps {
   product: Product;

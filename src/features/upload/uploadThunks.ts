@@ -3,7 +3,7 @@ import api from '../../config/axiosConfig';
 import { UploadResponse, MultipleUploadResponse } from './uploadTypes';
 import { AxiosProgressEvent } from 'axios';
 
-interface UploadArgs {
+export interface UploadArgs {
   formData: FormData;
   purpose: 'review' | 'cart' | 'profile';
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;

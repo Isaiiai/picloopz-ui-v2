@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import api from '../config/axiosConfig';
 
 const ContactPage = () => {

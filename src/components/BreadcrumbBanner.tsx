@@ -7,7 +7,6 @@ interface BreadcrumbBannerProps {
   currentCategory: {
     id: string;
     name: string;
-    imageUrl?: string;
   };
 }
 
@@ -32,7 +31,6 @@ const BreadcrumbBanner: FC<BreadcrumbBannerProps> = ({ currentCategory }) => {
       >
         <img
           src={
-            currentCategory?.imageUrl ||
             'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?q=80&w=1920&auto=format&fit=crop'
           }
           alt={currentCategory?.name}

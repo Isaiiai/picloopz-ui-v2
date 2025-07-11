@@ -212,8 +212,9 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       setIsResetEmailSending(true);
       
       // Call the forgot password endpoint
-      await api.post('/auth/forgot-password', {
-        email: formData.email
+      await api.post('/api/gateway', {
+        route: "forgotPassword",
+        payload: {email: formData.email}
       });
       
       toast.success('If an account exists with this email, you will receive a password reset link');

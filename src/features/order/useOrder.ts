@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { 
   fetchOrders, 
   fetchOrderById, 
@@ -10,9 +10,10 @@ import { CreateOrderData, PaymentVerificationData } from './orderTypes';
 import { clearCurrentOrder, resetOrderError } from './orderSlice';
 import { RootState } from '../../store/store';
 import { useCallback } from 'react';
+import { useAppDispatch } from '../../utils/hooks';
 
 export const useOrders = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const orderState = useSelector((state: RootState) => state.order);
 
   const getOrders = useCallback(() => {

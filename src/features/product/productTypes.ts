@@ -1,7 +1,7 @@
 export interface ProductVariant {
   id: string;
   name: string;
-  additionalPrice: number;
+  price: number;
   imageUrl?: string;
   attributeType: string;
   isActive: boolean;
@@ -10,7 +10,7 @@ export interface ProductVariant {
 
 export interface Product {
   id: string;
-  categoryId: string;
+  categoryId: { _id: string; name?: string } | string;
   categoryName?: string;
   name: string;
   description: string;
@@ -25,9 +25,9 @@ export interface Product {
   maxUserImages: number;
   viewCount: number;
   orderCount: number;
-  rating?: number;
+  rating: number;
   reviewCount: number;
-  videos: string[];
+  videos: { url: string }[];
   createdAt: string;
   updatedAt: string;
 }

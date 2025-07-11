@@ -7,7 +7,7 @@ export const selectCategoryError = (state: RootState) => state.category.error;
 export const selectCategoryPagination = (state: RootState) => ({
   total: state.category.pagination.totalItems,
   page: state.category.pagination.currentPage,
-  limit: state.category.pageSize,
+  limit: state.category.pagination.pageSize,
 });
 
 export const selectActiveCategories = (state: RootState) => 

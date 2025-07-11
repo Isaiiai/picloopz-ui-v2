@@ -15,7 +15,7 @@ export const fetchCart = (): AppThunk => async (dispatch) => {
       itemCount: response.data.data.itemCount,
       totalAmount: response.data.data.totalAmount,
     }));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(setError(error.message));
   }
 };
@@ -39,7 +39,7 @@ export const addToCart = (payload: AddToCartPayload): AppThunk => async (dispatc
 };
 
 
-export const removeCartItem = (itemId: string): AppThunk => async (dispatch, getState) => {
+export const removeCartItem = (itemId: string): AppThunk => async (dispatch) => {
   try {
     dispatch(setLoading(true));
     const response = await api.post(`/api/gateway`, {
@@ -51,7 +51,7 @@ export const removeCartItem = (itemId: string): AppThunk => async (dispatch, get
       itemCount: response.data.data.itemCount,
       totalAmount: response.data.data.totalAmount,
     }));
-  } catch (error) {
+  } catch (error: any) {
     dispatch(setError(error.message));
   }
 };
@@ -64,7 +64,7 @@ export const emptyCart = (): AppThunk => async (dispatch, ) => {
       payload: {}
     });
     dispatch(clearCart());
-  } catch (error) {
+  } catch (error: any) {
     dispatch(setError(error.message));
   }
 };
@@ -77,7 +77,7 @@ export const getCartSummary = (): AppThunk => async (dispatch) => {
       payload: {}
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     dispatch(setError(error.message));
     throw error;
   }
