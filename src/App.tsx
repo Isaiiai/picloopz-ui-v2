@@ -33,6 +33,8 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import OrderSummaryPage from './pages/OrderSummaryPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { ScrollToTop } from './components/UI/ScrollToTop';
+import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 export function App() {
   const dispatch = useAppDispatch();
@@ -96,6 +98,8 @@ export function App() {
             <Route path="/thank-you" element={<ThankYouPage />} />
             <Route path="order-summary" element={<OrderSummaryPage />} />
             <Route path="/orders/:orderId/review" element={<ReviewPage />} />
+            <Route path="terms" element={<TermsAndConditionsPage />} />
+            <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

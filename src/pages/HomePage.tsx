@@ -210,20 +210,20 @@ const HomePage = () => {
                 <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-terracotta-200 rounded-full opacity-60"></div>
                 <div className="relative z-10 bg-white p-3 rounded-xl shadow-xl">
                   <img 
-                    src="https://images.unsplash.com/photo-1620783770629-122b7f187703?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80" 
+                    src="https://ik.imagekit.io/b9oulktdj/IMG_20250711_120127.png?updatedAt=1752215768967" 
                     alt="Handcrafted framed memories" 
                     className="w-full h-64 md:h-80 lg:h-[400px] object-cover rounded-lg"
                   />
                   <div className="absolute -bottom-6 -right-6 p-2 bg-white rounded-lg shadow-md">
                     <img 
-                      src="https://images.unsplash.com/photo-1567016526105-22da7c13161a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" 
+                      src="https://ik.imagekit.io/b9oulktdj/IMG_20250711_122023.png?updatedAt=1752216730930"
                       alt="Detail shot" 
                       className="w-28 h-28 object-cover rounded"
                     />
                   </div>
                   <div className="absolute -top-6 -left-6 p-2 bg-white rounded-lg shadow-md">
                     <img 
-                      src="https://images.unsplash.com/photo-1594610352113-ad218529cfb7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80" 
+                      src="https://ik.imagekit.io/b9oulktdj/IMG_20250711_122052.png?updatedAt=1752216730448" 
                       alt="Detail shot" 
                       className="w-24 h-24 object-cover rounded"
                     />
@@ -479,8 +479,8 @@ const HomePage = () => {
             </div>
           </div>
           <div className="mt-24 max-w-5xl mx-auto bg-gradient-to-br from-cream-50 via-white to-terracotta-100 rounded-2xl p-12 shadow-xl border border-terracotta-200 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-terracotta-200 to-amber-200 rounded-full -translate-y-1/3 translate-x-1/3 opacity-50 blur-xl"></div>
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-amber-100 to-terracotta-300 rounded-full translate-y-1/3 -translate-x-1/3 opacity-40 blur-lg"></div>
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-terracotta-200 to-terracotta-300 rounded-full -translate-y-1/3 translate-x-1/3 opacity-50 blur-xl"></div>
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-terracotta-100 to-terracotta-300 rounded-full translate-y-1/3 -translate-x-1/3 opacity-40 blur-lg"></div>
             <div className="absolute inset-0 pointer-events-none" style={{ background: "url('/src/assets/approval-bg.svg') repeat", opacity: 0.05 }}></div>
             <div className="flex flex-col md:flex-row gap-12 items-center relative z-10">
               <div className="md:w-2/5 relative flex justify-center items-center">
@@ -501,8 +501,8 @@ const HomePage = () => {
                     <path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V4m0 0L3 9m9-5l9 5"/>
                   </svg>
                   Your Satisfaction, Our Priority
-                  <span className="ml-3 px-3 py-1 bg-amber-200 text-amber-800 rounded-full font-semibold text-xs tracking-wide">NEW</span>
-                  <div className="absolute -bottom-4 left-0 w-2/3 h-1.5 bg-gradient-to-r from-terracotta-400 to-amber-400 rounded-full"></div>
+                  <span className="ml-3 px-3 py-1 bg-terracotta-200 text-terracotta-800 rounded-full font-semibold text-xs tracking-wide">NEW</span>
+                  <div className="absolute -bottom-4 left-0 w-2/3 h-1.5 bg-gradient-to-r from-terracotta-400 to-terracotta-500 rounded-full"></div>
                 </h3>
                 <blockquote className="italic text-terracotta-800 text-lg mb-6 flex items-center gap-3 font-medium">
                   <svg className="w-7 h-7 text-terracotta-500" fill="currentColor" viewBox="0 0 24 24">
@@ -548,7 +548,7 @@ const HomePage = () => {
                 </motion.ul>
                 <Link 
                   to="/how-it-works" 
-                  className="inline-flex items-center px-10 py-3.5 bg-gradient-to-r from-terracotta-600 to-amber-500 text-white rounded-lg shadow-lg hover:shadow-xl hover:bg-terracotta-700 transition-all duration-300 group"
+                  className="inline-flex items-center px-10 py-3.5 bg-gradient-to-r from-terracotta-600 to-terracotta-700 text-white rounded-lg shadow-lg hover:shadow-xl hover:bg-terracotta-700 transition-all duration-300 group"
                 >
                   Discover Our Excellence
                   <ArrowRight size={18} className="ml-3 transition-transform duration-300 group-hover:translate-x-2" />
@@ -563,11 +563,11 @@ const HomePage = () => {
       <section className="relative py-32 px-2 md:px-0 overflow-visible">
         {/* Animated gradient background with floating SVGs */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute w-full h-full bg-gradient-to-br from-amber-100 via-terracotta-100 to-amber-200 animate-gradient-move opacity-90"></div>
+          <div className="absolute w-full h-full bg-gradient-to-br from-terracotta-100 via-cream-100 to-terracotta-200 animate-gradient-move opacity-90"></div>
           {/* Floating SVG shapes */}
-          <svg className="absolute top-10 left-10 w-32 h-32 opacity-30 animate-float-slow" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#fbbf24" /></svg>
-          <svg className="absolute bottom-10 right-20 w-24 h-24 opacity-20 animate-float-medium" viewBox="0 0 100 100"><rect width="100" height="100" rx="30" fill="#eab308" /></svg>
-          <svg className="absolute top-1/2 left-1/3 w-20 h-20 opacity-20 animate-float-fast" viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" fill="#f87171" /></svg>
+          <svg className="absolute top-10 left-10 w-32 h-32 opacity-30 animate-float-slow" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#bc866a" /></svg>
+          <svg className="absolute bottom-10 right-20 w-24 h-24 opacity-20 animate-float-medium" viewBox="0 0 100 100"><rect width="100" height="100" rx="30" fill="#ad7055" /></svg>
+          <svg className="absolute top-1/2 left-1/3 w-20 h-20 opacity-20 animate-float-fast" viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" fill="#c8a087" /></svg>
           {/* Sparkles/particles */}
           <div className="absolute inset-0 pointer-events-none z-10">
             {[...Array(18)].map((_,i)=>(<span key={i} className={`absolute w-1.5 h-1.5 bg-white rounded-full opacity-60 animate-sparkle sparkle-${i}`} />))}
@@ -581,7 +581,7 @@ const HomePage = () => {
               <span className="inline-block px-5 py-2 bg-terracotta-200/60 text-terracotta-700 rounded-full text-base font-semibold mb-4 animate-fade-in">Inspiration Gallery</span>
               <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 font-playfair mb-4 relative inline-block animate-slide-in">
                 Our Creative Portfolio
-                <svg className="absolute left-1/2 -translate-x-1/2 bottom-[-18px] w-40 h-6" viewBox="0 0 160 24" fill="none"><path d="M10 20 Q80 0 150 20" stroke="#f87171" strokeWidth="4" strokeLinecap="round" fill="none"><animate attributeName="stroke-dashoffset" from="160" to="0" dur="1.2s" fill="freeze" /></path></svg>
+                <svg className="absolute left-1/2 -translate-x-1/2 bottom-[-18px] w-40 h-6" viewBox="0 0 160 24" fill="none"><path d="M10 20 Q80 0 150 20" stroke="#bc866a" strokeWidth="4" strokeLinecap="round" fill="none"><animate attributeName="stroke-dashoffset" from="160" to="0" dur="1.2s" fill="freeze" /></path></svg>
               </h2>
               <p className="text-gray-700 text-lg max-w-2xl mx-auto animate-fade-in">Explore our stunning collection of custom designs, client creations, and artistic inspirations across various styles and formats.</p>
             </div>
@@ -601,7 +601,7 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18, delay: idx * 0.13 }}
                   viewport={{ once: true }}
-                  className="relative group rounded-3xl overflow-hidden shadow-xl bg-white/80 aspect-video cursor-pointer hover:scale-[1.07] hover:shadow-3xl hover:z-30 transition-all duration-500 border-2 border-transparent hover:border-gradient-to-r hover:from-amber-400 hover:to-terracotta-500"
+                  className="relative group rounded-3xl overflow-hidden shadow-xl bg-white/80 aspect-video cursor-pointer hover:scale-[1.07] hover:shadow-3xl hover:z-30 transition-all duration-500 border-2 border-transparent hover:border-gradient-to-r hover:from-terracotta-400 hover:to-terracotta-600"
                   tabIndex={0}
                   aria-label={item.label}
                   onClick={() => setVideoUrl(item.url)}
@@ -630,7 +630,7 @@ const HomePage = () => {
                       initial={{ scale: 0.7, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 12 }}
-                      className="bg-white/40 backdrop-blur-lg rounded-full flex items-center justify-center shadow-2xl border-4 border-gradient-to-r from-amber-400 to-terracotta-500 group-hover:scale-110 group-hover:shadow-amber-400/40 transition-transform duration-500 w-1/4 h-1/4 max-w-[60px] max-h-[60px] min-w-[40px] min-h-[40px]"
+                      className="bg-white/40 backdrop-blur-lg rounded-full flex items-center justify-center shadow-2xl border-4 border-gradient-to-r from-terracotta-400 to-terracotta-600 group-hover:scale-110 group-hover:shadow-terracotta-400/40 transition-transform duration-500 w-1/4 h-1/4 max-w-[60px] max-h-[60px] min-w-[40px] min-h-[40px]"
                     >
                       <motion.div
                         initial={{ scale: 0.8 }}
@@ -659,7 +659,7 @@ const HomePage = () => {
             <div className="text-center mt-16 animate-fade-in">
               <Link 
                 to="/gallery" 
-                className="inline-flex items-center px-10 py-4 border-2 border-terracotta-400 text-terracotta-600 hover:bg-terracotta-50 rounded-xl transition-colors group font-bold shadow-lg hover:shadow-amber-200/40 text-lg tracking-wide"
+                className="inline-flex items-center px-10 py-4 border-2 border-terracotta-400 text-terracotta-600 hover:bg-terracotta-50 rounded-xl transition-colors group font-bold shadow-lg hover:shadow-terracotta-200/40 text-lg tracking-wide"
               >
                 View Full Gallery
                 <ArrowRight size={20} className="ml-3 transition-transform group-hover:translate-x-2" />
