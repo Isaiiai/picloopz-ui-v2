@@ -230,6 +230,11 @@ const ProductDetailPage = () => {
       formData,
       purpose: 'cart',
       onUploadProgress: (e: AxiosProgressEvent) => {
+        if (typeof e.total !== 'number' || e.total === 0) {
+          setUploadProgress(-1); 
+          return;
+        }
+
         const progress = Math.round((e.loaded * 100) / e.total);
         setUploadProgress(progress);
       },
