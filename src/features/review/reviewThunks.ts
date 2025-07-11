@@ -36,7 +36,7 @@ export const fetchProductReviews = createAsyncThunk<
     const response = await api.post(`/api/gateway`, {
       route: 'getProductReviews',
       payload: {
-        params: { productId },
+        id: productId ,
         body: { page, limit, sort, sortOrder },
       },
     });
@@ -98,7 +98,7 @@ export const updateReview = createAsyncThunk<
     const response = await api.post(`/api/gateway`, {
       route: 'updateReview',
       payload: {
-        params: { id: reviewId },
+        id: reviewId,
         body: data,
       },
     });
@@ -118,7 +118,7 @@ export const deleteReview = createAsyncThunk<
     await api.post(`/api/gateway`, {
       route: 'deleteReview',
       payload: {
-        params: { id: reviewId },
+         id: reviewId,
       },
     });
     return reviewId;
