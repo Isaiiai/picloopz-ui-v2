@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Shield, Eye, Lock, Database, Users, Bell, Globe } from 'lucide-react';
+import { ArrowLeft, Eye, Lock, Database, Users, Bell, Globe } from 'lucide-react';
 
 const PrivacyPolicyPage = () => {
   const sections = [
