@@ -311,11 +311,23 @@ const ProfilePage = () => {
 
               {/* Product Images Row */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-2 max-w-full">
-                {order.items.slice(0, 3).map((item, idx) => (
-                  <div key={item.id || item.variantId || idx} className="w-14 h-14 rounded-md bg-gray-100 overflow-hidden flex-shrink-0 border">
-                    <img src={item.productImage || '/placeholder.png'} alt={item.name} className="w-full h-full object-cover" />
-                  </div>
-                ))}
+                {order.items.slice(0, 3).map((item, idx) => {
+                  // Prefer user-uploaded image, then product image, then placeholder
+                  const imageSrc = (item.uploadedImageUrl && item.uploadedImageUrl.length > 0 && item.uploadedImageUrl[0])
+                    || item.productImage
+                    || '/placeholder.png';
+                  return (
+                    <div key={item.id || item.variantId || idx} className="w-14 h-14 rounded-md bg-gray-100 overflow-hidden flex-shrink-0 border">
+                      <img
+                        src={imageSrc}
+                        alt={item.productName || 'Ordered product image'}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        draggable={false}
+                      />
+                    </div>
+                  );
+                })}
                 {order.items.length > 3 && (
                   <div className="w-14 h-14 flex items-center justify-center rounded-md bg-gray-200 text-xs font-semibold text-gray-600 border">
                     +{order.items.length - 3}
@@ -411,7 +423,7 @@ const ProfilePage = () => {
   if (!isAuthenticated) return null;
 
   if (loading || passwordLoading) {
-    return <PageSpinner icon={<User size={40} />} />;
+    return <PageSpinner />;
   }
 
   return (

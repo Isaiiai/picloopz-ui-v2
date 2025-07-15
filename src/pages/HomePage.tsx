@@ -74,7 +74,7 @@ const HomePage = () => {
 
 
   if (loading) {
-    return <PageSpinner icon={<Home size={40} />} />;
+    return <PageSpinner />;
   }
   return (
     <div className="relative min-h-screen pb-12 pt-24 md:pt-28 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">

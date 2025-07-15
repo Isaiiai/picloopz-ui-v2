@@ -45,7 +45,7 @@ const FavoritesPage = () => {
   });
 
   if (loading) {
-    return <PageSpinner icon={<Heart size={40} />} />;
+    return <PageSpinner />;
   }
 
   return (

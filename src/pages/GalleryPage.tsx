@@ -45,7 +45,7 @@ const GalleryPage = () => {
   const uniqueTags = [...new Set(reels.flatMap((r: any) => r.tags || []))];
 
   if (loading) {
-    return <PageSpinner icon={<Image size={40} />} />;
+    return <PageSpinner />;
   }
 
   return (

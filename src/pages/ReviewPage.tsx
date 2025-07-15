@@ -6,6 +6,7 @@ import { useOrders } from '../features/order/useOrder';
 import { useReview } from '../features/review/useReview';
 import { useAuth } from '../features/auth/authHooks';
 import { ReviewProductCard, ReviewInput } from '../components/review/ReviewProductCard';
+import PageSpinner from '../components/PageSpinner';
 
 
 type ObjectIdLike = { _id: string };
@@ -107,11 +108,13 @@ export const ReviewPage = () => {
     }
   };
 
+  if (orderLoading || reviewLoading) {
+    return <PageSpinner />;
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {orderLoading ? (
-        <Loader />
-      ) : submitted ? (
+      {submitted ? (
         <ThankYou />
       ) : !currentOrder?.items?.length ? (
         <EmptyOrder navigate={navigate} />

@@ -5,13 +5,14 @@ import { useAuth } from '../features/auth/authHooks';
 import { Order } from '../features/order/orderTypes';
 import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
+import PageSpinner from '../components/PageSpinner';
 
 const OrderTrackingPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
   const { isAuthenticated } = useAuth();
-  const { getOrderById, currentOrder, orderCancel } = useOrders();
+  const { getOrderById, currentOrder, orderCancel, loading } = useOrders();
   const [order, setOrder] = useState<Order | undefined>();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -120,6 +121,10 @@ const OrderTrackingPage = () => {
 
   const getStatusStep = (status: string) => statusSteps[status] ?? 1;
 
+  if (loading) {
+    return <PageSpinner />;
+  }
+
   if (!order) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -134,7 +139,7 @@ const OrderTrackingPage = () => {
 
   if (order.status === 'Cancelled') {
     return (
-      <div className="container mx-auto px-4 py-12 text-center">
+      <div className="container mx-auto px-4 py-40 text-center">
         <h1 className="text-2xl md:text-3xl font-bold mb-4 font-playfair">Order Tracking</h1>
         <p className="text-xl text-red-600 font-semibold">This order has been cancelled.</p>
       </div>

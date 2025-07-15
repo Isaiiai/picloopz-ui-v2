@@ -75,6 +75,7 @@ const ProductDetailPage = () => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [addToCartLoading, setAddToCartLoading] = useState(false);
 
 
   const [files, setFiles] = useState<File[]>([]);
@@ -154,14 +155,19 @@ const ProductDetailPage = () => {
       return;
     }
     if (!product) return;
-    const imageUrls = cartImagesUpload?.uploads.map(upload => upload.url) || [];
-    await addToCart({
-      productId: product.id,
-      variantId: product.variants[selectedVariant].id,
-      cartImages: imageUrls
-    });
-    clearUpload();
-    toast.success('Added to cart!');
+    setAddToCartLoading(true);
+    try {
+      const imageUrls = cartImagesUpload?.uploads.map(upload => upload.url) || [];
+      await addToCart({
+        productId: product.id,
+        variantId: product.variants[selectedVariant].id,
+        cartImages: imageUrls
+      });
+      clearUpload();
+      toast.success('Added to cart!');
+    } finally {
+      setAddToCartLoading(false);
+    }
   };
 
   const toggleFavorite = () => {
@@ -306,8 +312,8 @@ const ProductDetailPage = () => {
     }
   }, [productId, loadProductReviews, reviews]);
 
-  if (loading || reviewLoading) {
-    return <PageSpinner icon={<Package size={40} />} />;
+  if (loading || reviewLoading || addToCartLoading) {
+    return <PageSpinner />;
   }
   if (!product) {
     return (
@@ -376,6 +382,7 @@ const ProductDetailPage = () => {
             uploadProgress={uploadProgress}
             handleUploadCartImages={handleUploadCartImages}
             clearUploads={clearUpload}
+            addToCartLoading={addToCartLoading}
           />
         </div>
 

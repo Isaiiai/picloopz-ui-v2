@@ -24,6 +24,7 @@ interface ProductInfoProps {
   setPreviewUrls: (q: string[]) => any;
   handleUploadCartImages: () => any;
   clearUploads: () => void;
+  addToCartLoading?: boolean;
 }
 
 const ProductInfo: React.FC<ProductInfoProps> = ({
@@ -44,7 +45,8 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   setFilesToUpload,
   setPreviewUrls,
   handleUploadCartImages,
-  clearUploads
+  clearUploads,
+  addToCartLoading
 }) => {
   const { total } = useReview();
   const { loading, cartImagesUpload } = useUpload();
@@ -292,14 +294,19 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleAddToCart}
-          disabled={!canAddToCart || loading.cartUploadLoading}
+          disabled={!canAddToCart || loading.cartUploadLoading || addToCartLoading}
           className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-lg transition-all ${
             canAddToCart
               ? 'bg-terracotta-600 text-white hover:bg-terracotta-700 shadow-lg hover:shadow-xl'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
           }`}
         >
-          {loading.cartUploadLoading ? (
+          {addToCartLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={20} />
+              Processing...
+            </>
+          ) : loading.cartUploadLoading ? (
             <>
               <Loader2 className="animate-spin" size={20} />
               Processing...

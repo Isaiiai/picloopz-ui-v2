@@ -4,6 +4,7 @@ import { Star, Camera, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Review } from '../../features/review/reviewTypes';
 import { useUpload } from '../../features/upload/useUpload';
+import PageSpinner from '../../components/PageSpinner';
 
 interface ReviewFormModalProps {
   isOpen: boolean;
@@ -77,6 +78,10 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
       images: initialReview.images.filter((_, i) => i !== index)
     });
   };
+
+  if (loading.reviewUploadLoading) {
+    return <PageSpinner />;
+  }
 
   return (
     <AnimatePresence>

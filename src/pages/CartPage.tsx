@@ -6,6 +6,7 @@ import { useOrders } from '../features/order/useOrder';
 import toast from 'react-hot-toast';
 import { CreateOrderData } from '../features/order/orderTypes';
 import { reverseGeocode } from '../utils/geocode';
+import PageSpinner from '../components/PageSpinner';
 
 interface FormData {
   name: string;
@@ -17,6 +18,12 @@ interface FormData {
   zipCode: string;
   country: string;
   notes: string;
+}
+
+function isValidIndianPhone(phone: string): boolean {
+  const cleaned = phone.replace(/\D/g, '');
+  const normalized = cleaned.startsWith('91') ? cleaned.slice(2) : cleaned;
+  return /^[6-9]\d{9}$/.test(normalized);
 }
 
 const CartPage = () => {
@@ -38,12 +45,22 @@ const CartPage = () => {
     notes: '',
   });
   
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name as keyof FormData]: value
     }));
+    if (name === 'phone') {
+      if (!isValidIndianPhone(value)) {
+        setPhoneError('Please enter a valid Indian mobile number (10 digits, starts with 6-9)');
+      } else {
+        setPhoneError(null);
+      }
+    }
   };
   
   const { createOrder } = useOrders();
@@ -58,6 +75,7 @@ const CartPage = () => {
       return;
     }
 
+    setCheckoutLoading(true);
     try {
       const orderData: CreateOrderData = {
         items: cart.items.map(item => ({
@@ -74,6 +92,7 @@ const CartPage = () => {
           state: formData.state,
           postalCode: formData.zipCode,
           country: formData.country,
+          email: formData.email, // <-- Ensure email is included
         },
         paymentMethod: 'razorpay',
         notes: formData.notes || '',
@@ -91,6 +110,8 @@ const CartPage = () => {
 
     } catch (err: any) {
       toast.error(err?.message || 'Order creation failed');
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -138,8 +159,12 @@ const CartPage = () => {
   
   const isFormValid = () => {
     const requiredFields: (keyof FormData)[] = ['name', 'email', 'phone', 'address', 'city', 'state', 'zipCode'];
-    return requiredFields.every(field => formData[field]) && cart.items.length > 0;
+    return requiredFields.every(field => formData[field]) && cart.items.length > 0 && isValidIndianPhone(formData.phone);
   };
+
+  if (checkoutLoading) {
+    return <PageSpinner />;
+  }
 
   return (
     <div className="relative min-h-screen pt-24 sm:pt-20 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
@@ -306,6 +331,9 @@ const CartPage = () => {
                                 required
                               />
                             </div>
+                            {phoneError && (
+                              <p className="text-red-600 text-xs mt-1">{phoneError}</p>
+                            )}
                           </div>
                           
                           <div>

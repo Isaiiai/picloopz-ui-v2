@@ -1,19 +1,9 @@
 import React from 'react';
 
-interface PageSpinnerProps {
-  icon?: React.ReactNode;
-}
-
-const PageSpinner: React.FC<PageSpinnerProps> = ({ icon }) => {
+const PageSpinner: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
-      {icon && (
-        <div className="mb-6 text-terracotta-500 animate-bounce drop-shadow-lg">
-          {icon}
-        </div>
-      )}
-      
-      
+      <div className="w-12 h-12 border-4 border-terracotta-300 border-t-terracotta-500 rounded-full animate-spin" />
     </div>
   );
 };
