@@ -30,7 +30,6 @@ import {
 import { useDropzone } from 'react-dropzone';
 import { Review } from '../features/review/reviewTypes';
 import { AxiosProgressEvent } from 'axios';
-import { Package } from 'lucide-react';
 import PageSpinner from '../components/PageSpinner';
 
 const ProductTabs = lazy(() => import('../components/product/ProductTabs'));

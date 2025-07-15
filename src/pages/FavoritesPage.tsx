@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Trash2, Heart } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
 import FavoriteProductCard from '../components/FavoriteProductCard';
 import ProductCard from '../components/ProductCard';

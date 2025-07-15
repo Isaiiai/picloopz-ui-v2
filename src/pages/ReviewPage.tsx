@@ -159,12 +159,6 @@ export const ReviewPage = () => {
 };
 
 
-const Loader = () => (
-  <div className="flex justify-center items-center min-h-[40vh]">
-    <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full" />
-  </div>
-);
-
 const ThankYou = () => (
   <div className="text-center">
     <h2 className="text-3xl font-bold mb-3">Thank You!</h2>

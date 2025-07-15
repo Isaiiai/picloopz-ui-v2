@@ -320,7 +320,7 @@ const ProfilePage = () => {
                     <div key={item.id || item.variantId || idx} className="w-14 h-14 rounded-md bg-gray-100 overflow-hidden flex-shrink-0 border">
                       <img
                         src={imageSrc}
-                        alt={item.productName || 'Ordered product image'}
+                        alt={typeof item.productName === 'string' ? item.productName : 'Ordered product image'}
                         className="w-full h-full object-cover"
                         loading="lazy"
                         draggable={false}

@@ -24,6 +24,7 @@ export interface ShippingAddress {
   state: string;
   postalCode: string;
   country: string;
+  email: string;
 }
 
 export interface Order {

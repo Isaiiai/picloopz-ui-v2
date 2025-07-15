@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Image } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useGallery } from '../features/gallery/useGallery';
 import PageSpinner from '../components/PageSpinner';
 
