@@ -307,7 +307,7 @@ const ProductDetailPage = () => {
   }, [productId, loadProductReviews, reviews]);
 
   if (loading || reviewLoading) {
-    return <PageSpinner icon={<Package size={40} />} label="Loading product details..." />;
+    return <PageSpinner icon={<Package size={40} />} />;
   }
   if (!product) {
     return (

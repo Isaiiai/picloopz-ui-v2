@@ -411,7 +411,7 @@ const ProfilePage = () => {
   if (!isAuthenticated) return null;
 
   if (loading || passwordLoading) {
-    return <PageSpinner icon={<User size={40} />} label="Loading profile..." />;
+    return <PageSpinner icon={<User size={40} />} />;
   }
 
   return (
