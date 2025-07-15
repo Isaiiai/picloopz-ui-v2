@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, Upload, Check, ShoppingCart, Heart, Verified } from 'lucide-react';
+import { Star, Upload, Check, ShoppingCart, Heart, Verified, X, Loader2 } from 'lucide-react';
 import { DropzoneRootProps, DropzoneInputProps } from 'react-dropzone';
 import ProductShareMenu from './ProductShareMenu';
 import { useReview } from '../../features/review/useReview';
@@ -23,6 +23,7 @@ interface ProductInfoProps {
   setFilesToUpload: (q: File[]) => any;
   setPreviewUrls: (q: string[]) => any;
   handleUploadCartImages: () => any;
+  clearUploads: () => void;
 }
 
 const ProductInfo: React.FC<ProductInfoProps> = ({
@@ -42,10 +43,18 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   previewUrls,
   setFilesToUpload,
   setPreviewUrls,
-  handleUploadCartImages
+  handleUploadCartImages,
+  clearUploads
 }) => {
   const { total } = useReview();
   const { loading, cartImagesUpload } = useUpload();
+  
+  const uploadedCount = cartImagesUpload?.uploads?.length || 0;
+  const totalSelected = filesToUpload.length + uploadedCount;
+  const canUpload = filesToUpload.length > 0;
+  const canAddToCart = uploadedCount >= requiredFilesCount;
+  const remainingFiles = requiredFilesCount - totalSelected;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -105,7 +114,8 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
                   selectedVariant === index
                     ? 'border-terracotta-500 bg-terracotta-50 text-terracotta-700'
                     : 'border-cream-200 text-gray-700 hover:border-terracotta-300 hover:bg-cream-50'
-                } `}
+                } ${isOutOfStock ? 'opacity-70 cursor-not-allowed' : ''}`}
+                disabled={isOutOfStock}
               >
                 <div className="font-medium">{variant.name}</div>
                 <div className="text-sm opacity-75">₹{variant.price.toFixed(2)}</div>
@@ -120,148 +130,186 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         </div>
       </div>
 
-      {/* Upload Image */}
-      {product.variants[selectedVariant].inStock ?
-      (
-        <div>
+      {/* Upload Image Section */}
+      {product.variants[selectedVariant].inStock ? (
         <div className="mb-8">
-        <h3 className="font-semibold mb-2 text-gray-900">
-          Upload Your Photos ({requiredFilesCount} required)
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          {cartImagesUpload?.uploads?.length === requiredFilesCount
-            ? "All images uploaded successfully!"
-            : `Please upload ${requiredFilesCount} images to customize your product`}
-        </p>
-        
-        {/* Dropzone */}
-        {(!cartImagesUpload || cartImagesUpload.uploads.length < requiredFilesCount) && (
-          <div
-            {...getRootProps()}
-            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
-              isDragActive ? 'border-terracotta-400 bg-terracotta-50' : 'border-cream-300 hover:border-terracotta-300 hover:bg-cream-50'
-            }`}
-          >
-            <input {...getInputProps()} />
-            <div className="space-y-3">
-              <Upload className="mx-auto text-gray-400" size={40} />
-              <p className="text-gray-700 font-medium">
-                Drag and drop images here, or click to select
-              </p>
-              <p className="text-xs text-gray-500">
-                {filesToUpload.length + (cartImagesUpload?.uploads?.length || 0)}/{requiredFilesCount} images selected
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Progress Bar */}
-        {loading.cartUploadLoading && (
-          <div className="mt-6 w-full">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium text-gray-700">Uploading...</span>
-              <span className="text-sm font-medium text-gray-700">{uploadProgress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-terracotta-600 h-3 rounded-full transition-all duration-500 ease-in-out"
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-            </div>
-          </div>
-        )}
-
-        {/* Preview section */}
-        {(previewUrls.length > 0 || cartImagesUpload?.uploads?.length) && (
-          <div className="mt-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">
-              {cartImagesUpload?.uploads?.length === requiredFilesCount
-                ? "Uploaded Images:"
-                : "Selected Images:"}
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {/* Show uploaded images first */}
-              {cartImagesUpload?.uploads?.map((upload, index) => (
-                <div key={`uploaded-${index}`} className="relative">
-                  <img
-                    src={upload.url}
-                    alt={`Uploaded ${index + 1}`}
-                    className="h-20 w-20 object-cover rounded-lg"
-                  />
-                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white">
-                    <Check size={12} />
-                  </div>
-                </div>
-              ))}
-              
-              {/* Show local previews for not-yet-uploaded files */}
-              {previewUrls.map((url, index) => (
-                <div key={`preview-${index}`} className="relative">
-                  <img
-                    src={url}
-                    alt={`Preview ${index + 1}`}
-                    className="h-20 w-20 object-cover rounded-lg"
-                  />
-                  <button
-                    onClick={() => {
-                      const newFiles = [...filesToUpload];
-                      const newPreviews = [...previewUrls];
-                      newFiles.splice(index, 1);
-                      newPreviews.splice(index, 1);
-                      setFilesToUpload(newFiles);
-                      setPreviewUrls(newPreviews);
-                    }}
-                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Upload button */}
-        {filesToUpload.length > 0 && !loading.cartUploadLoading && (
-          <div className="mt-4">
-            <button
-              onClick={handleUploadCartImages}
-              disabled={filesToUpload.length + (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount}
-              className={`w-full py-2 px-4 rounded-lg font-medium ${
-                filesToUpload.length + (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-terracotta-600 text-white hover:bg-terracotta-700'
-              }`}
-            >
-              Upload {filesToUpload.length} Image{filesToUpload.length !== 1 ? 's' : ''}
-            </button>
-            {filesToUpload.length + (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount && (
-              <p className="text-xs text-red-500 mt-1">
-                Please select {requiredFilesCount - (filesToUpload.length + (cartImagesUpload?.uploads?.length || 0))} more image{requiredFilesCount - (filesToUpload.length + (cartImagesUpload?.uploads?.length || 0)) !== 1 ? 's' : ''}
-              </p>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-semibold text-gray-900">
+              Upload Your Photos ({requiredFilesCount} required)
+            </h3>
+            {uploadedCount > 0 && (
+              <button 
+                onClick={clearUploads}
+                className="text-sm text-terracotta-600 hover:text-terracotta-800 flex items-center gap-1"
+              >
+                <X size={14} /> Clear all
+              </button>
             )}
           </div>
-        )}
-      </div>
+          
+          <p className="text-sm text-gray-600 mb-4">
+            {canAddToCart 
+              ? "All images uploaded successfully! Ready to add to cart."
+              : `Upload ${remainingFiles} more image${remainingFiles !== 1 ? 's' : ''} to continue`}
+          </p>
+          
+          {/* Dropzone - Only shown if not all files are uploaded */}
+          {!canAddToCart && (
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                isDragActive ? 'border-terracotta-400 bg-terracotta-50' : 'border-cream-300 hover:border-terracotta-300 hover:bg-cream-50'
+              }`}
+            >
+              <input {...getInputProps()} />
+              <div className="space-y-3">
+                <Upload className="mx-auto text-gray-400" size={40} />
+                <p className="text-gray-700 font-medium">
+                  {isDragActive ? 'Drop your files here' : 'Drag and drop images here, or click to select'}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {totalSelected}/{requiredFilesCount} images selected
+                </p>
+                <p className="text-xs text-gray-500">
+                  Supported formats: JPG, PNG, WEBP (Max 5MB each)
+                </p>
+              </div>
+            </div>
+          )}
 
-      {/* Buttons */}
+          {/* Progress Bar */}
+          {loading.cartUploadLoading && (
+            <div className="mt-6 w-full">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm font-medium text-gray-700">Uploading...</span>
+                <span className="text-sm font-medium text-gray-700">{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-terracotta-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+
+          {/* Preview section */}
+          {(previewUrls.length > 0 || uploadedCount > 0) && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                {canAddToCart ? "Uploaded Images:" : "Selected Images:"}
+              </h4>
+              <div className="flex flex-wrap gap-3">
+                {/* Show uploaded images first */}
+                {cartImagesUpload?.uploads?.map((upload, index) => (
+                  <div key={`uploaded-${index}`} className="relative group">
+                    <img
+                      src={upload.url}
+                      alt={`Uploaded ${index + 1}`}
+                      className="h-20 w-20 object-cover rounded-lg border border-gray-200"
+                    />
+                    <div className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white">
+                      <Check size={12} />
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Show local previews for not-yet-uploaded files */}
+                {previewUrls.map((url, index) => (
+                  <div key={`preview-${index}`} className="relative group">
+                    <img
+                      src={url}
+                      alt={`Preview ${index + 1}`}
+                      className="h-20 w-20 object-cover rounded-lg border border-gray-200"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newFiles = [...filesToUpload];
+                        const newPreviews = [...previewUrls];
+                        newFiles.splice(index, 1);
+                        newPreviews.splice(index, 1);
+                        setFilesToUpload(newFiles);
+                        setPreviewUrls(newPreviews);
+                      }}
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Upload button */}
+          {canUpload && !loading.cartUploadLoading && (
+            <div className="mt-4 space-y-2">
+              <button
+                onClick={handleUploadCartImages}
+                disabled={loading.cartUploadLoading}
+                className={`w-full py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 ${
+                  canUpload
+                    ? 'bg-terracotta-600 text-white hover:bg-terracotta-700'
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {loading.cartUploadLoading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={18} />
+                    Upload {filesToUpload.length} Image{filesToUpload.length !== 1 ? 's' : ''}
+                  </>
+                )}
+              </button>
+              {remainingFiles > 0 && (
+                <p className="text-xs text-gray-600 text-center">
+                  {remainingFiles} more image{remainingFiles !== 1 ? 's' : ''} required
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="mb-8 p-6 bg-cream-50 border border-cream-200 rounded-lg flex items-center gap-4">
+          <div className="bg-red-100 text-red-600 rounded-full p-2">
+            <ShoppingCart size={20} />
+          </div>
+          <div>
+            <p className="font-semibold text-gray-800">Currently Out of Stock</p>
+            <p className="text-sm text-gray-600">This variant is not available at the moment. Please check back later or choose another option.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6 sm:mb-8">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleAddToCart}
-          disabled={
-            (cartImagesUpload?.uploads?.length || 0) < requiredFilesCount ||
-            loading.cartUploadLoading
-          }
+          disabled={!canAddToCart || loading.cartUploadLoading}
           className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-lg transition-all ${
-            cartImagesUpload && !loading.cartUploadLoading
+            canAddToCart
               ? 'bg-terracotta-600 text-white hover:bg-terracotta-700 shadow-lg hover:shadow-xl'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
           }`}
         >
-          <ShoppingCart size={20} />
-          {loading.cartUploadLoading ? 'Processing...' : 'Add to Cart'}
+          {loading.cartUploadLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={20} />
+              Processing...
+            </>
+          ) : (
+            <>
+              <ShoppingCart size={20} />
+              Add to Cart
+            </>
+          )}
         </motion.button>
 
         <div className="flex gap-3">
@@ -279,23 +327,9 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             <Heart size={20} className={isInFavorites ? 'fill-current' : ''} />
           </motion.button>
 
-          <ProductShareMenu product={product}/>
-
+          <ProductShareMenu product={product} />
         </div>
       </div>
-      </div>
-      ) : (
-        <div className="mb-8 p-6 bg-cream-50 border border-cream-200 rounded-lg flex items-center gap-4">
-          <div className="bg-red-100 text-red-600 rounded-full p-2">
-            <ShoppingCart size={20} />
-          </div>
-          <div>
-            <p className="font-semibold text-gray-800">Currently Out of Stock</p>
-            <p className="text-sm text-gray-600">This variant is not available at the moment. Please check back later or choose another option.</p>
-          </div>
-        </div>
-      )}
-
 
       {/* Guarantees */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-cream-200">

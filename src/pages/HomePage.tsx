@@ -140,7 +140,7 @@ const HomePage = () => {
       <section className="relative bg-gradient-to-br from-cream-50 to-cream-200 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/src/assets/pattern-bg.png')] opacity-5"></div>
         <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl relative z-10">
-          <div className="py-16 md:py-24 lg:py-28 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+          <div className="py-16 md:py-8 lg:py-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}

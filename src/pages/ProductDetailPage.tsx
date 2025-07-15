@@ -242,6 +242,7 @@ const ProductDetailPage = () => {
     });
     setFilesToUpload([]);
     setUploadProgress(0);
+    setPreviewUrls([]);
     toast.success('Images uploaded successfully!');
   };
 
@@ -317,7 +318,7 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+    <div className="relative min-h-screen pt-16 sm:pt-16 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
@@ -374,6 +375,7 @@ const ProductDetailPage = () => {
             setPreviewUrls={setPreviewUrls}
             uploadProgress={uploadProgress}
             handleUploadCartImages={handleUploadCartImages}
+            clearUploads={clearUpload}
           />
         </div>
 
