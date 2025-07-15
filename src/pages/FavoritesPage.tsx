@@ -1,31 +1,55 @@
 import { Link } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Heart } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
 import FavoriteProductCard from '../components/FavoriteProductCard';
+import ProductCard from '../components/ProductCard';
+import PageSpinner from '../components/PageSpinner';
+import { Product } from '../features/product/productTypes';
 
 const FavoritesPage = () => {
-  const { favorites, clearAll } = useFavorite();
+  const { favorites, clearAll, loading } = useFavorite();
 
   // Map favorite product to ProductCard's expected props
-  const mapFavoriteToProduct = (fav: any) => ({
+  const mapFavoriteToProduct = (fav: any): Product => ({
     id: fav.productId,
     name: fav.productName,
     description: fav.description || '',
-    variants: fav.variants || [
+    basePrice: fav.productPrice || 0,
+    variants: fav.variants && fav.variants.length > 0 ? fav.variants : [
       {
+        id: '',
         name: '',
-        price: fav.productPrice,
-        imageUrl: fav.productImage,
+        price: fav.productPrice || 0,
+        imageUrl: fav.productImage || '',
+        attributeType: '',
+        isActive: true,
+        inStock: true,
       },
     ],
-    category: fav.category || '',
     categoryId: fav.categoryId || '',
+    categoryName: fav.categoryName || '',
+    images: fav.productImage ? [fav.productImage] : [],
+    tags: fav.tags || [],
+    isTrending: fav.isTrending || false,
+    isTopSelling: fav.isTopSelling || false,
+    isFeatured: fav.isFeatured || false,
+    isActive: fav.isActive !== undefined ? fav.isActive : true,
+    maxUserImages: fav.maxUserImages || 1,
+    viewCount: fav.viewCount || 0,
+    orderCount: fav.orderCount || 0,
     rating: fav.rating || 0,
     reviewCount: fav.reviewCount || 0,
-    orderCount: fav.orderCount || 0,
+    videos: fav.videos || [],
+    createdAt: fav.createdAt || '',
+    updatedAt: fav.updatedAt || '',
   });
+
+  if (loading) {
+    return <PageSpinner icon={<Heart size={40} />} label="Loading favorites..." />;
+  }
+
   return (
-    <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+    <div className="relative min-h-screen pt-14 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
@@ -64,7 +88,7 @@ const FavoritesPage = () => {
               {/* Desktop: Grid View */}
               <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 {favorites.map(fav => (
-                  <FavoriteProductCard
+                  <ProductCard
                     key={fav.productId}
                     product={mapFavoriteToProduct(fav)}
                   />

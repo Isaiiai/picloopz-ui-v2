@@ -31,6 +31,8 @@ import {
 import { useDropzone } from 'react-dropzone';
 import { Review } from '../features/review/reviewTypes';
 import { AxiosProgressEvent } from 'axios';
+import { Package } from 'lucide-react';
+import PageSpinner from '../components/PageSpinner';
 
 const ProductTabs = lazy(() => import('../components/product/ProductTabs'));
 const RelatedProducts = lazy(() => import('../components/product/RelatedProducts'));
@@ -304,10 +306,13 @@ const ProductDetailPage = () => {
     }
   }, [productId, loadProductReviews, reviews]);
 
-  if (loading || !product) {
+  if (loading || reviewLoading) {
+    return <PageSpinner icon={<Package size={40} />} label="Loading product details..." />;
+  }
+  if (!product) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <SkeletonLoader />
+      <div className="container mx-auto px-4 py-12 text-center text-red-600">
+        Product not found or failed to load. Please check the product data and try again.
       </div>
     );
   }

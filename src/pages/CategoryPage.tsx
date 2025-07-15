@@ -31,7 +31,8 @@ import {
 import { fetchCategories, fetchCategoryById } from '../features/category/categoryThunks';
 import { clearCategoryProducts } from '../features/product/productSlice';
 import type { AppDispatch } from '../store/store';
-import { Filter, ArrowUpDown } from 'lucide-react';
+import { Filter, ArrowUpDown, LayoutGrid } from 'lucide-react';
+import PageSpinner from '../components/PageSpinner';
 import { useDebounceEffect } from '../utils/useDebounceEffect';
 
 type ViewMode = 'all' | 'category' | 'trending' | 'top-selling';
@@ -63,7 +64,7 @@ const CategoryPage = () => {
   const [selectedFilters, setSelectedFilters] = useState({
     variants: [] as string[],
     materials: [] as string[],
-    categoryId: '',
+    // categoryId: '', // Remove categoryId from selectedFilters
   });
 
   const [sortParams, setSortParams] = useState({ sort: 'createdAt', sortOrder: 'desc' });
@@ -111,10 +112,10 @@ const CategoryPage = () => {
     } else if (categoryId && categoryId !== 'all') {
       dispatch(fetchCategoryById(categoryId));
       setViewMode('category');
-      setSelectedFilters(prev => ({ ...prev, categoryId }));
+      // setSelectedFilters(prev => ({ ...prev, categoryId })); // Remove this line
     } else {
       setViewMode('all');
-      setSelectedFilters(prev => ({ ...prev, categoryId: '' }));
+      // setSelectedFilters(prev => ({ ...prev, categoryId: '' })); // Remove this line
     }
 
     return () => {
@@ -135,10 +136,10 @@ const CategoryPage = () => {
 
     if (selectedFilters.variants.length) params.tags = selectedFilters.variants;
     if (selectedFilters.materials.length) params.search = selectedFilters.materials.join(' ');
-    if (viewMode === 'category') params.categoryId = selectedFilters.categoryId;
+    if (viewMode === 'category' && categoryId && categoryId !== 'all') params.categoryId = categoryId; // Use categoryId from URL
 
     return params;
-  }, [priceRange, sortParams, selectedFilters, viewMode]);
+  }, [priceRange, sortParams, selectedFilters, viewMode, categoryId]);
 
   const fetchProducts = useCallback((page = 1) => {
     const params = buildSearchParams(page);
@@ -151,18 +152,18 @@ const CategoryPage = () => {
         dispatch(getTopSellingProducts(10));
         break;
       case 'category':
-        dispatch(getProductsByCategory({ categoryId: selectedFilters.categoryId, params }));
+        dispatch(getProductsByCategory({ categoryId, params })); // Use categoryId from URL
         break;
       default:
         dispatch(getProducts(params));
     }
-  }, [buildSearchParams, viewMode, selectedFilters.categoryId, dispatch]);
+  }, [buildSearchParams, viewMode, categoryId, dispatch]);
 
   useDebounceEffect(() => fetchProducts(1), [priceRange, selectedFilters, sortParams, viewMode], 400);
 
   const clearFilters = () => {
     setPriceRange(DEFAULT_PRICE_RANGE);
-    setSelectedFilters({ variants: [], materials: [], categoryId: '' });
+    setSelectedFilters({ variants: [], materials: [] }); // Remove categoryId
     setViewMode('all');
     navigate('/category/all'); 
   };
@@ -189,6 +190,10 @@ const CategoryPage = () => {
   const error = productError || categoryError;
 
   if (error) return <ErrorDisplay error={error} onRetry={() => navigate(0)} />;
+
+  if (loading) {
+    return <PageSpinner icon={<LayoutGrid size={40} />} label="Loading products..." />;
+  }
 
   return (
     <div className="bg-cream-50 min-h-screen">

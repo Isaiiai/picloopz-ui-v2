@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, X, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CategorySlider from '../components/CategorySlider';
 import ProductCard from '../components/ProductCard';
@@ -19,6 +19,7 @@ import {
 } from '../features/product/productSelectors';
 import { useBanner } from '../features/banner/useBanner';
 import { useAppDispatch } from '../utils/hooks';
+import PageSpinner from '../components/PageSpinner';
 
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -32,6 +33,7 @@ const HomePage = () => {
 
   const {banners} = useBanner();
 
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -48,9 +50,10 @@ const HomePage = () => {
         ]);
       } catch (error) {
         console.error('Error fetching homepage data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchData();
   }, [dispatch]);
 
@@ -70,6 +73,9 @@ const HomePage = () => {
   }, []);
 
 
+  if (loading) {
+    return <PageSpinner icon={<Home size={40} />} label="Loading homepage..." />;
+  }
   return (
     <div className="relative min-h-screen pb-12 pt-24 md:pt-28 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
