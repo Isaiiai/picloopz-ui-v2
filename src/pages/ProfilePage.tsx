@@ -12,7 +12,6 @@ import { useUpload } from '../features/upload/useUpload';
 import { useProfile } from '../features/profile/useProfile';
 import { UpdateProfile } from '../features/profile/profileTypes';
 import toast from 'react-hot-toast';
-import OrderCard from '../components/OrderCard';
 import FavoriteProductCard from '../components/FavoriteProductCard';
 import ProductCard from '../components/ProductCard';
 

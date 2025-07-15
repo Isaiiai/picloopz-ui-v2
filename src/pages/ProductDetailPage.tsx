@@ -22,7 +22,6 @@ import { clearUploadState } from '../features/upload/uploadSlice';
 
 import ProductGallery from '../components/product/ProductGallery';
 import ProductInfo from '../components/product/ProductInfo';
-import SkeletonLoader from '../components/SkeletonLoader';
 import {
   selectCurrentProduct,
   selectProductLoading,

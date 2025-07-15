@@ -64,7 +64,7 @@ const CategoryPage = () => {
   const [selectedFilters, setSelectedFilters] = useState({
     variants: [] as string[],
     materials: [] as string[],
-    // categoryId: '', // Remove categoryId from selectedFilters
+    categoryId: '',
   });
 
   const [sortParams, setSortParams] = useState({ sort: 'createdAt', sortOrder: 'desc' });
@@ -112,10 +112,10 @@ const CategoryPage = () => {
     } else if (categoryId && categoryId !== 'all') {
       dispatch(fetchCategoryById(categoryId));
       setViewMode('category');
-      // setSelectedFilters(prev => ({ ...prev, categoryId })); // Remove this line
+      setSelectedFilters(prev => ({ ...prev, categoryId }));
     } else {
       setViewMode('all');
-      // setSelectedFilters(prev => ({ ...prev, categoryId: '' })); // Remove this line
+      setSelectedFilters(prev => ({ ...prev, categoryId: '' }));
     }
 
     return () => {
@@ -136,10 +136,10 @@ const CategoryPage = () => {
 
     if (selectedFilters.variants.length) params.tags = selectedFilters.variants;
     if (selectedFilters.materials.length) params.search = selectedFilters.materials.join(' ');
-    if (viewMode === 'category' && categoryId && categoryId !== 'all') params.categoryId = categoryId; // Use categoryId from URL
+    if (viewMode === 'category') params.categoryId = selectedFilters.categoryId;
 
     return params;
-  }, [priceRange, sortParams, selectedFilters, viewMode, categoryId]);
+  }, [priceRange, sortParams, selectedFilters, viewMode]);
 
   const fetchProducts = useCallback((page = 1) => {
     const params = buildSearchParams(page);
@@ -152,18 +152,18 @@ const CategoryPage = () => {
         dispatch(getTopSellingProducts(10));
         break;
       case 'category':
-        dispatch(getProductsByCategory({ categoryId, params })); // Use categoryId from URL
+        dispatch(getProductsByCategory({ categoryId: selectedFilters.categoryId, params }));
         break;
       default:
         dispatch(getProducts(params));
     }
-  }, [buildSearchParams, viewMode, categoryId, dispatch]);
+  }, [buildSearchParams, viewMode, selectedFilters.categoryId, dispatch]);
 
   useDebounceEffect(() => fetchProducts(1), [priceRange, selectedFilters, sortParams, viewMode], 400);
 
   const clearFilters = () => {
     setPriceRange(DEFAULT_PRICE_RANGE);
-    setSelectedFilters({ variants: [], materials: [] }); // Remove categoryId
+    setSelectedFilters({ variants: [], materials: [], categoryId: '' });
     setViewMode('all');
     navigate('/category/all'); 
   };
