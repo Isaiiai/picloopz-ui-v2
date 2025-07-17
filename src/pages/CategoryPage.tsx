@@ -31,7 +31,7 @@ import {
 import { fetchCategories, fetchCategoryById } from '../features/category/categoryThunks';
 import { clearCategoryProducts } from '../features/product/productSlice';
 import type { AppDispatch } from '../store/store';
-import { Filter, ArrowUpDown } from 'lucide-react';
+import { Filter, ArrowUpDown} from 'lucide-react';
 import { useDebounceEffect } from '../utils/useDebounceEffect';
 
 type ViewMode = 'all' | 'category' | 'trending' | 'top-selling';
@@ -190,6 +190,7 @@ const CategoryPage = () => {
 
   if (error) return <ErrorDisplay error={error} onRetry={() => navigate(0)} />;
 
+  // Remove the PageSpinner here; just render the main content
   return (
     <div className="bg-cream-50 min-h-screen">
       {/* Mobile spacer for fixed header, search bar, and sort bar */}

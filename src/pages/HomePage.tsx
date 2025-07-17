@@ -19,6 +19,7 @@ import {
 } from '../features/product/productSelectors';
 import { useBanner } from '../features/banner/useBanner';
 import { useAppDispatch } from '../utils/hooks';
+import PageSpinner from '../components/PageSpinner';
 
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -32,6 +33,7 @@ const HomePage = () => {
 
   const {banners} = useBanner();
 
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -48,9 +50,10 @@ const HomePage = () => {
         ]);
       } catch (error) {
         console.error('Error fetching homepage data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchData();
   }, [dispatch]);
 
@@ -70,6 +73,9 @@ const HomePage = () => {
   }, []);
 
 
+  if (loading) {
+    return <PageSpinner />;
+  }
   return (
     <div className="relative min-h-screen pb-12 pt-24 md:pt-28 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
@@ -134,7 +140,7 @@ const HomePage = () => {
       <section className="relative bg-gradient-to-br from-cream-50 to-cream-200 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/src/assets/pattern-bg.png')] opacity-5"></div>
         <div className="container mx-auto px-4 lg:px-8 max-w-screen-xl relative z-10">
-          <div className="py-16 md:py-24 lg:py-28 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+          <div className="py-16 md:py-8 lg:py-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}

@@ -22,7 +22,6 @@ import { clearUploadState } from '../features/upload/uploadSlice';
 
 import ProductGallery from '../components/product/ProductGallery';
 import ProductInfo from '../components/product/ProductInfo';
-import SkeletonLoader from '../components/SkeletonLoader';
 import {
   selectCurrentProduct,
   selectProductLoading,
@@ -31,6 +30,7 @@ import {
 import { useDropzone } from 'react-dropzone';
 import { Review } from '../features/review/reviewTypes';
 import { AxiosProgressEvent } from 'axios';
+import PageSpinner from '../components/PageSpinner';
 
 const ProductTabs = lazy(() => import('../components/product/ProductTabs'));
 const RelatedProducts = lazy(() => import('../components/product/RelatedProducts'));
@@ -74,6 +74,7 @@ const ProductDetailPage = () => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [addToCartLoading, setAddToCartLoading] = useState(false);
 
 
   const [files, setFiles] = useState<File[]>([]);
@@ -153,14 +154,19 @@ const ProductDetailPage = () => {
       return;
     }
     if (!product) return;
-    const imageUrls = cartImagesUpload?.uploads.map(upload => upload.url) || [];
-    await addToCart({
-      productId: product.id,
-      variantId: product.variants[selectedVariant].id,
-      cartImages: imageUrls
-    });
-    clearUpload();
-    toast.success('Added to cart!');
+    setAddToCartLoading(true);
+    try {
+      const imageUrls = cartImagesUpload?.uploads.map(upload => upload.url) || [];
+      await addToCart({
+        productId: product.id,
+        variantId: product.variants[selectedVariant].id,
+        cartImages: imageUrls
+      });
+      clearUpload();
+      toast.success('Added to cart!');
+    } finally {
+      setAddToCartLoading(false);
+    }
   };
 
   const toggleFavorite = () => {
@@ -230,12 +236,18 @@ const ProductDetailPage = () => {
       formData,
       purpose: 'cart',
       onUploadProgress: (e: AxiosProgressEvent) => {
+        if (typeof e.total !== 'number' || e.total === 0) {
+          setUploadProgress(-1); 
+          return;
+        }
+
         const progress = Math.round((e.loaded * 100) / e.total);
         setUploadProgress(progress);
       },
     });
     setFilesToUpload([]);
     setUploadProgress(0);
+    setPreviewUrls([]);
     toast.success('Images uploaded successfully!');
   };
 
@@ -299,16 +311,19 @@ const ProductDetailPage = () => {
     }
   }, [productId, loadProductReviews, reviews]);
 
-  if (loading || !product) {
+  if (loading || reviewLoading || addToCartLoading) {
+    return <PageSpinner />;
+  }
+  if (!product) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <SkeletonLoader />
+      <div className="container mx-auto px-4 py-12 text-center text-red-600">
+        Product not found or failed to load. Please check the product data and try again.
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+    <div className="relative min-h-screen pt-16 sm:pt-16 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
@@ -365,6 +380,8 @@ const ProductDetailPage = () => {
             setPreviewUrls={setPreviewUrls}
             uploadProgress={uploadProgress}
             handleUploadCartImages={handleUploadCartImages}
+            clearUploads={clearUpload}
+            addToCartLoading={addToCartLoading}
           />
         </div>
 

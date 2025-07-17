@@ -1,22 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Star, Trash2 } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  variants: Array<{
-    name: string;
-    price: number;
-    imageUrl: string;
-  }>;
-  category: string;
-  categoryId: string;
-  rating: number;
-  reviewCount: number;
-  orderCount: number;
-}
+import { Product } from '../features/product/productTypes';
 
 interface FavoriteProductCardProps {
   product: Product;
@@ -35,15 +20,26 @@ const FavoriteProductCard = ({ product }: FavoriteProductCardProps) => {
     return `₹${price.toFixed(2)}`;
   };
 
+  const isAvailable = product.variants.some(v => v.inStock);
+  const outOfStock = !isAvailable;
+
+  // Use variant image, then fallback to product.images[0], then fallback to a placeholder
+  const imageUrl = product.variants[0]?.imageUrl || (product as any).images?.[0] || '/placeholder.png';
+
   return (
-    <div className="flex bg-white p-3 rounded-lg shadow-sm transition-shadow hover:shadow-md w-full">
-      <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0">
+    <div className={`flex bg-white p-3 rounded-lg shadow-sm transition-shadow hover:shadow-md w-full relative ${outOfStock ? 'opacity-60 cursor-not-allowed' : ''}`}>
+      <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 relative">
         <Link to={`/product/${product.id}`}>
           <img
-            src={product.variants[0]?.imageUrl}
+            src={imageUrl}
             alt={product.name}
             className="w-full h-full object-cover rounded-md"
           />
+          {outOfStock && (
+            <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded shadow">
+              Out of Stock
+            </div>
+          )}
         </Link>
       </div>
       <div className="ml-4 flex-grow flex flex-col justify-between">

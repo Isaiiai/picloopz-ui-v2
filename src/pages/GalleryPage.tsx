@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useGallery } from '../features/gallery/useGallery';
+import PageSpinner from '../components/PageSpinner';
 
 const GalleryPage = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -42,6 +43,10 @@ const GalleryPage = () => {
   });
 
   const uniqueTags = [...new Set(reels.flatMap((r: any) => r.tags || []))];
+
+  if (loading) {
+    return <PageSpinner />;
+  }
 
   return (
     <div className="relative min-h-screen px-0 sm:px-4 pt-24 sm:pt-24 pb-8 bg-gradient-to-br from-cream-50 via-cream-100 to-terracotta-50 overflow-x-hidden">

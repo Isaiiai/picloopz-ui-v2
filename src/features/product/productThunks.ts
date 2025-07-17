@@ -1,3 +1,4 @@
+
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../config/axiosConfig';
 import { ProductSearchParams } from './productTypes';
