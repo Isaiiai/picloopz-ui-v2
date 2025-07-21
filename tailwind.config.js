@@ -90,6 +90,7 @@ export default {
         'float-fast': 'float-fast 3s ease-in-out infinite',
         'sparkle': 'sparkle 2.5s ease-in-out infinite',
         'typewriter': 'typewriter 2.2s steps(40, end) 1 normal both',
+        'spin-slow': 'spin 1.2s linear infinite',
       },
     },
   },

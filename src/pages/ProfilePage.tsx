@@ -4,6 +4,7 @@ import {
   Camera, CreditCard, Pen, Heart, House, LogOut, Mail,
   Package, Phone, Save, User, Lock, Eye, EyeOff
 } from 'lucide-react';
+import PageSpinner from '../components/PageSpinner';
 import { useAuth } from '../features/auth/authHooks';
 import { useOrders } from '../features/order/useOrder';
 import { useFavorite } from '../features/favorite/useFavorite';
@@ -11,8 +12,8 @@ import { useUpload } from '../features/upload/useUpload';
 import { useProfile } from '../features/profile/useProfile';
 import { UpdateProfile } from '../features/profile/profileTypes';
 import toast from 'react-hot-toast';
-import OrderCard from '../components/OrderCard';
 import FavoriteProductCard from '../components/FavoriteProductCard';
+import ProductCard from '../components/ProductCard';
 
 // Define a type for navigation items
 type NavItem = {
@@ -51,24 +52,43 @@ const ProfilePage = () => {
     confirmPassword: '',
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [orderPage, setOrderPage] = useState(1);
+  const ORDERS_PER_PAGE = 6;
 
   // Map favorite product to ProductCard's expected props
   const mapFavoriteToProduct = (fav: any) => ({
     id: fav.productId,
     name: fav.productName,
     description: fav.description || '',
+    basePrice: fav.productPrice || (fav.variants && fav.variants[0]?.price) || 0,
     variants: fav.variants || [
       {
+        id: '',
         name: '',
         price: fav.productPrice,
         imageUrl: fav.productImage,
+        attributeType: '',
+        isActive: true,
+        inStock: true,
       },
     ],
     category: fav.category || '',
     categoryId: fav.categoryId || '',
+    categoryName: fav.categoryName || '',
+    images: fav.images || (fav.productImage ? [fav.productImage] : []),
+    tags: fav.tags || [],
+    isTrending: fav.isTrending || false,
+    isTopSelling: fav.isTopSelling || false,
+    isFeatured: fav.isFeatured || false,
+    isActive: fav.isActive || true,
+    maxUserImages: fav.maxUserImages || 1,
+    viewCount: fav.viewCount || 0,
+    orderCount: fav.orderCount || 0,
     rating: fav.rating || 0,
     reviewCount: fav.reviewCount || 0,
-    orderCount: fav.orderCount || 0,
+    videos: fav.videos || [],
+    createdAt: fav.createdAt || '',
+    updatedAt: fav.updatedAt || '',
   });
 
   // Navigation items
@@ -239,6 +259,8 @@ const ProfilePage = () => {
   const renderOrders = () => {
     // Filter for orders with successful payment
     const successfulOrders = orders.filter(order => order.paymentStatus === 'Paid');
+    const totalPages = Math.ceil(successfulOrders.length / ORDERS_PER_PAGE);
+    const paginatedOrders = successfulOrders.slice((orderPage - 1) * ORDERS_PER_PAGE, orderPage * ORDERS_PER_PAGE);
 
     if (successfulOrders.length === 0) {
       return (
@@ -256,12 +278,102 @@ const ProfilePage = () => {
       );
     }
 
+    // Status badge color logic
+    const getStatusColor = (status: string) => {
+      switch (status) {
+        case 'Pending': return 'bg-amber-100 text-amber-800';
+        case 'Confirmed': return 'bg-blue-100 text-blue-800';
+        case 'Ready': return 'bg-purple-100 text-purple-800';
+        case 'Out for Delivery': return 'bg-indigo-100 text-indigo-800';
+        case 'Delivered': return 'bg-green-100 text-green-800';
+        case 'Cancelled': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+      }
+    };
+
     return (
-      <div className="space-y-4">
-        {successfulOrders.map(order => (
-          <OrderCard key={order.id} order={order} />
-        ))}
-      </div>
+      <>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginatedOrders.map(order => (
+            <div
+              key={order.id}
+              className="rounded-xl shadow-md border border-gray-100 bg-white flex flex-col p-4 h-full w-full max-w-full"
+            >
+              {/* Header */}
+              <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between mb-3 gap-2 min-w-0">
+                <div className="min-w-0">
+                  <div className="text-xs text-gray-400 truncate">Order #</div>
+                  <div className="font-semibold text-gray-800 text-sm truncate">{order.orderNumber || order.id}</div>
+                </div>
+                <span className={`px-2 py-1 text-xs rounded-full font-medium self-start xs:self-auto ${getStatusColor(order.status)}`}>{order.status}</span>
+              </div>
+              <div className="text-xs text-gray-500 mb-2">{new Date(order.createdAt).toLocaleDateString()}</div>
+
+              {/* Product Images Row */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-2 max-w-full">
+                {order.items.slice(0, 3).map((item, idx) => {
+                  // Prefer user-uploaded image, then product image, then placeholder
+                  const imageSrc = (item.uploadedImageUrl && item.uploadedImageUrl.length > 0 && item.uploadedImageUrl[0])
+                    || item.productImage
+                    || '/placeholder.png';
+                  return (
+                    <div key={item.id || item.variantId || idx} className="w-14 h-14 rounded-md bg-gray-100 overflow-hidden flex-shrink-0 border">
+                      <img
+                        src={imageSrc}
+                        alt={typeof item.productName === 'string' ? item.productName : 'Ordered product image'}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        draggable={false}
+                      />
+                    </div>
+                  );
+                })}
+                {order.items.length > 3 && (
+                  <div className="w-14 h-14 flex items-center justify-center rounded-md bg-gray-200 text-xs font-semibold text-gray-600 border">
+                    +{order.items.length - 3}
+                  </div>
+                )}
+              </div>
+
+              {/* Order Total & Actions */}
+              <div className="flex items-center justify-between mt-auto pt-2">
+                <div>
+                  <div className="text-xs text-gray-400">Total</div>
+                  <div className="font-bold text-terracotta-600 text-lg">₹{order.totalAmount.toFixed(2)}</div>
+                </div>
+                <Link
+                  to={`/account/orders/${order.id}`}
+                  className="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-full bg-terracotta-100 text-terracotta-700 hover:bg-terracotta-200 transition-colors shadow-sm"
+                >
+                  View Details
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-6">
+            <button
+              onClick={() => setOrderPage(p => Math.max(1, p - 1))}
+              disabled={orderPage === 1}
+              className="px-3 py-1 rounded bg-gray-100 text-gray-700 font-medium disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span className="text-sm font-semibold text-gray-700">
+              Page {orderPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setOrderPage(p => Math.min(totalPages, p + 1))}
+              disabled={orderPage === totalPages}
+              className="px-3 py-1 rounded bg-gray-100 text-gray-700 font-medium disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </>
     );
   };
 
@@ -281,15 +393,28 @@ const ProfilePage = () => {
         </div>
       );
     }
-  
+
+    // Responsive: mobile list, desktop grid (same as FavoritesPage)
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start p-2">
-        {favorites.map((fav) => (
-          <FavoriteProductCard
-            key={fav.productId}
-            product={mapFavoriteToProduct(fav)}
-          />
-        ))}
+      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md">
+        {/* Mobile: List View */}
+        <div className="sm:hidden space-y-4">
+          {favorites.map(fav => (
+            <FavoriteProductCard
+              key={`${fav.productId}-mobile`}
+              product={mapFavoriteToProduct(fav)}
+            />
+          ))}
+        </div>
+        {/* Desktop: Grid View */}
+        <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          {favorites.map(fav => (
+            <ProductCard
+              key={fav.productId}
+              product={mapFavoriteToProduct(fav)}
+            />
+          ))}
+        </div>
       </div>
     );
   };
@@ -297,15 +422,19 @@ const ProfilePage = () => {
 
   if (!isAuthenticated) return null;
 
+  if (loading || passwordLoading) {
+    return <PageSpinner />;
+  }
+
   return (
-    <div className="relative min-h-screen pt-24 sm:pt-28 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
+    <div className="relative min-h-screen pt-4 sm:pt-5 pb-8 bg-gradient-to-br from-amber-50 via-cream-100 to-terracotta-50 overflow-x-hidden">
       {/* Animated 3D shapes/accent background */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute left-[10%] top-[12%] w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-terracotta-100 opacity-40 blur-2xl animate-pulse-slow" />
         <div className="absolute right-[8%] top-[20%] w-16 h-16 rounded-full bg-gradient-to-tr from-terracotta-200 to-amber-100 opacity-30 blur-xl animate-floatY" />
         <div className="absolute left-1/2 bottom-[8%] -translate-x-1/2 w-40 h-16 bg-gradient-to-br from-amber-100 via-cream-100 to-terracotta-100 opacity-30 blur-2xl rounded-full animate-floatX" />
       </div>
-      <div className="container mx-auto px-4 py-20 mt-8 md:mt-16">
+      <div className="container mx-auto px-4 py-20 mt-8 md:mt-4">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Sidebar */}
