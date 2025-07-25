@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import {
   uploadSingleImage,
   uploadMultipleImages,
+  UploadArgs,
 } from './uploadThunks';
 import {
   clearUploadState
@@ -18,11 +19,11 @@ export const useUpload = () => {
   const cartImagesUpload = useSelector((state: RootState) => state.upload.cartImages);
   const reviewImageUpload = useSelector((state: RootState) => state.upload.reviewImages);
 
-  const uploadSingle = useCallback((formData) => {
+  const uploadSingle = useCallback((formData: FormData) => {
     dispatch(uploadSingleImage(formData));
   }, [dispatch]);
 
-  const uploadMultiple = useCallback((formData) => {
+  const uploadMultiple = useCallback((formData: UploadArgs) => {
     dispatch(uploadMultipleImages(formData));
   }, [dispatch]);
 

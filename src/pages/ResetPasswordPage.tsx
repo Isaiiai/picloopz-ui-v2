@@ -49,14 +49,14 @@ const ResetPasswordPage = () => {
     try {
       setIsSubmitting(true);
       
-      await api.post('/auth/reset-password', {
-        token,
-        newPassword: password
-      }, {
-        headers: {
-          'X-Public-Request': 'true' // To bypass auth interceptor
+      await api.post('/gateway', {
+        route: "resetPassword",
+        payload: {
+          token,
+          newPassword: password
         }
-      });
+      }, 
+      );
       
       toast.success('Password has been reset successfully');
       navigate('/');

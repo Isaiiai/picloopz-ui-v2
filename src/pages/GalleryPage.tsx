@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { X, Filter, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useGallery } from '../features/gallery/useGallery';
 
 const GalleryPage = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 

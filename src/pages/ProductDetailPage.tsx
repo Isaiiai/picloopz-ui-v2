@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, lazy, Suspense } from 'react';
+import { useEffect, useState, useMemo, useCallback, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,10 +26,11 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import {
   selectCurrentProduct,
   selectProductLoading,
-  selectCategoryInfo,
   selectCategoryProducts
 } from '../features/product/productSelectors';
 import { useDropzone } from 'react-dropzone';
+import { Review } from '../features/review/reviewTypes';
+import { AxiosProgressEvent } from 'axios';
 
 const ProductTabs = lazy(() => import('../components/product/ProductTabs'));
 const RelatedProducts = lazy(() => import('../components/product/RelatedProducts'));
@@ -44,10 +45,8 @@ const ProductDetailPage = () => {
   const {
     uploadMultiple,
     clear: clearUpload,
-    singleUpload,
     reviewImageUpload,
     cartImagesUpload,
-    loading: uploadLoading,
     error: uploadError,
   } = useUpload();
   const {
@@ -57,7 +56,6 @@ const ProductDetailPage = () => {
     submitReview,
     editReview,
     loadProductReviews,
-    error: reviewError,
     loading: reviewLoading,
   } = useReview();
   const { isAuthenticated } = useAuth();
@@ -71,7 +69,7 @@ const ProductDetailPage = () => {
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [editingReview, setEditingReview] = useState(null);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -79,22 +77,13 @@ const ProductDetailPage = () => {
 
 
   const [files, setFiles] = useState<File[]>([]);
-  const [newReview, setNewReview] = useState({
+  const [newReview, setNewReview] = useState<Pick<Review, 'rating' | 'comment' | 'images'>>({
     rating: 5,
     comment: '',
     images: [],
   });
 
   const flatReviewImages = useMemo(() => reviews.flatMap((r) => r.images), [reviews]);
-
-  const onEditReview = useCallback((review) => {
-    setEditingReview(review);
-    setNewReview({
-      rating: review.rating,
-      comment: review.comment,
-      images: review.images,
-    });
-  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (filesToUpload.length + acceptedFiles.length > requiredFilesCount) {
@@ -143,10 +132,16 @@ const ProductDetailPage = () => {
   }, [dispatch, productId]);
 
   useEffect(() => {
-    if (product?.categoryId?._id) {
-      dispatch(getProductsByCategory({ categoryId: product.categoryId._id, params: { limit: 4 } }));
-    }
-  }, [dispatch, product?.categoryId?._id]);
+  if (typeof product?.categoryId === 'object' && '_id' in product.categoryId) {
+    dispatch(
+      getProductsByCategory({
+        categoryId: product.categoryId._id,
+        params: { limit: 4 }
+      })
+    );
+  }
+}, [dispatch, product?.categoryId]);
+
 
   useEffect(() => {
     return () => previewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -184,7 +179,7 @@ const ProductDetailPage = () => {
   };
 
   const mainMedia = useMemo(() => {
-    const media: { type: 'image' | 'instagram'; url: string }[] = [];
+    const media: { type: 'image' | 'instagram' | 'youtube'; url: string }[] = [];
 
     // Add product image
     if (product?.variants?.[selectedVariant]?.imageUrl) {
@@ -234,7 +229,7 @@ const ProductDetailPage = () => {
     await uploadMultiple({
       formData,
       purpose: 'cart',
-      onUploadProgress: (e: ProgressEvent) => {
+      onUploadProgress: (e: AxiosProgressEvent) => {
         const progress = Math.round((e.loaded * 100) / e.total);
         setUploadProgress(progress);
       },
@@ -280,7 +275,7 @@ const ProductDetailPage = () => {
     }
   };
 
-  const handleImageClick = (imageUrl: string, index: number) => {
+  const handleImageClick = ( index: number) => {
     setSelectedImageIndex(index);
     setShowImageModal(true);
   };
@@ -347,9 +342,7 @@ const ProductDetailPage = () => {
             selectedVariant={selectedVariant}
             setSelectedVariant={setSelectedVariant}
             reviewImages={flatReviewImages}
-            selectedImageIndex={selectedImageIndex}
             setSelectedImageIndex={setSelectedImageIndex}
-            showImageModal={showImageModal}
             setShowImageModal={setShowImageModal}
           />
 
@@ -362,8 +355,6 @@ const ProductDetailPage = () => {
             getRootProps={getRootProps}
             getInputProps={getInputProps}
             isDragActive={isDragActive}
-            singleUpload={singleUpload}
-            uploadLoading={uploadLoading}
             handleAddToCart={handleAddToCart}
             isInFavorites={isInFavorites(product.id)}
             toggleFavorite={toggleFavorite}
@@ -390,7 +381,6 @@ const ProductDetailPage = () => {
             setFiles={setFiles}
             handleSubmitReview={handleSubmitReview}
             handleUploadReviewImages={handleUploadReviewImages}
-            uploadLoading={uploadLoading}
             reviewLoading={reviewLoading}
             onEditReview={(review) => {
               setEditingReview(review);
@@ -432,7 +422,11 @@ const ProductDetailPage = () => {
                 price: typeof v.price === 'number' ? v.price : 0
               })),
             }))}
-            categoryId={product.categoryId}
+            categoryId={
+              typeof product.categoryId === 'object' && '_id' in product.categoryId
+                ? product.categoryId._id
+                : product.categoryId
+            }
           />
         </div>
       </div>

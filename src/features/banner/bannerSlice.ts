@@ -5,6 +5,8 @@ interface Banner {
   _id: string;
   imageUrl: string;
   title: string;
+  targetUrl: string;
+  type: string;
 }
 
 interface BannerState {

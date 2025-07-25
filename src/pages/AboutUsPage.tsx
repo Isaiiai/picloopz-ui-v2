@@ -1,65 +1,6 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Heart, Star, Clock, Shield, Users, Award, ArrowRight, Quote, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useRef } from 'react';
-
-const DEFAULT_PROFILE =
-  "https://ui-avatars.com/api/?name=User&background=eee&color=888&size=100&rounded=true";
+import { motion } from 'framer-motion';
 
 const AboutUsPage = () => {
-  const targetRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-    offset: ["start start", "end start"]
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0]);
-
-  const values = [
-    {
-      icon: <Heart className="w-6 h-6 text-terracotta-500" />,
-      title: "Crafted with Love",
-      description: "We create every piece with care and emotion, ensuring your memories are preserved beautifully."
-    },
-    {
-      icon: <Star className="w-6 h-6 text-terracotta-500" />,
-      title: "Wide Variety",
-      description: "Over 1000+ unique gifts & frames – all crafted to suit your moments perfectly."
-    },
-    {
-      icon: <Clock className="w-6 h-6 text-terracotta-500" />,
-      title: "Fast Packing",
-      description: "We value your time and pack your personalized gifts quickly and securely."
-    },
-    {
-      icon: <Shield className="w-6 h-6 text-terracotta-500" />,
-      title: "Satisfaction Guarantee",
-      description: "We offer 100% replacement support and stand by the quality of our work."
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Roshan Kumar",
-      role: "Customer",
-      image: "https://source.unsplash.com/random/100x100?person-1",
-      quote: "Very good service and customer friendly staff."
-    },
-    {
-      name: "Ganesh Kumar",
-      role: "Customer",
-      image: "https://source.unsplash.com/random/100x100?person-2",
-      quote: "Good work with awesome finish... Home delivery is one of the best support."
-    },
-    {
-      name: "Kalees",
-      role: "Customer",
-      image: "https://source.unsplash.com/random/100x100?person-3",
-      quote: "Excellent work... quick response... thank you so much sissy 🥰"
-    }
-  ];
-
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-cream-50 via-cream-100 to-terracotta-50">
       {/* Immersive Hero Section */}

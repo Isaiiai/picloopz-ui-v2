@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import {
   fetchCart,
@@ -7,9 +7,11 @@ import {
   emptyCart,
   getCartSummary,
 } from './cartThunks';
+import { useAppDispatch } from '../../utils/hooks';
+import { AddToCartPayload } from './cartTypes';
 
 export const useCart = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const cart = useSelector((state: RootState) => state.cart);
 
   return {

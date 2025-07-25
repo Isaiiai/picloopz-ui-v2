@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown, ChevronUp, Send, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import api from '../config/axiosConfig';
 
 interface FAQItem {

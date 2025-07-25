@@ -14,9 +14,8 @@ interface ReviewFormModalProps {
     images: string[];
   }) => Promise<void>;
   files: File[];
-  setFiles: (f: File[]) => void;
+  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
   handleUploadReviewImages: () => Promise<void>;
-  uploadLoading: boolean;
   isSubmitting: boolean;
   initialReview: {
     rating: number;
@@ -38,7 +37,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
   files,
   setFiles,
   handleUploadReviewImages,
-  uploadLoading,
   isSubmitting,
   initialReview,
   setReview,

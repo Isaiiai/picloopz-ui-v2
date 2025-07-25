@@ -11,7 +11,10 @@ export const getProducts = createAsyncThunk(
         route: "getProducts",
         payload: params 
       });
-      return response.data;
+      return {
+        products: response.data.data.products,
+        pagination: response.data.pagination
+      };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch products');
     }
@@ -43,7 +46,7 @@ export const getTopSellingProducts = createAsyncThunk(
         route: "getTopSellingProducts",
         payload: {params: { limit }}
       });
-      return response.data.data;
+      return response.data.data.products;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch top-selling products');
     }
@@ -62,7 +65,11 @@ export const getProductsByCategory = createAsyncThunk(
           body: params
         }
       });
-      return response.data;
+      return {
+        products: response.data.data.products,
+        category: response.data.data.category,
+        pagination: response.data.pagination
+      };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch category products');
     }

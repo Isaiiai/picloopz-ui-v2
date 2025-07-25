@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, Upload, Check, ShoppingCart, Heart, Share2, Verified } from 'lucide-react';
+import { Star, Upload, Check, ShoppingCart, Heart, Verified } from 'lucide-react';
 import { DropzoneRootProps, DropzoneInputProps } from 'react-dropzone';
 import ProductShareMenu from './ProductShareMenu';
 import { useReview } from '../../features/review/useReview';
@@ -13,8 +13,6 @@ interface ProductInfoProps {
   getRootProps: (props?: DropzoneRootProps) => any;
   getInputProps: (props?: DropzoneInputProps) => any;
   isDragActive: boolean;
-  singleUpload: { url: string } | null;
-  uploadLoading: boolean;
   handleAddToCart: () => void;
   isInFavorites: boolean;
   toggleFavorite: () => void;
@@ -35,8 +33,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   getRootProps,
   getInputProps,
   isDragActive,
-  singleUpload,
-  uploadLoading,
   handleAddToCart,
   isInFavorites,
   toggleFavorite,

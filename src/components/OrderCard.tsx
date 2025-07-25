@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Package, ChevronRight } from 'lucide-react';
-import { Order, OrderItem } from '../../features/order/orderTypes';
+import { ChevronRight } from 'lucide-react';
+import { Order } from '../features/order/orderTypes';
 
 interface OrderCardProps {
   order: Order;

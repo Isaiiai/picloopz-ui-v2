@@ -5,7 +5,6 @@ import {
   addFavorite,
   removeFavorite,
   fetchFavoriteCount,
-  checkIfFavorite,
   clearAllFavorites
 } from './favoriteThunk';
 

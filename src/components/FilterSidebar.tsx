@@ -6,7 +6,7 @@ interface FilterSidebarProps {
   setPriceRange: (range: [number, number]) => void;
   clearFilters: () => void;
   categoryId?: string;
-  categories: Category[];
+  categories: Array<Pick<Category, 'id' | 'name'> & Partial<Category>>;
   onCategoryChange: (categoryId: string) => void;
 }
 

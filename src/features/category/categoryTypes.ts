@@ -19,16 +19,14 @@ export interface Pagination {
 
 export interface CategoryListResponse {
   categories: Category[];
-  pagination: Pagination[];
+  pagination: Pagination;
 }
-
-
 
 export interface CategoryState {
   categories: Category[];
   currentCategory: Category | null;
   loading: boolean;
   error: string | null;
-  pagination: Pagination[];
+  pagination: Pagination;
 }
 

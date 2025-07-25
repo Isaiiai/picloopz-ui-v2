@@ -33,7 +33,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ relatedProducts, cate
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl md:text-3xl font-semibold font-playfair">You May Also Like</h2>
         <Link
-          to={`/category/${categoryId._id}`}
+          to={`/category/${categoryId}`}
           className="text-terracotta-600 hover:text-terracotta-700 flex items-center transition-colors group"
         >
           View All

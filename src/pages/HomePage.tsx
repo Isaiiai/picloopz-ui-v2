@@ -6,8 +6,8 @@ import CategorySlider from '../components/CategorySlider';
 import ProductCard from '../components/ProductCard';
 import { mockTestimonials, mockAdvertisements } from '../data/mockData';
 import { fetchCategories } from '../features/category/categoryThunks';
-import { selectCategories, selectCategoryLoading, selectCategoryError } from '../features/category/categorySelectors';
-import { useDispatch, useSelector } from 'react-redux';
+import { selectCategories } from '../features/category/categorySelectors';
+import { useSelector } from 'react-redux';
 
 import {
   getTopSellingProducts,
@@ -18,16 +18,15 @@ import {
   selectTrendingProducts,
 } from '../features/product/productSelectors';
 import { useBanner } from '../features/banner/useBanner';
+import { useAppDispatch } from '../utils/hooks';
 
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const testimonialRef = useRef(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const categories = useSelector(selectCategories);
-  const categoryLoading = useSelector(selectCategoryLoading);
-  const categoryError = useSelector(selectCategoryError);
   const topSellingProducts = useSelector(selectTopSellingProducts);
   const trendingProducts = useSelector(selectTrendingProducts);
 
@@ -311,7 +310,7 @@ const HomePage = () => {
                       Featured
                     </span>
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 font-playfair">{ad.title}</h3>
-                    <p className="text-white/90 mb-6 text-lg">{ad.description}</p>
+                    <p className="text-white/90 mb-6 text-lg">{ad.type}</p>
                     <Link
                       to={ad.targetUrl}
                       className="inline-flex items-center bg-white text-terracotta-600 px-6 py-3 rounded-full text-sm font-medium hover:bg-terracotta-50 transition-colors shadow-md group"

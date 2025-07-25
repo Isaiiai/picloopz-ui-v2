@@ -4,24 +4,7 @@ import { Heart, Star } from 'lucide-react';
 import { useFavorite } from '../features/favorite/useFavorite';
 import { useAuth } from '../features/auth/authHooks';
 import toast from 'react-hot-toast';
-
-export interface Product {
-  id: string | number;
-  name: string;
-  description: string;
-  variants: Array<{
-    additionalPrice: number;
-    name: string;
-    price: number;
-    imageUrl: string;
-    inStock: boolean;
-  }>;
-  category?: string;
-  categoryId?: string;
-  rating: number;
-  reviewCount: number;
-  orderCount?: number;
-}
+import { Product } from '../features/product/productTypes';
 
 interface ProductCardProps {
   product: Product;
